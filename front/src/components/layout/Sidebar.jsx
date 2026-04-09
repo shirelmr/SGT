@@ -68,30 +68,30 @@ export default function Sidebar({ onClose }) {
   return (
     <div
       className="flex flex-col h-full w-64 py-6"
-      style={{ backgroundColor: '#0a1628' }}
+      style={{ backgroundColor: '#ee7e4c' }}
     >
       {/* Logo */}
       <div className="px-6 mb-8">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
-            <BookOpenIcon className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#f8f8ec' }}>
+            <BookOpenIcon className="w-5 h-5" style={{ color: '#4a1f06' }} />
           </div>
           <div>
-            <span className="font-sora font-bold text-white text-lg">SGT</span>
-            <span className="text-orange-400 font-sora font-bold text-lg"> Talk!</span>
+            <span className="font-sora font-bold text-lg" style={{ color: '#4a1f06' }}>SGT</span>
+            <span className="font-sora font-bold text-lg" style={{ color: '#f8f8ec' }}> Talk!</span>
           </div>
         </div>
       </div>
 
       {/* User info */}
       <div className="px-4 mb-6">
-        <div className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+        <div className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0" style={{ backgroundColor: '#f8f8ec', color: '#4a1f06' }}>
             {getInitials(user?.nombre_completo)}
           </div>
           <div className="min-w-0">
-            <p className="text-white text-sm font-medium truncate">{user?.nombre_completo}</p>
-            <p className="text-orange-300 text-xs">{roleLabels[rol]}</p>
+            <p className="text-sm font-medium truncate" style={{ color: '#4a1f06' }}>{user?.nombre_completo}</p>
+            <p className="text-xs" style={{ color: '#7a3b0e' }}>{roleLabels[rol]}</p>
           </div>
         </div>
       </div>
@@ -108,12 +108,14 @@ export default function Sidebar({ onClose }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'text-orange-300'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? ''
+                    : 'hover:bg-black/10'
                 }`
               }
               style={({ isActive }) =>
-                isActive ? { backgroundColor: 'rgba(249,115,22,0.2)' } : {}
+                isActive
+                  ? { backgroundColor: '#f8f8ec', color: '#4a1f06', fontWeight: '600' }
+                  : { color: '#7a3b0e' }
               }
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
@@ -124,10 +126,11 @@ export default function Sidebar({ onClose }) {
       </nav>
 
       {/* Logout */}
-      <div className="px-3 mt-4 pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+      <div className="px-3 mt-4 pt-4 border-t" style={{ borderColor: 'rgba(0,0,0,0.15)' }}>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200 w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 w-full hover:bg-black/10"
+          style={{ color: '#7a3b0e' }}
         >
           <ArrowRightOnRectangleIcon className="w-5 h-5" />
           Cerrar sesión

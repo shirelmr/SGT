@@ -41,7 +41,7 @@ export default function Navbar({ onMenuClick }) {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
+    <header className="h-16 border-b flex items-center justify-between px-4 lg:px-6 flex-shrink-0" style={{ backgroundColor: '#f8f8ec', borderColor: '#e0e0c8' }}>
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}

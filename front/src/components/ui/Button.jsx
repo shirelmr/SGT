@@ -1,10 +1,10 @@
 import Spinner from './Spinner';
 
 const variants = {
-  primary: 'bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:from-orange-600 hover:to-orange-500 shadow-sm',
-  secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-  danger: 'bg-red-500 text-white hover:bg-red-600',
-  outline: 'border-2 border-orange-400 text-orange-500 hover:bg-orange-50',
+  primary: 'bg-[#4a1f06] text-white shadow-sm hover:bg-[#3a1804]',
+  secondary: 'bg-[#fff3e8] text-[#4a1f06] hover:bg-[#ffe8d0]',
+  danger: 'bg-red-600 text-white hover:bg-red-700',
+  outline: 'border-2 border-[#4a1f06] text-[#4a1f06] hover:bg-[#fff3e8]',
 };
 
 const sizes = {

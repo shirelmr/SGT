@@ -38,17 +38,17 @@ export default function Login() {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'linear-gradient(135deg, #0a1628 0%, #1a2d4a 50%, #0a1628 100%)' }}
+      style={{ backgroundColor: '#ee7e4c' }}
     >
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #f97316, transparent)' }}
+          style={{ background: 'radial-gradient(circle, #f8f8ec, transparent)' }}
         />
         <div
           className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #fb923c, transparent)' }}
+          style={{ background: 'radial-gradient(circle, #f8f8ec, transparent)' }}
         />
       </div>
 
@@ -56,11 +56,11 @@ export default function Login() {
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center mb-4 shadow-lg">
-              <BookOpenIcon className="w-8 h-8 text-white" />
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg" style={{ backgroundColor: '#ee7e4c' }}>
+              <BookOpenIcon className="w-8 h-8" style={{ color: '#4a1f06' }} />
             </div>
             <h1 className="font-sora text-3xl font-bold text-gray-900">
-              SGT <span className="text-orange-500">Talk!</span>
+              SGT <span style={{ color: '#4a1f06' }}>Talk!</span>
             </h1>
             <p className="text-gray-500 text-sm mt-1">Sistema de Gestión Talk!</p>
           </div>

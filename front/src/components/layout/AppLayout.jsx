@@ -7,7 +7,7 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: '#f8faff' }}>
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: '#f8f8ec' }}>
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
