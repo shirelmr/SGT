@@ -3,7 +3,7 @@
 > **Proyecto:** SGT — Sistema de Gestión Talk!  
 > **Equipo:** AIAS · Shirel Marino Ramírez · Arístides Nieto Guzmán · Ana Paola Oviedo Salgado · Itzel Covarrubias Basurto  
 > **Curso:** TC3004B Planeación de Sistemas de Software · Semestre Enero–Junio 2026  
-> **Responsable QA:** Arístides Nieto Guzmán  
+> **Responsable QA:** Shirel Marino Ramirez
 > **Última actualización:** 20 de abril de 2026 · Semana 11
 
 ---
@@ -382,4 +382,4 @@
 
 ---
 
-*Documento mantenido en `/docs/PLAN_CALIDAD.md` · Actualizar al cierre de cada sprint · Responsable: Arístides Nieto Guzmán*
+*Documento mantenido en `/docs/calidad/plan_calidad.md` · Actualizar al cierre de cada sprint · Responsable: Shirel Marino Ramirez*
