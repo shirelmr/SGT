@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
 import { UsersIcon, AcademicCapIcon, CalendarDaysIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import Card from '../../components/ui/Card';
 import Spinner from '../../components/ui/Spinner';
 import PageHeader from '../../components/shared/PageHeader';
-import api from '../../api/axios';
+import { useCoordinadorDashboard } from '../../hooks/useCoordinadorDashboard';
 
 const statCards = [
   {
@@ -37,42 +36,7 @@ const statCards = [
 ];
 
 export default function CoordinadorDashboard() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const [usuarios, sesiones, bitacoras] = await Promise.allSettled([
-          api.get('/usuarios'),
-          api.get('/sesiones'),
-          api.get('/bitacoras'),
-        ]);
-
-        const usuariosData = usuarios.status === 'fulfilled' ? usuarios.value.data : [];
-        const sesionesData = sesiones.status === 'fulfilled' ? sesiones.value.data : [];
-        const bitacorasData = bitacoras.status === 'fulfilled' ? bitacoras.value.data : [];
-
-        const now = new Date();
-        const thisMonth = sesionesData.filter?.((s) => {
-          const d = new Date(s.fecha);
-          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        }) ?? [];
-
-        setStats({
-          tutoresActivos: usuariosData.filter?.((u) => u.rol === 'tutor').length ?? 0,
-          beneficiariosInscritos: usuariosData.filter?.((u) => u.rol === 'beneficiario').length ?? 0,
-          sesionesMes: thisMonth.length,
-          bitacorasPendientes: bitacorasData.filter?.((b) => b.estado === 'pendiente').length ?? 0,
-        });
-      } catch {
-        setStats({ tutoresActivos: 0, beneficiariosInscritos: 0, sesionesMes: 0, bitacorasPendientes: 0 });
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  const { loading, stats } = useCoordinadorDashboard();
 
   return (
     <div>

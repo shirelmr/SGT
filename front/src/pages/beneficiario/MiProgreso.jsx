@@ -1,35 +1,13 @@
-import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import { getProgreso } from '../../api/beneficiarioPeriodo';
 import { useAuth } from '../../hooks/useAuth';
+import { useMiProgreso, getMotivacion } from '../../hooks/useMiProgreso';
 import PageHeader from '../../components/shared/PageHeader';
 import Card from '../../components/ui/Card';
 import ProgressBar from '../../components/ui/ProgressBar';
 import Spinner from '../../components/ui/Spinner';
 
-function getMotivacion(avance) {
-  if (avance == null) return '';
-  if (avance <= 30) return '¡Estás comenzando! Sigue adelante.';
-  if (avance <= 60) return '¡Buen progreso! Continúa así.';
-  return '¡Excelente desempeño!';
-}
-
 export default function MiProgreso() {
   const { user } = useAuth();
-  const [progreso, setProgreso] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getProgreso()
-      .then((r) => setProgreso(r.data))
-      .catch(() => setProgreso(null))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const avance =
-    progreso?.pct_examen_inicio != null && progreso?.pct_examen_termino != null
-      ? progreso.pct_examen_termino - progreso.pct_examen_inicio
-      : null;
+  const { loading, progreso, avance } = useMiProgreso();
 
   if (loading) {
     return <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>;

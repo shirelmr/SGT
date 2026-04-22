@@ -1,9 +1,6 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
-import { getSesiones } from '../../api/sesiones';
-import { getHoras } from '../../api/horas';
+import { useTutorDashboard } from '../../hooks/useTutorDashboard';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
@@ -18,37 +15,7 @@ const estadoBadge = {
 
 export default function TutorDashboard() {
   const { user } = useAuth();
-  const [sesiones, setSesiones] = useState([]);
-  const [horas, setHoras] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const [s, h] = await Promise.allSettled([
-          getSesiones(),
-          getHoras(),
-        ]);
-        if (s.status === 'fulfilled') setSesiones(s.value.data || []);
-        if (h.status === 'fulfilled') setHoras(h.value.data);
-      } catch {
-        toast.error('Error al cargar datos');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
-
-  const now = new Date();
-  const proxima = sesiones
-    .filter((s) => s.estado === 'programada' && new Date(s.fecha) >= now)
-    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))[0];
-
-  const ultimasTres = sesiones
-    .filter((s) => s.estado !== 'programada')
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-    .slice(0, 3);
+  const { loading, horas, proxima, ultimasTres } = useTutorDashboard();
 
   if (loading) {
     return (

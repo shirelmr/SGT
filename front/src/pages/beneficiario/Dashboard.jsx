@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { CalendarDaysIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../hooks/useAuth';
-import { getSesiones } from '../../api/sesiones';
-import { getProgreso } from '../../api/beneficiarioPeriodo';
+import { useBeneficiarioDashboard } from '../../hooks/useBeneficiarioDashboard';
 import PageHeader from '../../components/shared/PageHeader';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
@@ -19,37 +16,7 @@ const estadoBadge = {
 
 export default function BeneficiarioDashboard() {
   const { user } = useAuth();
-  const [sesiones, setSesiones] = useState([]);
-  const [progreso, setProgreso] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const [s, p] = await Promise.allSettled([getSesiones(), getProgreso()]);
-        if (s.status === 'fulfilled') setSesiones(s.value.data || []);
-        if (p.status === 'fulfilled') setProgreso(p.value.data);
-      } catch {
-        toast.error('Error al cargar datos');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
-
-  const now = new Date();
-  const proxima = sesiones
-    .filter((s) => s.estado === 'programada' && new Date(s.fecha) >= now)
-    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))[0];
-
-  const ultimas = sesiones
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-    .slice(0, 3);
-
-  const avance = progreso?.pct_examen_inicio != null && progreso?.pct_examen_termino != null
-    ? progreso.pct_examen_termino - progreso.pct_examen_inicio
-    : null;
+  const { loading, progreso, avance, proxima, ultimas } = useBeneficiarioDashboard();
 
   if (loading) {
     return <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>;
