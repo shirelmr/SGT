@@ -1,0 +1,197 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────
+enum Rol {
+  coordinador
+  tutor
+  revisor
+  beneficiario
+}
+
+enum EstadoSesion {
+  programada
+  realizada
+  cancelada
+}
+
+enum EstadoComentario {
+  pendiente
+  revisado
+  aprobado
+}
+
+// ─── Tablas ──────────────────────────────────────────
+model Usuario {
+  id_usuario      Int      @id @default(autoincrement())
+  nombre_completo String   @db.VarChar(100)
+  email           String   @unique @db.VarChar(150)
+  password_hash   String   @db.VarChar(255)
+  rol             Rol
+
+  // Relaciones a perfiles
+  tutor        TutorTec?
+  beneficiario Beneficiario?
+  revisor      Revisor?
+  coordinador  Coordinador?
+}
+
+model Periodo {
+  id_periodo  Int      @id @default(autoincrement())
+  nombre      String   @db.VarChar(50)
+  fecha_inicio DateTime @db.Date
+  fecha_fin    DateTime @db.Date
+  activo      Boolean  @default(false)
+  horas_max   Int
+
+  // Relaciones
+  tutores           TutorTec[]
+  beneficiarios     Beneficiario[]
+  revisores         Revisor[]
+  sesiones          Sesion[]
+  horas_acreditadas HorasAcreditadas[]
+}
+
+model TutorTec {
+  id_tutor    Int     @id @default(autoincrement())
+  id_usuario  Int     @unique
+  id_periodo  Int
+  matricula   String? @db.VarChar(20)
+  carrera     String? @db.VarChar(100)
+  semestre    Int?    @db.SmallInt
+  link_video  String? @db.VarChar(40)
+
+  usuario      Usuario      @relation(fields: [id_usuario], references: [id_usuario])
+  periodo      Periodo      @relation(fields: [id_periodo], references: [id_periodo])
+  beneficiarios Beneficiario[] // tutor tiene muchos beneficiarios
+  sesiones     Sesion[]
+  bitacoras    Bitacora[]
+  horas        HorasAcreditadas[]
+}
+
+model Beneficiario {
+  id_benef           Int     @id @default(autoincrement())
+  id_usuario         Int     @unique
+  id_periodo         Int
+  id_tutor           Int?    // FK que faltaba en tu diagrama
+  grado_escolar      String? @db.VarChar(50)
+  nombre_tutor_legal String? @db.VarChar(100)
+  tel_tutor          String? @db.VarChar(20)
+  escuela            String? @db.VarChar(100)
+
+  usuario  Usuario   @relation(fields: [id_usuario], references: [id_usuario])
+  periodo  Periodo   @relation(fields: [id_periodo], references: [id_periodo])
+  tutor    TutorTec? @relation(fields: [id_tutor], references: [id_tutor])
+
+  sesiones          Sesion[]
+  benefef_periodos  BeneficiarioPeriodo[]
+}
+
+model Revisor {
+  id_revisor Int @id @default(autoincrement())
+  id_usuario Int @unique
+  id_periodo Int
+
+  usuario     Usuario              @relation(fields: [id_usuario], references: [id_usuario])
+  periodo     Periodo              @relation(fields: [id_periodo], references: [id_periodo])
+  comentarios ComentarioBitacora[]
+}
+
+model Coordinador {
+  id_coord    Int     @id @default(autoincrement())
+  id_usuario  Int     @unique
+  departamento String? @db.VarChar(100)
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model Sesion {
+  id_sesion      Int          @id @default(autoincrement())
+  id_tutor       Int
+  id_beneficiario Int
+  id_periodo     Int
+  fecha          DateTime     @db.Date
+  hora_inicio    DateTime     @db.Time
+  duracion_hrs   Decimal      @db.Decimal(4, 1)
+  tema           String       @db.VarChar(200)
+  link_sesion    String?      @db.VarChar(300)
+  estado         EstadoSesion @default(programada)
+
+  tutor       TutorTec     @relation(fields: [id_tutor], references: [id_tutor])
+  beneficiario Beneficiario @relation(fields: [id_beneficiario], references: [id_benef])
+  periodo     Periodo      @relation(fields: [id_periodo], references: [id_periodo])
+
+  bitacora   Bitacora?
+  asistencia Asistencia?
+}
+
+model Bitacora {
+  id_bitacora    Int      @id @default(autoincrement())
+  id_sesion      Int      @unique
+  id_tutor       Int
+  actividades    String?  @db.Text
+  logros         String?  @db.Text
+  dificultades   String?  @db.Text
+  plan_siguiente String?  @db.Text
+  evidencia      String?  @db.VarChar(500)
+  fecha_registro DateTime @default(now())
+
+  sesion      Sesion               @relation(fields: [id_sesion], references: [id_sesion])
+  tutor       TutorTec             @relation(fields: [id_tutor], references: [id_tutor])
+  comentarios ComentarioBitacora[]
+}
+
+model ComentarioBitacora {
+  id_comentario    Int              @id @default(autoincrement())
+  id_bitacora      Int
+  id_revisor       Int
+  comentario       String           @db.Text
+  fecha_comentario DateTime         @default(now())
+  estado           EstadoComentario @default(pendiente)
+  leido            Boolean          @default(false)
+
+  bitacora Bitacora @relation(fields: [id_bitacora], references: [id_bitacora])
+  revisor  Revisor  @relation(fields: [id_revisor], references: [id_revisor])
+}
+
+model Asistencia {
+  id_asistencia   Int       @id @default(autoincrement())
+  id_sesion       Int       @unique
+  confirma_tutor  Boolean   @default(false)
+  fecha_conf_tutor DateTime?
+  confirma_benef  Boolean   @default(false)
+  fecha_conf_benef DateTime?
+  // estado_doble se puede calcular en la query, no necesitas guardarlo
+
+  sesion Sesion @relation(fields: [id_sesion], references: [id_sesion])
+}
+
+model BeneficiarioPeriodo {
+  id_benef_periodo     Int       @id @default(autoincrement())
+  id_benef             Int
+  id_periodo           Int
+  pct_examen_inicio    Decimal?  @db.Decimal(5, 2)
+  pct_examen_termino   Decimal?  @db.Decimal(5, 2)
+  fecha_examen_inicio  DateTime? @db.Date
+  fecha_examen_termino DateTime? @db.Date
+
+  beneficiario Beneficiario @relation(fields: [id_benef], references: [id_benef])
+}
+
+model HorasAcreditadas {
+  id_horas_acreditadas Int     @id @default(autoincrement())
+  id_tutor             Int
+  id_periodo           Int
+  horas_impartidas     Decimal @db.Decimal(6, 1)
+  porcentaje_acred     Decimal @db.Decimal(5, 2)
+
+  tutor   TutorTec @relation(fields: [id_tutor], references: [id_tutor])
+  periodo Periodo  @relation(fields: [id_periodo], references: [id_periodo])
+}

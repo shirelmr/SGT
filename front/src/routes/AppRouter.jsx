@@ -4,6 +4,7 @@ import PrivateRoute from './PrivateRoute';
 import AppLayout from '../components/layout/AppLayout';
 
 import Login from '../pages/Login';
+import Register from '../pages/Register';
 
 // Coordinador
 import CoordinadorDashboard from '../pages/coordinador/Dashboard';
@@ -42,6 +43,7 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/" element={<RootRedirect />} />
 
         {/* Coordinador routes */}
