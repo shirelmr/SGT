@@ -1,0 +1,12 @@
+{
+  "tutor": {
+    "email": "test_sgt_001@example.com",
+    "password": "secret123",
+    "nombre_completo": "Test User",
+    "rol": "tutor"
+  },
+  "invalid": {
+    "email": "noexiste@example.com",
+    "password": "wrongpassword"
+  }
+}
