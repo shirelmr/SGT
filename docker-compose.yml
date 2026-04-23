@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./back
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./back/prisma/.env          # loads DATABASE_URL, PORT, JWT_SECRET
+    volumes:
+      - ./back/src:/app/src         # hot-reload: code changes reflect instantly
+      - ./back/prisma:/app/prisma   # schema + migrations available at runtime
+      - ./back/prisma.config.ts:/app/prisma.config.ts
+
+  frontend:
+    build: ./front
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./front/src:/app/src        # hot-reload
+      - ./front/public:/app/public
+      - ./front/index.html:/app/index.html
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+      - CHOKIDAR_USEPOLLING=true    # ensures file-change events work through Docker volumes
+    depends_on:
+      - backend
