@@ -58,7 +58,7 @@ export default function DetalleBitacora() {
       const cRes = await getComentarios(id);
       setComentarios(cRes.data || []);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al enviar comentario');
+      toast.error(err?.response?.data?.error || 'Error al enviar comentario');
     } finally {
       setSending(false);
     }

@@ -41,14 +41,37 @@ router.post('/', async (req, res) => {
     const user = await prisma.$transaction(async (tx) => {
       const u = await tx.usuario.create({ data: { nombre_completo, email, password_hash, rol } })
 
-      if (rol === 'tutor' && id_periodo) {
-        await tx.tutorTec.create({ data: { id_usuario: u.id_usuario, id_periodo: Number(id_periodo), matricula, carrera, semestre: semestre ? Number(semestre) : null, link_video } })
-      } else if (rol === 'beneficiario' && id_periodo) {
-        await tx.beneficiario.create({ data: { id_usuario: u.id_usuario, id_periodo: Number(id_periodo), grado_escolar, escuela, nombre_tutor_legal, tel_tutor } })
-      } else if (rol === 'revisor' && id_periodo) {
-        await tx.revisor.create({ data: { id_usuario: u.id_usuario, id_periodo: Number(id_periodo) } })
+      if (rol === 'tutor') {
+        await tx.tutorTec.create({
+          data: {
+            id_usuario: u.id_usuario,
+            id_periodo: id_periodo ? Number(id_periodo) : null,
+            matricula: matricula || null,
+            carrera: carrera || null,
+            semestre: semestre ? Number(semestre) : null,
+            link_video: link_video || null,
+          },
+        })
+      } else if (rol === 'beneficiario') {
+        await tx.beneficiario.create({
+          data: {
+            id_usuario: u.id_usuario,
+            id_periodo: id_periodo ? Number(id_periodo) : null,
+            grado_escolar: grado_escolar || null,
+            escuela: escuela || null,
+            nombre_tutor_legal: nombre_tutor_legal || null,
+            tel_tutor: tel_tutor || null,
+          },
+        })
+      } else if (rol === 'revisor') {
+        await tx.revisor.create({
+          data: {
+            id_usuario: u.id_usuario,
+            id_periodo: id_periodo ? Number(id_periodo) : null,
+          },
+        })
       } else if (rol === 'coordinador') {
-        await tx.coordinador.create({ data: { id_usuario: u.id_usuario, departamento } })
+        await tx.coordinador.create({ data: { id_usuario: u.id_usuario, departamento: departamento || null } })
       }
 
       return u

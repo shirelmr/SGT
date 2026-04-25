@@ -11,6 +11,7 @@ import {
   ClockIcon,
   ArrowRightOnRectangleIcon,
   DocumentTextIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const navByRole = {
@@ -26,6 +27,7 @@ const navByRole = {
     { to: '/tutor/dashboard', label: 'Dashboard', icon: HomeIcon },
     { to: '/tutor/sesiones', label: 'Mis Sesiones', icon: CalendarDaysIcon },
     { to: '/tutor/horas', label: 'Mis Horas', icon: ClockIcon },
+    { to: '/tutor/perfil', label: 'Mi Perfil', icon: UserCircleIcon },
   ],
   revisor: [
     { to: '/revisor/dashboard', label: 'Dashboard', icon: HomeIcon },

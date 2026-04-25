@@ -22,6 +22,7 @@ export default function Button({
   onClick,
   type = 'button',
   className = '',
+  ...rest
 }) {
   return (
     <button
@@ -29,6 +30,7 @@ export default function Button({
       onClick={onClick}
       disabled={disabled || loading}
       className={`inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      {...rest}
     >
       {loading && <Spinner size="sm" />}
       {children}

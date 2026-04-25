@@ -38,7 +38,7 @@ export default function NuevaSesion() {
       toast.success('Sesión creada exitosamente');
       navigate('/tutor/sesiones');
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al crear sesión');
+      toast.error(err?.response?.data?.error || 'Error al crear sesión');
     } finally {
       setSaving(false);
     }
