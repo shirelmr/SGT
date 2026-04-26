@@ -8,7 +8,25 @@ const include = {
   tutor: { include: { usuario: { select: { nombre_completo: true } } } },
   beneficiario: { include: { usuario: { select: { nombre_completo: true } } } },
   periodo: { select: { nombre: true } },
+  bitacora: { select: { id_bitacora: true } },
 }
+
+const fmt = (s) => ({
+  id: s.id_sesion,
+  id_tutor: s.id_tutor,
+  id_beneficiario: s.id_beneficiario,
+  id_periodo: s.id_periodo,
+  fecha: s.fecha,
+  hora_inicio: s.hora_inicio,
+  duracion_hrs: s.duracion_hrs,
+  tema: s.tema,
+  link_sesion: s.link_sesion,
+  estado: s.estado,
+  tutor: s.tutor ? { nombre_completo: s.tutor.usuario?.nombre_completo } : null,
+  beneficiario: s.beneficiario ? { nombre_completo: s.beneficiario.usuario?.nombre_completo } : null,
+  periodo: s.periodo ?? null,
+  bitacora: s.bitacora ?? null,
+})
 
 // GET /api/sesiones
 router.get('/', auth, async (req, res) => {
@@ -32,7 +50,7 @@ router.get('/', auth, async (req, res) => {
       include,
       orderBy: [{ fecha: 'desc' }, { hora_inicio: 'desc' }],
     })
-    res.json(sesiones)
+    res.json(sesiones.map(fmt))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
@@ -45,7 +63,7 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const sesion = await prisma.sesion.findUnique({ where: { id_sesion: id }, include })
     if (!sesion) return res.status(404).json({ error: 'Sesión no encontrada' })
-    res.json(sesion)
+    res.json(fmt(sesion))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
@@ -58,19 +76,21 @@ router.post('/', auth, async (req, res) => {
     return res.status(403).json({ error: 'Solo tutores pueden crear sesiones' })
   }
   const { id_beneficiario, id_periodo, fecha, hora_inicio, duracion_hrs, tema, link_sesion } = req.body
-  if (!id_beneficiario || !id_periodo || !fecha || !hora_inicio || !duracion_hrs || !tema) {
-    return res.status(400).json({ error: 'id_beneficiario, id_periodo, fecha, hora_inicio, duracion_hrs y tema son requeridos' })
+  if (!id_beneficiario || !fecha || !hora_inicio || !duracion_hrs || !tema) {
+    return res.status(400).json({ error: 'id_beneficiario, fecha, hora_inicio, duracion_hrs y tema son requeridos' })
   }
 
   try {
     const tutor = await prisma.tutorTec.findUnique({ where: { id_usuario: req.user.id_usuario } })
     if (!tutor) return res.status(404).json({ error: 'Perfil de tutor no encontrado' })
 
+    const periodoId = id_periodo ? Number(id_periodo) : tutor.id_periodo
+
     const sesion = await prisma.sesion.create({
       data: {
         id_tutor: tutor.id_tutor,
         id_beneficiario: Number(id_beneficiario),
-        id_periodo: Number(id_periodo),
+        id_periodo: periodoId,
         fecha: new Date(fecha),
         hora_inicio: new Date(`1970-01-01T${hora_inicio}`),
         duracion_hrs: Number(duracion_hrs),
@@ -80,7 +100,7 @@ router.post('/', auth, async (req, res) => {
       },
       include,
     })
-    res.status(201).json(sesion)
+    res.status(201).json(fmt(sesion))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
@@ -104,7 +124,7 @@ router.put('/:id', auth, async (req, res) => {
       },
       include,
     })
-    res.json(sesion)
+    res.json(fmt(sesion))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })

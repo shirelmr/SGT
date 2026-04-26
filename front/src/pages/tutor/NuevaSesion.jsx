@@ -2,16 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { getUsuarios } from '../../api/usuarios';
+import { getMisBeneficiarios } from '../../api/tutor';
 import { createSesion } from '../../api/sesiones';
-import { useAuth } from '../../hooks/useAuth';
 import PageHeader from '../../components/shared/PageHeader';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 
 export default function NuevaSesion() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -21,15 +19,10 @@ export default function NuevaSesion() {
   });
 
   useEffect(() => {
-    getUsuarios()
-      .then((r) => {
-        const assigned = r.data.filter(
-          (u) => u.rol === 'beneficiario' && u.id_tutor === user?.id
-        );
-        setBeneficiarios(assigned);
-      })
+    getMisBeneficiarios()
+      .then((r) => setBeneficiarios(r.data))
       .catch(() => toast.error('Error al cargar beneficiarios'));
-  }, [user]);
+  }, []);
 
   async function onSubmit(data) {
     setSaving(true);
@@ -61,7 +54,7 @@ export default function NuevaSesion() {
             >
               <option value="">Seleccionar beneficiario</option>
               {beneficiarios.map((b) => (
-                <option key={b.id} value={b.id}>{b.nombre_completo}</option>
+                <option key={b.id_benef} value={b.id_benef}>{b.nombre_completo}</option>
               ))}
             </select>
             {errors.id_beneficiario && (

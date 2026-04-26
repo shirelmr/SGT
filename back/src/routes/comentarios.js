@@ -8,6 +8,16 @@ const revisorInclude = {
   revisor: { include: { usuario: { select: { nombre_completo: true } } } },
 }
 
+const fmt = (c) => ({
+  id: c.id_comentario,
+  id_bitacora: c.id_bitacora,
+  texto: c.comentario,
+  estado: c.estado,
+  leido: c.leido,
+  fecha_creacion: c.fecha_comentario,
+  revisor: c.revisor ? { nombre_completo: c.revisor.usuario?.nombre_completo } : null,
+})
+
 // GET /api/comentarios/:id_bitacora
 router.get('/:id_bitacora', auth, async (req, res) => {
   const id_bitacora = Number(req.params.id_bitacora)
@@ -17,7 +27,7 @@ router.get('/:id_bitacora', auth, async (req, res) => {
       include: revisorInclude,
       orderBy: { fecha_comentario: 'asc' },
     })
-    res.json(comentarios)
+    res.json(comentarios.map(fmt))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
@@ -29,8 +39,9 @@ router.post('/', auth, async (req, res) => {
   if (req.user.rol !== 'revisor') {
     return res.status(403).json({ error: 'Solo revisores pueden agregar comentarios' })
   }
-  const { id_bitacora, comentario } = req.body
-  if (!id_bitacora || !comentario) {
+  const { id_bitacora, comentario, texto, estado } = req.body
+  const contenido = texto || comentario
+  if (!id_bitacora || !contenido) {
     return res.status(400).json({ error: 'id_bitacora y comentario son requeridos' })
   }
 
@@ -42,11 +53,12 @@ router.post('/', auth, async (req, res) => {
       data: {
         id_bitacora: Number(id_bitacora),
         id_revisor: revisor.id_revisor,
-        comentario,
+        comentario: contenido,
+        ...(estado && { estado }),
       },
       include: revisorInclude,
     })
-    res.status(201).json(nuevo)
+    res.status(201).json(fmt(nuevo))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })

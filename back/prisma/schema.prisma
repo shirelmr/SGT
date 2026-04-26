@@ -28,6 +28,12 @@ enum EstadoComentario {
   aprobado
 }
 
+enum EstadoPostulacion {
+  pendiente
+  aceptado
+  rechazado
+}
+
 // ─── Tablas ──────────────────────────────────────────
 model Usuario {
   id_usuario      Int      @id @default(autoincrement())
@@ -57,6 +63,25 @@ model Periodo {
   revisores         Revisor[]
   sesiones          Sesion[]
   horas_acreditadas HorasAcreditadas[]
+  postulaciones     Postulacion[]
+}
+
+model Postulacion {
+  id_postulacion    Int               @id @default(autoincrement())
+  id_periodo        Int
+  nombre_completo   String            @db.VarChar(100)
+  email             String            @db.VarChar(150)
+  matricula         String            @db.VarChar(20)
+  carrera           String            @db.VarChar(100)
+  semestre          Int               @db.SmallInt
+  por_que_escogerte String            @db.Text
+  por_que_interesa  String            @db.Text
+  captura_duolingo  String?           @db.VarChar(500)
+  link_video        String?           @db.VarChar(300)
+  estado            EstadoPostulacion @default(pendiente)
+  fecha_postulacion DateTime          @default(now())
+
+  periodo Periodo @relation(fields: [id_periodo], references: [id_periodo])
 }
 
 model TutorTec {

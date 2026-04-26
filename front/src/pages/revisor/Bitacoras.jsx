@@ -70,7 +70,7 @@ export default function Bitacoras() {
     {
       key: 'fecha_registro',
       label: 'Fecha registro',
-      render: (_, row) => row.fecha_creacion ? new Date(row.fecha_creacion).toLocaleDateString('es-MX') : '—',
+      render: (_, row) => row.fecha_registro ? new Date(row.fecha_registro).toLocaleDateString('es-MX') : '—',
     },
     {
       key: 'ultimo_estado',
@@ -81,7 +81,7 @@ export default function Bitacoras() {
       key: 'acciones',
       label: 'Acciones',
       render: (_, row) => (
-        <Button size="sm" onClick={() => navigate(`/revisor/bitacoras/${row.id}`)}>
+        <Button size="sm" onClick={() => navigate(`/revisor/bitacoras/${row.id_sesion}`)}>
           Revisar
         </Button>
       ),

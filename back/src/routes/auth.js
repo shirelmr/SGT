@@ -61,9 +61,11 @@ router.post('/register', async (req, res) => {
           data: { id_usuario: u.id_usuario, departamento: departamento || null },
         })
       } else if (rol === 'tutor') {
+        const periodoActivo = await tx.periodo.findFirst({ where: { activo: true } })
         await tx.tutorTec.create({
           data: {
             id_usuario: u.id_usuario,
+            id_periodo: periodoActivo?.id_periodo ?? null,
             matricula: matricula || null,
             carrera: carrera || null,
             semestre: semestre ? Number(semestre) : null,

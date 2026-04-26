@@ -5,6 +5,7 @@ import {
   UsersIcon,
   CalendarDaysIcon,
   ClipboardDocumentListIcon,
+  ClipboardDocumentCheckIcon,
   AcademicCapIcon,
   ChartBarIcon,
   BookOpenIcon,
@@ -17,6 +18,7 @@ import {
 const navByRole = {
   coordinador: [
     { to: '/coordinador/dashboard', label: 'Dashboard', icon: HomeIcon },
+    { to: '/coordinador/postulaciones', label: 'Postulaciones', icon: ClipboardDocumentCheckIcon },
     { to: '/coordinador/usuarios', label: 'Usuarios', icon: UsersIcon },
     { to: '/coordinador/periodos', label: 'Periodos', icon: CalendarDaysIcon },
     { to: '/coordinador/asignaciones', label: 'Asignaciones', icon: ClipboardDocumentListIcon },

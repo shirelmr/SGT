@@ -5,9 +5,37 @@ const auth = require('../middleware/auth')
 const router = express.Router()
 
 const baseInclude = {
-  sesion: { select: { fecha: true, tema: true, estado: true } },
+  sesion: {
+    include: {
+      tutor: { include: { usuario: { select: { nombre_completo: true } } } },
+      beneficiario: { include: { usuario: { select: { nombre_completo: true } } } },
+    },
+  },
   tutor: { include: { usuario: { select: { nombre_completo: true } } } },
 }
+
+const fmt = (b) => ({
+  id: b.id_bitacora,
+  id_sesion: b.id_sesion,
+  id_tutor: b.id_tutor,
+  actividades: b.actividades,
+  logros: b.logros,
+  dificultades: b.dificultades,
+  plan_siguiente: b.plan_siguiente,
+  evidencia: b.evidencia,
+  fecha_registro: b.fecha_registro,
+  sesion: b.sesion ? {
+    id_sesion: b.sesion.id_sesion,
+    fecha: b.sesion.fecha,
+    tema: b.sesion.tema,
+    estado: b.sesion.estado,
+    hora_inicio: b.sesion.hora_inicio,
+    tutor: b.sesion.tutor ? { nombre_completo: b.sesion.tutor.usuario?.nombre_completo } : null,
+    beneficiario: b.sesion.beneficiario ? { nombre_completo: b.sesion.beneficiario.usuario?.nombre_completo } : null,
+  } : null,
+  tutor: b.tutor ? { nombre_completo: b.tutor.usuario?.nombre_completo } : null,
+  ...(b.comentarios !== undefined && { comentarios: b.comentarios }),
+})
 
 // GET /api/bitacoras
 router.get('/', auth, async (req, res) => {
@@ -29,7 +57,7 @@ router.get('/', auth, async (req, res) => {
       include: baseInclude,
       orderBy: { fecha_registro: 'desc' },
     })
-    res.json(bitacoras)
+    res.json(bitacoras.map(fmt))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
@@ -53,7 +81,7 @@ router.get('/:id_sesion', auth, async (req, res) => {
       },
     })
     if (!bitacora) return res.status(404).json({ error: 'Bitácora no encontrada' })
-    res.json(bitacora)
+    res.json(fmt(bitacora))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
@@ -92,7 +120,7 @@ router.post('/', auth, async (req, res) => {
       return b
     })
 
-    res.status(201).json(bitacora)
+    res.status(201).json(fmt(bitacora))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
@@ -115,7 +143,7 @@ router.put('/:id', auth, async (req, res) => {
       },
       include: baseInclude,
     })
-    res.json(bitacora)
+    res.json(fmt(bitacora))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })

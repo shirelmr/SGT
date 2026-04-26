@@ -5,9 +5,11 @@ import AppLayout from '../components/layout/AppLayout';
 
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import Postulacion from '../pages/Postulacion';
 
 // Coordinador
 import CoordinadorDashboard from '../pages/coordinador/Dashboard';
+import Postulaciones from '../pages/coordinador/Postulaciones';
 import Usuarios from '../pages/coordinador/Usuarios';
 import Periodos from '../pages/coordinador/Periodos';
 import Asignaciones from '../pages/coordinador/Asignaciones';
@@ -45,6 +47,7 @@ export default function AppRouter() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/postulacion" element={<Postulacion />} />
         <Route path="/" element={<RootRedirect />} />
 
         {/* Coordinador routes */}
@@ -56,6 +59,7 @@ export default function AppRouter() {
             <Route path="/coordinador/asignaciones" element={<Asignaciones />} />
             <Route path="/coordinador/horas" element={<HorasAcreditadas />} />
             <Route path="/coordinador/progreso" element={<ProgresosBeneficiarios />} />
+            <Route path="/coordinador/postulaciones" element={<Postulaciones />} />
           </Route>
         </Route>
 
