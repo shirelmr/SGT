@@ -41,4 +41,26 @@ router.post('/:id_sesion/confirmar', auth, async (req, res) => {
   }
 })
 
+// POST /api/asistencias/:id_sesion/cancelar
+router.post('/:id_sesion/cancelar', auth, async (req, res) => {
+  const { rol } = req.user
+  if (rol !== 'beneficiario') {
+    return res.status(403).json({ error: 'Solo beneficiarios pueden cancelar su asistencia' })
+  }
+
+  const id_sesion = Number(req.params.id_sesion)
+
+  try {
+    const asistencia = await prisma.asistencia.upsert({
+      where: { id_sesion },
+      update: { confirma_benef: false, fecha_conf_benef: null },
+      create: { id_sesion, confirma_benef: false },
+    })
+    res.json(asistencia)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
 module.exports = router
