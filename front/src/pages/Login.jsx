@@ -109,6 +109,15 @@ export default function Login() {
               Regístrate
             </Link>
           </p>
+          <p className="text-center text-sm mt-2">
+            <Link
+              to="/postulacion"
+              className="font-semibold hover:underline"
+              style={{ color: '#4a1f06' }}
+            >
+              ¿Quieres ser tutor? → Postúlate aquí
+            </Link>
+          </p>
           <p className="text-center text-gray-400 text-xs mt-3">
             Sistema de Gestión Talk! &copy; 2026
           </p>

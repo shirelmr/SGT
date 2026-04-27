@@ -1,4 +1,3 @@
-◇ injected env (3) from prisma/.env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 

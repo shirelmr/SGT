@@ -57,7 +57,7 @@ export default function ProgresosBeneficiarios() {
       const r = await getBeneficiariosPeriodo(selectedPeriodo);
       setBeneficiarios(r.data);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al registrar');
+      toast.error(err?.response?.data?.error || 'Error al registrar');
     } finally {
       setSaving(false);
     }

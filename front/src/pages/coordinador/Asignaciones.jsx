@@ -101,7 +101,7 @@ export default function Asignaciones() {
             ) : (
               <ul className="space-y-3">
                 {beneficiarios.map((b) => {
-                  const assignedTutor = tutores.find((t) => t.id === b.id_tutor);
+                  const assignedTutor = tutores.find((t) => t.id_tutor === b.id_tutor);
                   return (
                     <li key={b.id} className="p-3 rounded-xl bg-gray-50">
                       <div className="flex items-center gap-2 mb-2">
@@ -121,7 +121,7 @@ export default function Asignaciones() {
                           className="flex-1 border-2 border-gray-200 rounded-xl px-2 py-1.5 text-xs outline-none focus:border-orange-400"
                         >
                           <option value="">Sin tutor asignado</option>
-                          {tutores.map((t) => <option key={t.id} value={t.id}>{t.nombre_completo}</option>)}
+                          {tutores.map((t) => <option key={t.id} value={t.id_tutor}>{t.nombre_completo}</option>)}
                         </select>
                         {saving[b.id] && <Spinner size="sm" />}
                       </div>

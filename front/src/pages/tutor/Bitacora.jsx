@@ -72,7 +72,7 @@ export default function Bitacora() {
       }
       setEditing(false);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al guardar');
+      toast.error(err?.response?.data?.error || 'Error al guardar');
     } finally {
       setSaving(false);
     }
