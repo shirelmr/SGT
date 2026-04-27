@@ -28,6 +28,12 @@ enum EstadoComentario {
   aprobado
 }
 
+enum EstadoPostulacion {
+  pendiente
+  aceptado
+  rechazado
+}
+
 // ─── Tablas ──────────────────────────────────────────
 model Usuario {
   id_usuario      Int      @id @default(autoincrement())
@@ -57,20 +63,39 @@ model Periodo {
   revisores         Revisor[]
   sesiones          Sesion[]
   horas_acreditadas HorasAcreditadas[]
+  postulaciones     Postulacion[]
+}
+
+model Postulacion {
+  id_postulacion    Int               @id @default(autoincrement())
+  id_periodo        Int
+  nombre_completo   String            @db.VarChar(100)
+  email             String            @db.VarChar(150)
+  matricula         String            @db.VarChar(20)
+  carrera           String            @db.VarChar(100)
+  semestre          Int               @db.SmallInt
+  por_que_escogerte String            @db.Text
+  por_que_interesa  String            @db.Text
+  captura_duolingo  String?           @db.VarChar(500)
+  link_video        String?           @db.VarChar(300)
+  estado            EstadoPostulacion @default(pendiente)
+  fecha_postulacion DateTime          @default(now())
+
+  periodo Periodo @relation(fields: [id_periodo], references: [id_periodo])
 }
 
 model TutorTec {
   id_tutor    Int     @id @default(autoincrement())
   id_usuario  Int     @unique
-  id_periodo  Int
+  id_periodo  Int?
   matricula   String? @db.VarChar(20)
   carrera     String? @db.VarChar(100)
   semestre    Int?    @db.SmallInt
   link_video  String? @db.VarChar(40)
 
   usuario      Usuario      @relation(fields: [id_usuario], references: [id_usuario])
-  periodo      Periodo      @relation(fields: [id_periodo], references: [id_periodo])
-  beneficiarios Beneficiario[] // tutor tiene muchos beneficiarios
+  periodo      Periodo?     @relation(fields: [id_periodo], references: [id_periodo])
+  beneficiarios Beneficiario[]
   sesiones     Sesion[]
   bitacoras    Bitacora[]
   horas        HorasAcreditadas[]
@@ -79,15 +104,15 @@ model TutorTec {
 model Beneficiario {
   id_benef           Int     @id @default(autoincrement())
   id_usuario         Int     @unique
-  id_periodo         Int
-  id_tutor           Int?    // FK que faltaba en tu diagrama
+  id_periodo         Int?
+  id_tutor           Int?
   grado_escolar      String? @db.VarChar(50)
   nombre_tutor_legal String? @db.VarChar(100)
   tel_tutor          String? @db.VarChar(20)
   escuela            String? @db.VarChar(100)
 
   usuario  Usuario   @relation(fields: [id_usuario], references: [id_usuario])
-  periodo  Periodo   @relation(fields: [id_periodo], references: [id_periodo])
+  periodo  Periodo?  @relation(fields: [id_periodo], references: [id_periodo])
   tutor    TutorTec? @relation(fields: [id_tutor], references: [id_tutor])
 
   sesiones          Sesion[]
@@ -95,12 +120,15 @@ model Beneficiario {
 }
 
 model Revisor {
-  id_revisor Int @id @default(autoincrement())
-  id_usuario Int @unique
-  id_periodo Int
+  id_revisor Int     @id @default(autoincrement())
+  id_usuario Int     @unique
+  id_periodo Int?
+  matricula  String? @db.VarChar(20)
+  carrera    String? @db.VarChar(100)
+  semestre   Int?    @db.SmallInt
 
   usuario     Usuario              @relation(fields: [id_usuario], references: [id_usuario])
-  periodo     Periodo              @relation(fields: [id_periodo], references: [id_periodo])
+  periodo     Periodo?             @relation(fields: [id_periodo], references: [id_periodo])
   comentarios ComentarioBitacora[]
 }
 

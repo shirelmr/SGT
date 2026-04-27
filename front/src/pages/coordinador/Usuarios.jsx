@@ -95,7 +95,7 @@ export default function Usuarios() {
       setModalOpen(false);
       loadData();
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al guardar');
+      toast.error(err?.response?.data?.error || 'Error al guardar');
     } finally {
       setSaving(false);
     }
@@ -109,7 +109,7 @@ export default function Usuarios() {
       setConfirmOpen(false);
       loadData();
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al eliminar');
+      toast.error(err?.response?.data?.error || 'Error al eliminar');
     } finally {
       setDeleting(false);
     }

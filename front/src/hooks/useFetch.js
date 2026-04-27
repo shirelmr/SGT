@@ -12,7 +12,7 @@ export function useFetch(fetchFn, deps = []) {
       const res = await fetchFn();
       setData(res.data);
     } catch (err) {
-      setError(err?.response?.data?.message || err.message || 'Error al cargar datos');
+      setError(err?.response?.data?.error || err.message || 'Error al cargar datos');
     } finally {
       setLoading(false);
     }

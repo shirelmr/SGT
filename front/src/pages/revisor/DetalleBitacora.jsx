@@ -35,7 +35,7 @@ export default function DetalleBitacora() {
         const bRes = await getBitacora(id);
         setBitacora(bRes.data);
         try {
-          const cRes = await getComentarios(id);
+          const cRes = await getComentarios(bRes.data.id);
           setComentarios(cRes.data || []);
         } catch {
           setComentarios([]);
@@ -52,13 +52,13 @@ export default function DetalleBitacora() {
   async function onSubmit(data) {
     setSending(true);
     try {
-      await createComentario({ ...data, id_bitacora: Number(id) });
+      await createComentario({ ...data, id_bitacora: bitacora.id });
       toast.success('Comentario enviado');
       reset({ estado: 'pendiente' });
-      const cRes = await getComentarios(id);
+      const cRes = await getComentarios(bitacora.id);
       setComentarios(cRes.data || []);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al enviar comentario');
+      toast.error(err?.response?.data?.error || 'Error al enviar comentario');
     } finally {
       setSending(false);
     }

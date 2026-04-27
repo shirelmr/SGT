@@ -36,7 +36,7 @@ export default function MisSesionesBeneficiario() {
         prev.map((s) => s.id === sesionId ? { ...s, confirma_benef: true } : s)
       );
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al confirmar');
+      toast.error(err?.response?.data?.error || 'Error al confirmar');
     } finally {
       setConfirming((prev) => ({ ...prev, [sesionId]: false }));
     }

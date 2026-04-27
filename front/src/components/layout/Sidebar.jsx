@@ -5,17 +5,20 @@ import {
   UsersIcon,
   CalendarDaysIcon,
   ClipboardDocumentListIcon,
+  ClipboardDocumentCheckIcon,
   AcademicCapIcon,
   ChartBarIcon,
   BookOpenIcon,
   ClockIcon,
   ArrowRightOnRectangleIcon,
   DocumentTextIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const navByRole = {
   coordinador: [
     { to: '/coordinador/dashboard', label: 'Dashboard', icon: HomeIcon },
+    { to: '/coordinador/postulaciones', label: 'Postulaciones', icon: ClipboardDocumentCheckIcon },
     { to: '/coordinador/usuarios', label: 'Usuarios', icon: UsersIcon },
     { to: '/coordinador/periodos', label: 'Periodos', icon: CalendarDaysIcon },
     { to: '/coordinador/asignaciones', label: 'Asignaciones', icon: ClipboardDocumentListIcon },
@@ -26,6 +29,7 @@ const navByRole = {
     { to: '/tutor/dashboard', label: 'Dashboard', icon: HomeIcon },
     { to: '/tutor/sesiones', label: 'Mis Sesiones', icon: CalendarDaysIcon },
     { to: '/tutor/horas', label: 'Mis Horas', icon: ClockIcon },
+    { to: '/tutor/perfil', label: 'Mi Perfil', icon: UserCircleIcon },
   ],
   revisor: [
     { to: '/revisor/dashboard', label: 'Dashboard', icon: HomeIcon },

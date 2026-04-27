@@ -10,6 +10,7 @@ const pageTitles = {
   '/coordinador/asignaciones': 'Asignaciones',
   '/coordinador/horas': 'Horas Acreditadas',
   '/coordinador/progreso': 'Progreso de Beneficiarios',
+  '/coordinador/postulaciones': 'Postulaciones',
   '/tutor/dashboard': 'Dashboard',
   '/tutor/sesiones': 'Mis Sesiones',
   '/tutor/sesiones/nueva': 'Nueva Sesión',
