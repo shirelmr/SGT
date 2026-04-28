@@ -1,6 +1,7 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const prisma = require('../db')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
@@ -14,12 +15,43 @@ const fmt = (u) => {
 }
 
 // GET /api/usuarios
-router.get('/', async (_req, res) => {
+router.get('/', auth, async (req, res) => {
+  if (req.user.rol !== 'coordinador') {
+    return res.status(403).json({ error: 'Acceso denegado' })
+  }
+
+  const { rol } = req.query
+
   try {
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+
+    // Build OR branches so each role is matched against its period profile
+    const allRoleConditions = [
+      { rol: 'coordinador' },
+      periodoActivo
+        ? { rol: 'tutor', tutor: { id_periodo: periodoActivo.id_periodo } }
+        : { rol: 'tutor' },
+      periodoActivo
+        ? { rol: 'revisor', revisor: { id_periodo: periodoActivo.id_periodo } }
+        : { rol: 'revisor' },
+      periodoActivo
+        ? { rol: 'beneficiario', beneficiario: { id_periodo: periodoActivo.id_periodo } }
+        : { rol: 'beneficiario' },
+    ]
+
+    const OR = rol
+      ? allRoleConditions.filter((c) => c.rol === rol)
+      : allRoleConditions
+
     const users = await prisma.usuario.findMany({
+      where: {
+        id_usuario: { not: req.user.id_usuario },
+        OR,
+      },
       orderBy: { id_usuario: 'asc' },
       include: { tutor: true, beneficiario: true, revisor: true, coordinador: true },
     })
+
     res.json(users.map(fmt))
   } catch (err) {
     console.error(err)
