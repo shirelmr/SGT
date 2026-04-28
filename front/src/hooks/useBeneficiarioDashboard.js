@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { getSesiones } from '../api/sesiones';
 import { getProgreso } from '../api/beneficiarioPeriodo';
-import { calcularAvance } from './useMiProgreso';
 import { getProximaSesion, getUltimasSesiones } from './useTutorDashboard';
 
 export function useBeneficiarioDashboard() {
@@ -27,8 +26,9 @@ export function useBeneficiarioDashboard() {
 
   return {
     loading,
+    sesiones,
+    setSesiones,
     progreso,
-    avance: calcularAvance(progreso),
     proxima: getProximaSesion(sesiones),
     ultimas: getUltimasSesiones(sesiones),
   };
