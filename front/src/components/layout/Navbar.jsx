@@ -17,7 +17,7 @@ const pageTitles = {
   '/tutor/horas': 'Mis Horas',
   '/revisor/dashboard': 'Dashboard',
   '/revisor/bitacoras': 'Bitácoras',
-  '/beneficiario/dashboard': 'Dashboard',
+  '/beneficiario/dashboard': 'Tablero',
   '/beneficiario/sesiones': 'Mis Sesiones',
   '/beneficiario/progreso': 'Mi Progreso',
 };

@@ -36,9 +36,8 @@ const navByRole = {
     { to: '/revisor/bitacoras', label: 'Bitácoras', icon: DocumentTextIcon },
   ],
   beneficiario: [
-    { to: '/beneficiario/dashboard', label: 'Dashboard', icon: HomeIcon },
+    { to: '/beneficiario/dashboard', label: 'Tablero', icon: HomeIcon },
     { to: '/beneficiario/sesiones', label: 'Mis Sesiones', icon: CalendarDaysIcon },
-    { to: '/beneficiario/progreso', label: 'Mi Progreso', icon: AcademicCapIcon },
   ],
 };
 
