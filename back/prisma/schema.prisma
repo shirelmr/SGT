@@ -170,6 +170,7 @@ model Bitacora {
   plan_siguiente String?  @db.Text
   evidencia      String?  @db.VarChar(500)
   fecha_registro DateTime @default(now())
+  estado         EstadoComentario @default(pendiente)
 
   sesion      Sesion               @relation(fields: [id_sesion], references: [id_sesion])
   tutor       TutorTec             @relation(fields: [id_tutor], references: [id_tutor])
@@ -182,7 +183,6 @@ model ComentarioBitacora {
   id_revisor       Int
   comentario       String           @db.Text
   fecha_comentario DateTime         @default(now())
-  estado           EstadoComentario @default(pendiente)
   leido            Boolean          @default(false)
 
   bitacora Bitacora @relation(fields: [id_bitacora], references: [id_bitacora])
