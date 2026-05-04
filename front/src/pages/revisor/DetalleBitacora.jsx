@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { getBitacora } from '../../api/bitacoras';
+import { getBitacora, updateBitacora } from '../../api/bitacoras';
 import { getComentarios, createComentario } from '../../api/comentarios';
 import PageHeader from '../../components/shared/PageHeader';
 import Card from '../../components/ui/Card';
@@ -23,11 +23,14 @@ export default function DetalleBitacora() {
   const [bitacora, setBitacora] = useState(null);
   const [comentarios, setComentarios] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
+  //const [sending, setSending] = useState(false);
+  const [sendingComment, setSendingComment] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
-    defaultValues: { estado: 'pendiente' },
-  });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  // const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  //   defaultValues: { estado: 'pendiente' },
+  // });
 
   useEffect(() => {
     async function load() {
@@ -49,18 +52,47 @@ export default function DetalleBitacora() {
     load();
   }, [id]);
 
-  async function onSubmit(data) {
-    setSending(true);
+  // async function onSubmit(data) {
+  //   setSending(true);
+  //   try {
+  //     await createComentario({ ...data, id_bitacora: bitacora.id });
+  //     toast.success('Comentario enviado');
+  //     reset({ estado: 'pendiente' });
+  //     const cRes = await getComentarios(bitacora.id);
+  //     setComentarios(cRes.data || []);
+  //   } catch (err) {
+  //     toast.error(err?.response?.data?.error || 'Error al enviar comentario');
+  //   } finally {
+  //     setSending(false);
+  //   }
+  // }
+
+  async function onCommentSubmit(data) {
+    setSendingComment(true);
     try {
-      await createComentario({ ...data, id_bitacora: bitacora.id });
+      await createComentario({ texto: data.texto, id_bitacora: bitacora.id });
       toast.success('Comentario enviado');
-      reset({ estado: 'pendiente' });
+      reset();
       const cRes = await getComentarios(bitacora.id);
       setComentarios(cRes.data || []);
     } catch (err) {
       toast.error(err?.response?.data?.error || 'Error al enviar comentario');
     } finally {
-      setSending(false);
+      setSendingComment(false);
+    }
+  }
+
+  async function handleStatusChange(nuevoEstado) {
+    setUpdatingStatus(true);
+    try {
+      await updateBitacora(bitacora.id, { estado: nuevoEstado });
+      setBitacora({ ...bitacora, estado: nuevoEstado });
+      toast.success(`Estado actualizado a ${nuevoEstado}`);
+    } catch (err) {
+      console.error("Error del backend:", err);
+      toast.error('Error al actualizar el estado');
+    } finally {
+      setUpdatingStatus(false);
     }
   }
 
@@ -143,23 +175,37 @@ export default function DetalleBitacora() {
           </Card>
         </div>
 
-        {/* Right: Comments */}
+        {/* Right: Actions y Comments */}
         <div className="space-y-4">
+          
+          <Card title="Estado de la Revisión">
+            <div className="flex items-center gap-3">
+              <select
+                className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400"
+                value={bitacora.estado || 'pendiente'}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                disabled={updatingStatus}
+              >
+                <option value="pendiente">Pendiente</option>
+                <option value="revisado">Revisado</option>
+                <option value="aprobado">Aprobado</option>
+              </select>
+              {updatingStatus && <Spinner size="sm" />}
+            </div>
+          </Card>
+          
           <Card title={`Comentarios (${comentarios.length})`}>
             {comentarios.length === 0 ? (
               <p className="text-gray-400 text-sm">Sin comentarios aún.</p>
             ) : (
               <ul className="space-y-3 max-h-64 overflow-y-auto">
                 {comentarios.map((c) => (
-                  <li key={c.id} className="p-3 rounded-xl bg-gray-50">
-                    <div className="flex items-center justify-between mb-1">
+                  <li key={c.id} className="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                    <div className="flex items-center justify-between mb-2">
                       <p className="text-sm font-medium text-gray-800">{c.revisor?.nombre_completo || 'Revisor'}</p>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={estadoBadge[c.estado] || 'default'}>{c.estado}</Badge>
-                        <span className="text-xs text-gray-400">
-                          {new Date(c.fecha_creacion).toLocaleDateString('es-MX')}
-                        </span>
-                      </div>
+                      <span className="text-xs text-gray-400">
+                        {new Date(c.fecha_creacion).toLocaleDateString('es-MX')}
+                      </span>
                     </div>
                     <p className="text-sm text-gray-600">{c.texto}</p>
                   </li>
@@ -168,31 +214,19 @@ export default function DetalleBitacora() {
             )}
           </Card>
 
-          <Card title="Nuevo comentario">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          <Card title="Añadir comentario">
+            <form onSubmit={handleSubmit(onCommentSubmit)} className="space-y-3">
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">Comentario</label>
                 <textarea
-                  rows={4}
-                  placeholder="Escribe tu comentario..."
+                  rows={3}
+                  placeholder="Escribe retroalimentación para el tutor..."
                   className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 resize-none"
-                  {...register('texto', { required: 'El comentario es obligatorio' })}
+                  {...register('texto', { required: 'El comentario no puede estar vacío' })}
                 />
                 {errors.texto && <p className="text-xs text-red-500">{errors.texto.message}</p>}
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">Estado</label>
-                <select
-                  className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400"
-                  {...register('estado')}
-                >
-                  <option value="pendiente">Pendiente</option>
-                  <option value="revisado">Revisado</option>
-                  <option value="aprobado">Aprobado</option>
-                </select>
-              </div>
-              <Button type="submit" loading={sending} className="w-full">
-                Enviar comentario
+              <Button type="submit" loading={sendingComment} className="w-full">
+                Publicar comentario
               </Button>
             </form>
           </Card>

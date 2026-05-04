@@ -47,7 +47,7 @@ export default function Bitacoras() {
 
   const filtered = bitacoras.filter((b) => {
     const tutorMatch = !filterTutor || b.sesion?.tutor?.nombre_completo === filterTutor;
-    const estadoMatch = !filterEstado || b.ultimo_estado === filterEstado;
+    const estadoMatch = !filterEstado || b.estado === filterEstado;
     return tutorMatch && estadoMatch;
   });
 
@@ -73,9 +73,9 @@ export default function Bitacoras() {
       render: (_, row) => row.fecha_registro ? new Date(row.fecha_registro).toLocaleDateString('es-MX') : '—',
     },
     {
-      key: 'ultimo_estado',
+      key: 'estado',
       label: 'Estado',
-      render: (v) => v ? <Badge variant={estadoBadge[v] || 'default'}>{v}</Badge> : <Badge variant="default">Sin revisión</Badge>,
+      render: (_, row) => row.estado ? <Badge variant={estadoBadge[row.estado] || 'default'}>{row.estado}</Badge> : <Badge variant="default">Pendiente</Badge>,
     },
     {
       key: 'acciones',
