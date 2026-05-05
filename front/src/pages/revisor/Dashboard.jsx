@@ -16,8 +16,8 @@ export default function RevisorDashboard() {
     getBitacoras()
       .then((r) => {
         const all = r.data || [];
-        const revisadas = all.filter((b) => b.ultimo_estado === 'revisado' || b.ultimo_estado === 'aprobado').length;
-        const pendientes = all.filter((b) => !b.ultimo_estado || b.ultimo_estado === 'pendiente').length;
+        const revisadas = all.filter((b) => b.estado === 'revisado' || b.estado === 'aprobado').length;
+        const pendientes = all.filter((b) => !b.estado || b.estado === 'pendiente').length;
         setStats({ total: all.length, revisadas, pendientes });
       })
       .catch(() => toast.error('Error al cargar bitácoras'))

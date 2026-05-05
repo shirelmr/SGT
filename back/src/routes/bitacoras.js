@@ -24,6 +24,7 @@ const fmt = (b) => ({
   plan_siguiente: b.plan_siguiente,
   evidencia: b.evidencia,
   fecha_registro: b.fecha_registro,
+  estado: b.estado,
   sesion: b.sesion ? {
     id_sesion: b.sesion.id_sesion,
     fecha: b.sesion.fecha,
@@ -130,16 +131,17 @@ router.post('/', auth, async (req, res) => {
 // PUT /api/bitacoras/:id
 router.put('/:id', auth, async (req, res) => {
   const id = Number(req.params.id)
-  const { actividades, logros, dificultades, plan_siguiente, evidencia } = req.body
+  const { actividades, logros, dificultades, plan_siguiente, evidencia, estado } = req.body
   try {
     const bitacora = await prisma.bitacora.update({
-      where: { id_bitacora: id },
+      where: { id_bitacora: parseInt(id) },
       data: {
         ...(actividades !== undefined && { actividades }),
         ...(logros !== undefined && { logros }),
         ...(dificultades !== undefined && { dificultades }),
         ...(plan_siguiente !== undefined && { plan_siguiente }),
         ...(evidencia !== undefined && { evidencia }),
+        ...(estado !== undefined && { estado }),
       },
       include: baseInclude,
     })
