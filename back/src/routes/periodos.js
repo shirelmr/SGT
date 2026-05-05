@@ -34,6 +34,8 @@ router.post('/', auth, async (req, res) => {
     return res.status(400).json({ error: 'nombre, fecha_inicio, fecha_fin y horas_max son requeridos' })
   }
   try {
+    await prisma.postulacion.deleteMany({})
+
     const periodo = await prisma.periodo.create({
       data: {
         nombre,

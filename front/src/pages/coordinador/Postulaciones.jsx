@@ -150,6 +150,13 @@ export default function Postulaciones() {
                 Aceptar
               </Button>
             </>
+          ) : selected?.estado === 'rechazado' ? (
+            <>
+              <Button variant="secondary" onClick={() => setSelected(null)}>Cerrar</Button>
+              <Button loading={acting} onClick={() => handleAceptar(selected.id_postulacion)}>
+                Aceptar de todas formas
+              </Button>
+            </>
           ) : (
             <Button variant="secondary" onClick={() => setSelected(null)}>Cerrar</Button>
           )

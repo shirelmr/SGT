@@ -4,6 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const prisma = require('../db')
 const auth = require('../middleware/auth')
+const { sendAceptacionEmail } = require('../mailer')
 
 const router = express.Router()
 
@@ -140,6 +141,10 @@ router.patch('/:id/aceptar', auth, async (req, res) => {
       where: { id_postulacion: Number(req.params.id) },
       data: { estado: 'aceptado' },
     })
+
+    sendAceptacionEmail({ nombre: postulacion.nombre_completo, email: postulacion.email })
+      .catch(err => console.error('Error enviando correo de aceptación:', err))
+
     res.json(p)
   } catch (err) {
     console.error(err)

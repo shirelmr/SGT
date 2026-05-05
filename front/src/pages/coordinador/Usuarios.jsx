@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { getUsuarios, createUsuario, updateUsuario, deleteUsuario } from '../../api/usuarios';
 import { getPeriodos } from '../../api/periodos';
 import PageHeader from '../../components/shared/PageHeader';
@@ -30,6 +30,8 @@ export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [periodos, setPeriodos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filtroRol, setFiltroRol] = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -47,14 +49,13 @@ export default function Usuarios() {
 
   const watchedRol = watch('rol');
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, [filtroRol]);
 
   async function loadData() {
     setLoading(true);
     try {
-      const [u, p] = await Promise.allSettled([getUsuarios(), getPeriodos()]);
+      const params = filtroRol ? { rol: filtroRol } : {};
+      const [u, p] = await Promise.allSettled([getUsuarios(params), getPeriodos()]);
       if (u.status === 'fulfilled') setUsuarios(u.value.data);
       if (p.status === 'fulfilled') setPeriodos(p.value.data);
     } catch {
@@ -124,11 +125,6 @@ export default function Usuarios() {
       render: (v) => <Badge variant={roleBadge[v] || 'default'}>{roleLabels[v] || v}</Badge>,
     },
     {
-      key: 'activo',
-      label: 'Estado',
-      render: (v) => <Badge variant={v !== false ? 'success' : 'danger'}>{v !== false ? 'Activo' : 'Inactivo'}</Badge>,
-    },
-    {
       key: 'acciones',
       label: 'Acciones',
       render: (_, row) => (
@@ -163,8 +159,41 @@ export default function Usuarios() {
         }
       />
 
+      {/* Filters */}
+      <div className="mb-4 flex items-center gap-3 flex-wrap">
+        <div className="relative">
+          <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="pl-9 pr-3 py-1.5 text-sm border-2 border-gray-200 rounded-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 w-56"
+          />
+        </div>
+
+        <select
+          value={filtroRol}
+          onChange={(e) => setFiltroRol(e.target.value)}
+          className="px-3 py-1.5 text-sm border-2 border-gray-200 rounded-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+        >
+          <option value="">Todos los roles</option>
+          <option value="tutor">Tutor</option>
+          <option value="beneficiario">Beneficiario</option>
+          <option value="revisor">Revisor</option>
+          <option value="coordinador">Coordinador</option>
+        </select>
+      </div>
+
       <div className="bg-white rounded-2xl shadow-sm p-6">
-        <Table columns={columns} data={usuarios} loading={loading} emptyMessage="No hay usuarios registrados" />
+        <Table
+          columns={columns}
+          data={usuarios.filter((u) =>
+            u.nombre_completo.toLowerCase().includes(busqueda.toLowerCase())
+          )}
+          loading={loading}
+          emptyMessage="No hay usuarios registrados"
+        />
       </div>
 
       <Modal
