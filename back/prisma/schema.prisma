@@ -218,6 +218,7 @@ model HorasAcreditadas {
   id_tutor             Int
   id_periodo           Int
   horas_impartidas     Decimal @db.Decimal(6, 1)
+  horas_extra          Decimal @default(0) @db.Decimal(6, 1)
   porcentaje_acred     Decimal @db.Decimal(5, 2)
 
   tutor   TutorTec @relation(fields: [id_tutor], references: [id_tutor])

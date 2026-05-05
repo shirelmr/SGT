@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { getPeriodos } from '../../api/periodos';
-import { getUsuarios, updateUsuario } from '../../api/usuarios';
+import { getUsuarios, updateUsuario, asignarAutomatico } from '../../api/usuarios';
 import PageHeader from '../../components/shared/PageHeader';
 import Spinner from '../../components/ui/Spinner';
 import Card from '../../components/ui/Card';
@@ -15,6 +15,8 @@ export default function Asignaciones() {
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState({});
+  const [porTutor, setPorTutor] = useState(5);
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     getPeriodos()
@@ -38,6 +40,26 @@ export default function Asignaciones() {
       .catch(() => toast.error('Error al cargar usuarios'))
       .finally(() => setLoading(false));
   }, [selectedPeriodo]);
+
+  async function handleAutoAssign() {
+    if (!selectedPeriodo) return;
+    setAssigning(true);
+    try {
+      const r = await asignarAutomatico(porTutor);
+      const { asignados } = r.data;
+      if (asignados === 0) {
+        toast('Todos los beneficiarios ya tienen tutor asignado');
+      } else {
+        toast.success(`${asignados} beneficiario${asignados !== 1 ? 's' : ''} asignado${asignados !== 1 ? 's' : ''} automáticamente`);
+      }
+      const r2 = await getUsuarios();
+      setBeneficiarios(r2.data.filter((u) => u.rol === 'beneficiario' && String(u.id_periodo) === selectedPeriodo));
+    } catch {
+      toast.error('Error al asignar automáticamente');
+    } finally {
+      setAssigning(false);
+    }
+  }
 
   async function handleAssign(beneficiarioId, tutorId) {
     setSaving((prev) => ({ ...prev, [beneficiarioId]: true }));
@@ -68,6 +90,31 @@ export default function Asignaciones() {
           {periodos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
       </div>
+
+      {selectedPeriodo && !loading && (
+        <div className="mb-6 flex items-end gap-3 p-4 bg-orange-50 border border-orange-100 rounded-2xl">
+          <div>
+            <label className="text-sm font-medium text-gray-700 block mb-1">Beneficiarios por tutor</label>
+            <input
+              type="number"
+              min={1}
+              value={porTutor}
+              onChange={(e) => setPorTutor(Number(e.target.value))}
+              className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm w-24 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+            />
+          </div>
+          <div className="text-xs text-gray-500 pb-2">
+            {tutores.length > 0 && (
+              <>Se asignarán hasta <strong>{tutores.length * porTutor}</strong> beneficiarios sin tutor ({tutores.length} tutores × {porTutor})</>
+            )}
+          </div>
+          <div className="ml-auto">
+            <Button onClick={handleAutoAssign} disabled={assigning || tutores.length === 0}>
+              {assigning ? 'Asignando...' : 'Asignar automáticamente'}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>

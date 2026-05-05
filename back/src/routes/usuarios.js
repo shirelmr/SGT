@@ -122,6 +122,48 @@ router.post('/', async (req, res) => {
   }
 })
 
+// POST /api/usuarios/asignar-automatico
+router.post('/asignar-automatico', auth, async (req, res) => {
+  if (req.user.rol !== 'coordinador') {
+    return res.status(403).json({ error: 'Acceso denegado' })
+  }
+
+  const n = Number(req.body.beneficiarios_por_tutor)
+  if (!n || n < 1) {
+    return res.status(400).json({ error: 'beneficiarios_por_tutor debe ser mayor a 0' })
+  }
+
+  try {
+    const periodo = await prisma.periodo.findFirst({ where: { activo: true } })
+    if (!periodo) return res.status(400).json({ error: 'No hay periodo activo' })
+
+    const tutores = await prisma.tutorTec.findMany({ where: { id_periodo: periodo.id_periodo } })
+    if (tutores.length === 0) return res.status(400).json({ error: 'No hay tutores en el periodo activo' })
+
+    const beneficiarios = await prisma.beneficiario.findMany({
+      where: { id_periodo: periodo.id_periodo, id_tutor: null },
+    })
+
+    if (beneficiarios.length === 0) return res.json({ asignados: 0 })
+
+    const toAssign = beneficiarios.slice(0, tutores.length * n)
+
+    await prisma.$transaction(
+      toAssign.map((b, i) =>
+        prisma.beneficiario.update({
+          where: { id_benef: b.id_benef },
+          data: { id_tutor: tutores[Math.floor(i / n)].id_tutor },
+        })
+      )
+    )
+
+    res.json({ asignados: toAssign.length })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
 // PUT /api/usuarios/:id
 router.put('/:id', async (req, res) => {
   const id = Number(req.params.id)
