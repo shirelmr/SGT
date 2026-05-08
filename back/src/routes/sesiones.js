@@ -8,7 +8,14 @@ const include = {
   tutor: { include: { usuario: { select: { nombre_completo: true } } } },
   beneficiario: { include: { usuario: { select: { nombre_completo: true } } } },
   periodo: { select: { nombre: true } },
-  bitacora: { select: { id_bitacora: true } },
+  bitacora: { select: { id_bitacora: true, estado: true } },
+}
+
+function fmtHora(h) {
+  if (!h) return null
+  if (h instanceof Date) return h.toISOString().slice(11, 16)
+  if (typeof h === 'string') return h.slice(0, 5)
+  return null
 }
 
 const fmt = (s) => ({
@@ -17,7 +24,7 @@ const fmt = (s) => ({
   id_beneficiario: s.id_beneficiario,
   id_periodo: s.id_periodo,
   fecha: s.fecha,
-  hora_inicio: s.hora_inicio,
+  hora_inicio: fmtHora(s.hora_inicio),
   duracion_hrs: s.duracion_hrs,
   tema: s.tema,
   link_sesion: s.link_sesion,
@@ -75,9 +82,9 @@ router.post('/', auth, async (req, res) => {
   if (req.user.rol !== 'tutor') {
     return res.status(403).json({ error: 'Solo tutores pueden crear sesiones' })
   }
-  const { id_beneficiario, id_periodo, fecha, hora_inicio, duracion_hrs, tema, link_sesion } = req.body
-  if (!id_beneficiario || !fecha || !hora_inicio || !duracion_hrs || !tema) {
-    return res.status(400).json({ error: 'id_beneficiario, fecha, hora_inicio, duracion_hrs y tema son requeridos' })
+  const { ids_beneficiarios, id_periodo, fecha, hora_inicio, duracion_hrs, tema, estado } = req.body
+  if (!ids_beneficiarios || !Array.isArray(ids_beneficiarios) || ids_beneficiarios.length === 0 || !fecha || !hora_inicio || !duracion_hrs || !tema) {
+    return res.status(400).json({ error: 'ids_beneficiarios, fecha, hora_inicio, duracion_hrs y tema son requeridos' })
   }
 
   try {
@@ -86,21 +93,25 @@ router.post('/', auth, async (req, res) => {
 
     const periodoId = id_periodo ? Number(id_periodo) : tutor.id_periodo
 
-    const sesion = await prisma.sesion.create({
-      data: {
-        id_tutor: tutor.id_tutor,
-        id_beneficiario: Number(id_beneficiario),
-        id_periodo: periodoId,
-        fecha: new Date(fecha),
-        hora_inicio: new Date(`1970-01-01T${hora_inicio}`),
-        duracion_hrs: Number(duracion_hrs),
-        tema,
-        link_sesion: link_sesion || null,
-        estado: 'programada',
-      },
-      include,
-    })
-    res.status(201).json(fmt(sesion))
+    const sesiones = await Promise.all(
+      ids_beneficiarios.map((id_benef) =>
+        prisma.sesion.create({
+          data: {
+            id_tutor: tutor.id_tutor,
+            id_beneficiario: Number(id_benef),
+            id_periodo: periodoId,
+            fecha: new Date(fecha),
+            hora_inicio: new Date(`1970-01-01T${hora_inicio}`),
+            duracion_hrs: Number(duracion_hrs),
+            tema,
+            link_sesion: tutor.link_zoom || null,
+            estado: estado || 'programada',
+          },
+          include,
+        })
+      )
+    )
+    res.status(201).json(sesiones.map(fmt))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })

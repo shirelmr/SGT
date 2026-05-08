@@ -25,6 +25,18 @@ const estadoBadge = {
   cancelada: 'danger',
 };
 
+const estadoBitacoraBadge = {
+  pendiente: 'warning',
+  revisado: 'orange',
+  aprobado: 'success',
+};
+
+const estadoBitacoraLabel = {
+  pendiente: 'Pendiente de revisión',
+  revisado: 'En revisión',
+  aprobado: 'Aprobada',
+};
+
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const MESES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -259,6 +271,11 @@ export default function TutorDashboard() {
                     <ChatBubbleLeftIcon className="w-4 h-4 text-red-500" />
                   )}
                   <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
+                  {s.bitacora && (
+                    <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
+                      {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
+                    </Badge>
+                  )}
                   <Link
                     to={`/tutor/sesiones/${s.id}/bitacora`}
                     className="text-xs text-orange-500 hover:underline font-medium"

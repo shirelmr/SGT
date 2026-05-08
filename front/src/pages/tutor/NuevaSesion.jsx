@@ -12,6 +12,7 @@ import Card from '../../components/ui/Card';
 export default function NuevaSesion() {
   const navigate = useNavigate();
   const [beneficiarios, setBeneficiarios] = useState([]);
+  const [selectedBenef, setSelectedBenef] = useState([]);
   const [saving, setSaving] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -24,11 +25,24 @@ export default function NuevaSesion() {
       .catch(() => toast.error('Error al cargar beneficiarios'));
   }, []);
 
+  function toggleBenef(id) {
+    setSelectedBenef((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }
+
   async function onSubmit(data) {
+    if (selectedBenef.length === 0) {
+      toast.error('Selecciona al menos un beneficiario');
+      return;
+    }
     setSaving(true);
     try {
-      await createSesion(data);
-      toast.success('Sesión creada exitosamente');
+      await createSesion({ ...data, ids_beneficiarios: selectedBenef });
+      const msg = selectedBenef.length > 1
+        ? `${selectedBenef.length} sesiones creadas exitosamente`
+        : 'Sesión creada exitosamente';
+      toast.success(msg);
       navigate('/tutor/sesiones');
     } catch (err) {
       toast.error(err?.response?.data?.error || 'Error al crear sesión');
@@ -47,19 +61,27 @@ export default function NuevaSesion() {
       <Card className="max-w-2xl">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Beneficiario</label>
-            <select
-              className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-              {...register('id_beneficiario', { required: 'Obligatorio' })}
-            >
-              <option value="">Seleccionar beneficiario</option>
-              {beneficiarios.map((b) => (
-                <option key={b.id_benef} value={b.id_benef}>{b.nombre_completo}</option>
-              ))}
-            </select>
-            {errors.id_beneficiario && (
-              <p className="text-xs text-red-500">{errors.id_beneficiario.message}</p>
-            )}
+            <label className="text-sm font-medium text-gray-700">
+              Beneficiarios{' '}
+              <span className="text-gray-400 font-normal">(puedes seleccionar varios)</span>
+            </label>
+            <div className="border-2 border-gray-200 rounded-xl p-3 max-h-40 overflow-y-auto space-y-2">
+              {beneficiarios.length === 0 ? (
+                <p className="text-sm text-gray-400">No tienes beneficiarios asignados</p>
+              ) : (
+                beneficiarios.map((b) => (
+                  <label key={b.id_benef} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300 text-orange-500 focus:ring-orange-400"
+                      checked={selectedBenef.includes(b.id_benef)}
+                      onChange={() => toggleBenef(b.id_benef)}
+                    />
+                    <span className="text-sm text-gray-700">{b.nombre_completo}</span>
+                  </label>
+                ))
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -94,7 +116,6 @@ export default function NuevaSesion() {
               >
                 <option value="programada">Programada</option>
                 <option value="realizada">Realizada</option>
-                <option value="cancelada">Cancelada</option>
               </select>
             </div>
           </div>
@@ -106,14 +127,6 @@ export default function NuevaSesion() {
             {...register('tema', { required: 'Obligatorio' })}
           />
 
-          <Input
-            label="Link de sesión (Zoom, Meet, etc.)"
-            type="url"
-            placeholder="https://..."
-            error={errors.link_sesion?.message}
-            {...register('link_sesion', { required: 'Obligatorio' })}
-          />
-
           <div className="flex gap-3 pt-2">
             <Button
               type="button"
@@ -123,7 +136,9 @@ export default function NuevaSesion() {
               Cancelar
             </Button>
             <Button type="submit" loading={saving}>
-              Crear sesión
+              {selectedBenef.length > 1
+                ? `Crear ${selectedBenef.length} sesiones`
+                : 'Crear sesión'}
             </Button>
           </div>
         </form>

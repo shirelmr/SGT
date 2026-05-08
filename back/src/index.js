@@ -15,6 +15,8 @@ const horasRoutes = require('./routes/horas')
 const beneficiarioPeriodoRoutes = require('./routes/beneficiarioPeriodo')
 const tutorRoutes = require('./routes/tutor')
 const postulacionesRoutes = require('./routes/postulaciones')
+const incidenciasRoutes = require('./routes/incidencias')
+const uploadRoutes = require('./routes/upload')
 
 const app = express()
 
@@ -35,6 +37,8 @@ app.use('/api/horas-acreditadas', horasRoutes)
 app.use('/api/beneficiario-periodo', beneficiarioPeriodoRoutes)
 app.use('/api/tutor', tutorRoutes)
 app.use('/api/postulaciones', postulacionesRoutes)
+app.use('/api/incidencias', incidenciasRoutes)
+app.use('/api/upload', uploadRoutes)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 

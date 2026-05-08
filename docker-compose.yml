@@ -9,7 +9,7 @@ services:
       - ./back/src:/app/src         # hot-reload: code changes reflect instantly
       - ./back/prisma:/app/prisma   # schema + migrations available at runtime
       - ./back/prisma.config.ts:/app/prisma.config.ts
-      - ./back/uploads:/app/uploads # persist uploaded files across restarts
+      - ./back/uploads:/app/uploads:z # :z re-labels SELinux context so container can write
 
   frontend:
     build: ./front

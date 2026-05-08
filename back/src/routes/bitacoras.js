@@ -4,6 +4,13 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
+function fmtHora(h) {
+  if (!h) return null
+  if (h instanceof Date) return h.toISOString().slice(11, 16)
+  if (typeof h === 'string') return h.slice(0, 5)
+  return null
+}
+
 const baseInclude = {
   sesion: {
     include: {
@@ -30,7 +37,7 @@ const fmt = (b) => ({
     fecha: b.sesion.fecha,
     tema: b.sesion.tema,
     estado: b.sesion.estado,
-    hora_inicio: b.sesion.hora_inicio,
+    hora_inicio: fmtHora(b.sesion.hora_inicio),
     tutor: b.sesion.tutor ? { nombre_completo: b.sesion.tutor.usuario?.nombre_completo } : null,
     beneficiario: b.sesion.beneficiario ? { nombre_completo: b.sesion.beneficiario.usuario?.nombre_completo } : null,
   } : null,
