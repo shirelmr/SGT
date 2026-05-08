@@ -81,12 +81,14 @@ function CalendarioSesiones({ sesiones }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-0.5 text-center">
+      <div className="grid grid-cols-7 text-center text-xs text-gray-400 mb-1">
         {DIAS.map((d) => (
           <div key={d} className="text-[10px] font-medium text-gray-400 py-1">{d}</div>
         ))}
+      </div>
+      <div className="grid grid-cols-7 text-center text-xs gap-y-1">
         {celdas.map((dia, i) => {
-          if (!dia) return <div key={`e-${i}`} />;
+          if (!dia) return <span key={`e-${i}`} />;
           const key = `${year}-${month}-${dia}`;
           const tieneSesion = sessionDays.has(key);
           const esHoy =
@@ -95,19 +97,14 @@ function CalendarioSesiones({ sesiones }) {
             year === hoy.getFullYear();
 
           return (
-            <div
+            <span
               key={key}
-              className={`relative flex flex-col items-center justify-center py-1.5 rounded-lg text-xs
-                ${esHoy ? 'bg-orange-500 text-white font-bold' : 'text-gray-700 hover:bg-gray-50'}
+              className={`w-7 h-7 mx-auto flex items-center justify-center rounded-full
+                ${esHoy ? 'bg-orange-500 text-white font-bold' : tieneSesion ? 'bg-orange-100 text-orange-600 font-semibold' : 'text-gray-600'}
               `}
             >
               {dia}
-              {tieneSesion && (
-                <span
-                  className={`absolute bottom-0.5 w-1 h-1 rounded-full ${esHoy ? 'bg-white' : 'bg-orange-400'}`}
-                />
-              )}
-            </div>
+            </span>
           );
         })}
       </div>
