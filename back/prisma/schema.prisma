@@ -22,6 +22,13 @@ enum EstadoSesion {
   cancelada
 }
 
+enum TipoIncidencia {
+  retardo
+  no_se_presento
+  inasistencia
+  otro
+}
+
 enum EstadoComentario {
   pendiente
   revisado
@@ -91,7 +98,8 @@ model TutorTec {
   matricula   String? @db.VarChar(20)
   carrera     String? @db.VarChar(100)
   semestre    Int?    @db.SmallInt
-  link_video  String? @db.VarChar(40)
+  link_video  String? @db.VarChar(300)
+  link_zoom   String? @db.VarChar(300)
 
   usuario      Usuario      @relation(fields: [id_usuario], references: [id_usuario])
   periodo      Periodo?     @relation(fields: [id_periodo], references: [id_periodo])
@@ -99,6 +107,7 @@ model TutorTec {
   sesiones     Sesion[]
   bitacoras    Bitacora[]
   horas        HorasAcreditadas[]
+  incidencias  Incidencia[]
 }
 
 model Beneficiario {
@@ -156,8 +165,9 @@ model Sesion {
   beneficiario Beneficiario @relation(fields: [id_beneficiario], references: [id_benef])
   periodo     Periodo      @relation(fields: [id_periodo], references: [id_periodo])
 
-  bitacora   Bitacora?
-  asistencia Asistencia?
+  bitacora    Bitacora?
+  asistencia  Asistencia?
+  incidencias Incidencia[]
 }
 
 model Bitacora {
@@ -223,4 +233,16 @@ model HorasAcreditadas {
 
   tutor   TutorTec @relation(fields: [id_tutor], references: [id_tutor])
   periodo Periodo  @relation(fields: [id_periodo], references: [id_periodo])
+}
+
+model Incidencia {
+  id_incidencia  Int            @id @default(autoincrement())
+  id_sesion      Int
+  id_tutor       Int
+  tipo           TipoIncidencia
+  descripcion    String?        @db.Text
+  fecha_registro DateTime       @default(now())
+
+  sesion Sesion   @relation(fields: [id_sesion], references: [id_sesion])
+  tutor  TutorTec @relation(fields: [id_tutor], references: [id_tutor])
 }

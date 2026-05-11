@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PaperClipIcon } from '@heroicons/react/24/outline';
 import { getBitacora, updateBitacora } from '../../api/bitacoras';
 import { getComentarios, createComentario } from '../../api/comentarios';
 import PageHeader from '../../components/shared/PageHeader';
@@ -16,6 +16,13 @@ const estadoBadge = {
   revisado: 'info',
   aprobado: 'success',
 };
+
+function getFileUrl(p) {
+  if (!p) return null;
+  if (p.startsWith('http')) return p;
+  const base = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
+  return `${base}${p}`;
+}
 
 export default function DetalleBitacora() {
   const { id } = useParams();
@@ -167,8 +174,17 @@ export default function DetalleBitacora() {
               ))}
               {bitacora.evidencia && (
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Evidencia</p>
-                  <a href={bitacora.evidencia} target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline text-sm">{bitacora.evidencia}</a>
+                  <p className="text-xs text-gray-500 mb-2">Evidencia</p>
+                  {/\.(jpg|jpeg|png|webp)$/i.test(bitacora.evidencia) ? (
+                    <a href={getFileUrl(bitacora.evidencia)} target="_blank" rel="noopener noreferrer">
+                      <img src={getFileUrl(bitacora.evidencia)} alt="Evidencia" className="max-h-48 rounded-xl object-cover border border-gray-100" />
+                    </a>
+                  ) : (
+                    <a href={getFileUrl(bitacora.evidencia)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-orange-500 hover:underline text-sm">
+                      <PaperClipIcon className="w-4 h-4" />
+                      {/\.pdf$/i.test(bitacora.evidencia) ? 'Ver PDF' : 'Ver archivo'}
+                    </a>
+                  )}
                 </div>
               )}
             </div>

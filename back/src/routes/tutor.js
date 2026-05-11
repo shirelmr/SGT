@@ -27,7 +27,7 @@ router.put('/perfil', auth, async (req, res) => {
   if (req.user.rol !== 'tutor') {
     return res.status(403).json({ error: 'Acceso denegado' })
   }
-  const { matricula, carrera, semestre, link_video } = req.body
+  const { matricula, carrera, semestre, link_video, link_zoom } = req.body
   try {
     const perfil = await prisma.tutorTec.update({
       where: { id_usuario: req.user.id_usuario },
@@ -36,6 +36,7 @@ router.put('/perfil', auth, async (req, res) => {
         ...(carrera !== undefined && { carrera: carrera || null }),
         ...(semestre !== undefined && { semestre: semestre ? Number(semestre) : null }),
         ...(link_video !== undefined && { link_video: link_video || null }),
+        ...(link_zoom !== undefined && { link_zoom: link_zoom || null }),
       },
     })
     res.json(perfil)

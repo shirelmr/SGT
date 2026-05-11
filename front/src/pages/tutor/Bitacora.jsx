@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { getSesion } from '../../api/sesiones';
-import { getBitacora, createBitacora, updateBitacora } from '../../api/bitacoras';
+import { getBitacora, createBitacora, updateBitacora, uploadEvidencia } from '../../api/bitacoras';
 import { getComentarios, marcarLeidos } from '../../api/comentarios';
 import PageHeader from '../../components/shared/PageHeader';
 import Card from '../../components/ui/Card';
@@ -17,6 +18,28 @@ const estadoComentarioBadge = {
   aprobado: 'success',
 };
 
+const estadoBitacoraBadge = {
+  pendiente: 'warning',
+  revisado: 'info',
+  aprobado: 'success',
+};
+
+const estadoBitacoraLabel = {
+  pendiente: 'Pendiente de revisión',
+  revisado: 'En revisión',
+  aprobado: 'Aprobada',
+};
+
+function getFileUrl(p) {
+  if (!p) return null;
+  if (p.startsWith('http')) return p;
+  const base = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
+  return `${base}${p}`;
+}
+
+function isImage(p) { return /\.(jpg|jpeg|png|webp)$/i.test(p); }
+function isPdf(p) { return /\.pdf$/i.test(p); }
+
 export default function Bitacora() {
   const { id } = useParams();
   const [sesion, setSesion] = useState(null);
@@ -25,6 +48,8 @@ export default function Bitacora() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [evidenciaUrl, setEvidenciaUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
@@ -33,12 +58,11 @@ export default function Bitacora() {
       try {
         const sesRes = await getSesion(id);
         setSesion(sesRes.data);
-
         try {
           const bitRes = await getBitacora(id);
           setBitacora(bitRes.data);
+          setEvidenciaUrl(bitRes.data.evidencia || '');
           reset(bitRes.data);
-
           try {
             const comRes = await getComentarios(bitRes.data.id);
             setComentarios(comRes.data || []);
@@ -48,6 +72,7 @@ export default function Bitacora() {
           }
         } catch {
           setBitacora(null);
+          setEvidenciaUrl('');
           setEditing(true);
         }
       } catch {
@@ -59,14 +84,32 @@ export default function Bitacora() {
     load();
   }, [id, reset]);
 
+  async function handleFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await uploadEvidencia(formData);
+      setEvidenciaUrl(res.data.url);
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Error al subir el archivo');
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function onSubmit(data) {
     setSaving(true);
     try {
+      const payload = { ...data, evidencia: evidenciaUrl || null };
       if (bitacora) {
-        await updateBitacora(bitacora.id, data);
+        await updateBitacora(bitacora.id, payload);
+        setBitacora((prev) => ({ ...prev, ...payload }));
         toast.success('Bitácora actualizada');
       } else {
-        const res = await createBitacora({ ...data, id_sesion: Number(id) });
+        const res = await createBitacora({ ...payload, id_sesion: Number(id) });
         setBitacora(res.data);
         toast.success('Bitácora registrada');
       }
@@ -89,7 +132,6 @@ export default function Bitacora() {
         subtitle={sesion ? `${sesion.tema} • ${new Date(sesion.fecha).toLocaleDateString('es-MX')}` : ''}
       />
 
-      {/* Session info */}
       {sesion && (
         <Card className="mb-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
@@ -113,8 +155,15 @@ export default function Bitacora() {
         </Card>
       )}
 
-      {/* Bitácora form/view */}
       <Card title="Bitácora" className="mb-6">
+        {bitacora && (
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+            <span className="text-xs text-gray-500">Estado:</span>
+            <Badge variant={estadoBitacoraBadge[bitacora.estado] || 'default'}>
+              {estadoBitacoraLabel[bitacora.estado] || bitacora.estado}
+            </Badge>
+          </div>
+        )}
         {!editing && bitacora ? (
           <div className="space-y-4">
             <div>
@@ -135,11 +184,29 @@ export default function Bitacora() {
             </div>
             {bitacora.evidencia && (
               <div>
-                <p className="text-xs text-gray-500 mb-1">Evidencia</p>
-                <a href={bitacora.evidencia} target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline text-sm">{bitacora.evidencia}</a>
+                <p className="text-xs text-gray-500 mb-2">Evidencia</p>
+                {isImage(bitacora.evidencia) ? (
+                  <a href={getFileUrl(bitacora.evidencia)} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={getFileUrl(bitacora.evidencia)}
+                      alt="Evidencia"
+                      className="max-h-48 rounded-xl object-cover border border-gray-100"
+                    />
+                  </a>
+                ) : (
+                  <a
+                    href={getFileUrl(bitacora.evidencia)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-orange-500 hover:underline text-sm"
+                  >
+                    <PaperClipIcon className="w-4 h-4" />
+                    {isPdf(bitacora.evidencia) ? 'Ver PDF' : 'Ver archivo'}
+                  </a>
+                )}
               </div>
             )}
-            <Button variant="outline" onClick={() => { reset(bitacora); setEditing(true); }}>
+            <Button variant="outline" onClick={() => { setEvidenciaUrl(bitacora.evidencia || ''); reset(bitacora); setEditing(true); }}>
               Editar
             </Button>
           </div>
@@ -158,22 +225,58 @@ export default function Bitacora() {
                 {errors[field] && <p className="text-xs text-red-500">{errors[field].message}</p>}
               </div>
             ))}
+
+            {/* Evidencia: file upload */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Evidencia (URL)</label>
-              <input
-                type="url"
-                placeholder="https://..."
-                className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-                {...register('evidencia')}
-              />
+              <label className="text-sm font-medium text-gray-700">
+                Evidencia <span className="text-gray-400 font-normal">(imagen o PDF, máx. 5 MB)</span>
+              </label>
+              {evidenciaUrl ? (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border-2 border-gray-100">
+                  {isImage(evidenciaUrl) ? (
+                    <img src={getFileUrl(evidenciaUrl)} alt="preview" className="h-12 w-12 object-cover rounded-lg" />
+                  ) : (
+                    <PaperClipIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  )}
+                  <span className="text-sm text-gray-600 truncate flex-1">
+                    {evidenciaUrl.split('/').pop()}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setEvidenciaUrl('')}
+                    className="p-1 rounded-lg hover:bg-gray-200 text-gray-400"
+                  >
+                    <XMarkIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-4 py-6 cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-colors">
+                  {uploading ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <>
+                      <PaperClipIcon className="w-5 h-5 text-gray-400" />
+                      <span className="text-sm text-gray-500">Haz clic para subir archivo</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                  />
+                </label>
+              )}
             </div>
+
             <div className="flex gap-3">
               {bitacora && (
                 <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
                   Cancelar
                 </Button>
               )}
-              <Button type="submit" loading={saving}>
+              <Button type="submit" loading={saving} disabled={uploading}>
                 {bitacora ? 'Guardar cambios' : 'Registrar bitácora'}
               </Button>
             </div>
@@ -181,7 +284,6 @@ export default function Bitacora() {
         )}
       </Card>
 
-      {/* Comentarios */}
       <Card title="Comentarios del Revisor">
         {comentarios.length === 0 ? (
           <p className="text-gray-400 text-sm">Sin comentarios aún.</p>
