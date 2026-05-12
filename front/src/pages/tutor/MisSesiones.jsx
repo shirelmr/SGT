@@ -18,7 +18,7 @@ const estadoBadge = {
 
 const estadoBitacoraBadge = {
   pendiente: 'warning',
-  revisado: 'orange',
+  revisado: 'danger',
   aprobado: 'success',
 };
 
