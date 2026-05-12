@@ -26,7 +26,7 @@ export default function Perfil() {
     getTutorPerfil()
       .then((res) => {
         setPerfil(res.data);
-        reset({ link_video: res.data.link_video ?? '', link_zoom: res.data.link_zoom ?? '' });
+        reset({ link_zoom: res.data.link_zoom ?? '' });
       })
       .catch(() => toast.error('No se pudo cargar el perfil'))
       .finally(() => setLoading(false));
@@ -35,7 +35,7 @@ export default function Perfil() {
   const onSubmit = async (data) => {
     setSaving(true);
     try {
-      await updateTutorPerfil({ link_video: data.link_video || null, link_zoom: data.link_zoom || null });
+      await updateTutorPerfil({ link_zoom: data.link_zoom || null });
       toast.success('Perfil actualizado');
       reset(data);
     } catch (err) {
@@ -91,16 +91,7 @@ export default function Perfil() {
 
         {/* Editable fields */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Video de presentación</p>
-
-          <Input
-            label="Link de video"
-            placeholder="https://..."
-            error={errors.link_video?.message}
-            {...register('link_video')}
-          />
-
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide pt-2">Sesiones en línea</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sesiones en línea</p>
 
           <Input
             label="Link de Zoom / Meet"
