@@ -25,6 +25,7 @@
     "base64-js": "^1.5.1",
     "bcrypt-pbkdf": "^1.0.2",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "blob-util": "^2.0.2",
     "bluebird": "^3.7.2",
     "buffer": "^5.7.1",
