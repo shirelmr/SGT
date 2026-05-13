@@ -21,7 +21,7 @@ router.get('/', auth, async (req, res) => {
       where,
       include: {
         tutor: { include: { usuario: { select: { nombre_completo: true } } } },
-        periodo: { select: { nombre: true, horas_max: true } },
+        periodo: { select: { nombre: true, horas_max: true, horas_esperadas: true } },
       },
     })
     res.json(horas)
@@ -53,7 +53,7 @@ router.patch('/:id/horas-extra', auth, async (req, res) => {
       data: { horas_extra: Number(record.horas_extra) + extra },
       include: {
         tutor: { include: { usuario: { select: { nombre_completo: true } } } },
-        periodo: { select: { nombre: true, horas_max: true } },
+        periodo: { select: { nombre: true, horas_max: true, horas_esperadas: true } },
       },
     })
     res.json(updated)

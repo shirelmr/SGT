@@ -100,19 +100,19 @@ export default function HorasAcreditadas() {
 
   function exportCSV() {
     const periodoNombre = periodos.find((p) => String(p.id) === selectedPeriodo)?.nombre || 'periodo';
-    const headers = ['Tutor', 'Horas Impartidas', 'Horas Extra', 'Total Horas', 'Porcentaje Acreditado (%)', 'Horas Acreditadas'];
+    const headers = ['Tutor', 'Horas Impartidas', 'Horas Extra', 'Horas Esperadas', 'Porcentaje Acreditado (%)', 'Horas Acreditadas'];
     const rows = horas.map((h) => {
       const impartidas = Number(h.horas_impartidas);
       const extra = Number(h.horas_extra ?? 0);
-      const total = impartidas + extra;
+      const esperadas = Number(h.periodo?.horas_esperadas ?? 0);
       const pct = Number(h.porcentaje_acred ?? 0);
       return [
         h.tutor?.usuario?.nombre_completo || '',
         impartidas,
         extra,
-        total,
+        esperadas,
         pct,
-        +(total * pct / 100).toFixed(1),
+        impartidas,
       ];
     });
 
@@ -163,7 +163,7 @@ export default function HorasAcreditadas() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Tutor</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Horas Impartidas</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Horas Extra</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Total</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Horas Esperadas</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">% Acreditado</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Horas Acreditadas</th>
                 <th className="px-4 py-3" />
@@ -173,9 +173,8 @@ export default function HorasAcreditadas() {
               {horas.map((h) => {
                 const impartidas = Number(h.horas_impartidas);
                 const extra = Number(h.horas_extra ?? 0);
-                const total = impartidas + extra;
-                const pct = Number(h.porcentaje_acred ?? 0);
-                const acreditadas = +(total * pct / 100).toFixed(1);
+                const esperadas = Number(h.periodo?.horas_esperadas ?? 0);
+                const pct = Math.min(Number(h.porcentaje_acred ?? 0), 100);
                 return (
                   <tr key={h.id_horas_acreditadas} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-800">
@@ -187,11 +186,14 @@ export default function HorasAcreditadas() {
                         ? <span className="text-green-600 font-medium">+{extra}</span>
                         : <span className="text-gray-400">—</span>}
                     </td>
-                    <td className="px-4 py-3 font-semibold text-gray-800">{total}</td>
-                    <td className="px-4 py-3 w-40">
+                    <td className="px-4 py-3 text-gray-600">{esperadas > 0 ? esperadas : '—'}</td>
+                    <td className="px-4 py-3 w-44">
                       <ProgressBar value={pct} />
+                      {esperadas > 0 && (
+                        <p className="text-xs text-gray-400 mt-1">{impartidas} / {esperadas} hrs esperadas</p>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{acreditadas}</td>
+                    <td className="px-4 py-3 text-gray-600">{impartidas}</td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => setModalRow(h)}

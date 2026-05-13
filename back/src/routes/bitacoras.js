@@ -38,6 +38,7 @@ const fmt = (b) => ({
     tema: b.sesion.tema,
     estado: b.sesion.estado,
     hora_inicio: fmtHora(b.sesion.hora_inicio),
+    duracion_hrs: b.sesion.duracion_hrs,
     tutor: b.sesion.tutor ? { nombre_completo: b.sesion.tutor.usuario?.nombre_completo } : null,
     beneficiario: b.sesion.beneficiario ? { nombre_completo: b.sesion.beneficiario.usuario?.nombre_completo } : null,
   } : null,

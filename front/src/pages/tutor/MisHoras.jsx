@@ -43,13 +43,29 @@ export default function MisHoras() {
 
   const columns = [
     { key: 'periodo', label: 'Periodo', render: (_, row) => row.periodo?.nombre || '—' },
-    { key: 'horas_impartidas', label: 'Horas Impartidas' },
+    { key: 'horas_impartidas', label: 'Horas Impartidas', render: (v) => Number(v ?? 0) },
     {
-      key: 'porcentaje_acreditado',
-      label: 'Porcentaje',
-      render: (v) => <ProgressBar value={v ?? 0} />,
+      key: 'horas_esperadas',
+      label: 'Horas Esperadas',
+      render: (_, row) => Number(row.periodo?.horas_esperadas ?? 0),
     },
-    { key: 'horas_acreditadas', label: 'Horas Acreditadas' },
+    {
+      key: 'porcentaje_acred',
+      label: 'Porcentaje',
+      render: (v, row) => {
+        const impartidas = Number(row.horas_impartidas ?? 0);
+        const esperadas = Number(row.periodo?.horas_esperadas ?? 0);
+        return (
+          <div>
+            <ProgressBar value={Math.min(Number(v ?? 0), 100)} />
+            {esperadas > 0 && (
+              <p className="text-xs text-gray-400 mt-1">{impartidas} / {esperadas} hrs esperadas</p>
+            )}
+          </div>
+        );
+      },
+    },
+    { key: 'horas_acreditadas', label: 'Horas Acreditadas', render: (_, row) => Number(row.horas_impartidas ?? 0) },
   ];
 
   if (loading) {
@@ -70,12 +86,17 @@ export default function MisHoras() {
           <Card borderColor="#22c55e">
             <p className="text-gray-500 text-sm">Porcentaje acreditado</p>
             <div className="mt-2">
-              <ProgressBar value={horasActual.porcentaje_acreditado ?? 0} />
+              <ProgressBar value={Math.min(Number(horasActual.porcentaje_acred ?? 0), 100)} />
             </div>
+            {Number(horasActual.periodo?.horas_esperadas ?? 0) > 0 && (
+              <p className="text-xs text-gray-400 mt-1">
+                {Number(horasActual.horas_impartidas ?? 0)} / {Number(horasActual.periodo.horas_esperadas)} hrs esperadas
+              </p>
+            )}
           </Card>
           <Card borderColor="#3b82f6">
             <p className="text-gray-500 text-sm">Horas acreditadas</p>
-            <p className="font-sora text-3xl font-bold text-gray-900 mt-1">{horasActual.horas_acreditadas ?? 0}</p>
+            <p className="font-sora text-3xl font-bold text-gray-900 mt-1">{Number(horasActual.horas_impartidas ?? 0)}</p>
           </Card>
         </div>
       )}

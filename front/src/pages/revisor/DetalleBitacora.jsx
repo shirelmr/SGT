@@ -34,7 +34,8 @@ export default function DetalleBitacora() {
   const [sendingComment, setSendingComment] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({ defaultValues: { estado: 'pendiente' } });
+  const estadoSeleccionado = watch('estado');
   // const { register, handleSubmit, reset, formState: { errors } } = useForm({
   //   defaultValues: { estado: 'pendiente' },
   // });
@@ -77,11 +78,15 @@ export default function DetalleBitacora() {
   async function onCommentSubmit(data) {
     setSendingComment(true);
     try {
-      await createComentario({ texto: data.texto, id_bitacora: bitacora.id });
-      toast.success('Comentario enviado');
-      reset();
-      const cRes = await getComentarios(bitacora.id);
+      await createComentario({ texto: data.texto, estado: data.estado, id_bitacora: bitacora.id });
+      toast.success(data.estado === 'aprobado' ? 'Bitácora aprobada y horas acreditadas' : 'Comentario enviado');
+      reset({ estado: 'pendiente' });
+      const [cRes, bRes] = await Promise.all([
+        getComentarios(bitacora.id),
+        getBitacora(id),
+      ]);
       setComentarios(cRes.data || []);
+      setBitacora(bRes.data);
     } catch (err) {
       toast.error(err?.response?.data?.error || 'Error al enviar comentario');
     } finally {
@@ -119,6 +124,7 @@ export default function DetalleBitacora() {
   }
 
   const sesion = bitacora.sesion || {};
+  const yaAprobada = comentarios.some((c) => c.estado === 'aprobado');
 
   return (
     <div>
@@ -233,6 +239,24 @@ export default function DetalleBitacora() {
           <Card title="Añadir comentario">
             <form onSubmit={handleSubmit(onCommentSubmit)} className="space-y-3">
               <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Estado</label>
+                <select
+                  className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400"
+                  {...register('estado')}
+                >
+                  <option value="pendiente">Pendiente</option>
+                  <option value="revisado">Revisado</option>
+                  <option value="aprobado" disabled={yaAprobada}>
+                    {yaAprobada ? 'Aprobado — Bitácora ya aprobada' : 'Aprobado'}
+                  </option>
+                </select>
+              </div>
+              {estadoSeleccionado === 'aprobado' && !yaAprobada && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-sm text-yellow-800">
+                  Al aprobar esta bitácora se acreditarán <span className="font-semibold">{Number(sesion.duracion_hrs ?? 0)} horas</span> al tutor.
+                </div>
+              )}
+              <div className="flex flex-col gap-1">
                 <textarea
                   rows={3}
                   placeholder="Escribe retroalimentación para el tutor..."
@@ -242,7 +266,7 @@ export default function DetalleBitacora() {
                 {errors.texto && <p className="text-xs text-red-500">{errors.texto.message}</p>}
               </div>
               <Button type="submit" loading={sendingComment} className="w-full">
-                Publicar comentario
+                {estadoSeleccionado === 'aprobado' ? 'Aprobar bitácora' : 'Publicar comentario'}
               </Button>
             </form>
           </Card>

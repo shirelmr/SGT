@@ -11,6 +11,7 @@ const fmt = (p) => ({
   fecha_fin: p.fecha_fin,
   activo: p.activo,
   horas_max: p.horas_max,
+  horas_esperadas: p.horas_esperadas,
 })
 
 // GET /api/periodos
@@ -29,9 +30,9 @@ router.post('/', auth, async (req, res) => {
   if (req.user.rol !== 'coordinador') {
     return res.status(403).json({ error: 'Solo coordinadores pueden crear períodos' })
   }
-  const { nombre, fecha_inicio, fecha_fin, activo, horas_max } = req.body
-  if (!nombre || !fecha_inicio || !fecha_fin || horas_max == null) {
-    return res.status(400).json({ error: 'nombre, fecha_inicio, fecha_fin y horas_max son requeridos' })
+  const { nombre, fecha_inicio, fecha_fin, activo, horas_max, horas_esperadas } = req.body
+  if (!nombre || !fecha_inicio || !fecha_fin || horas_max == null || horas_esperadas == null) {
+    return res.status(400).json({ error: 'nombre, fecha_inicio, fecha_fin, horas_max y horas_esperadas son requeridos' })
   }
   try {
     await prisma.postulacion.deleteMany({})
@@ -43,6 +44,7 @@ router.post('/', auth, async (req, res) => {
         fecha_fin: new Date(fecha_fin),
         activo: activo ?? false,
         horas_max: Number(horas_max),
+        horas_esperadas: Number(horas_esperadas),
       },
     })
     res.status(201).json(fmt(periodo))
@@ -58,7 +60,7 @@ router.put('/:id', auth, async (req, res) => {
     return res.status(403).json({ error: 'Solo coordinadores pueden editar períodos' })
   }
   const id = Number(req.params.id)
-  const { nombre, fecha_inicio, fecha_fin, activo, horas_max } = req.body
+  const { nombre, fecha_inicio, fecha_fin, activo, horas_max, horas_esperadas } = req.body
   try {
     const periodo = await prisma.periodo.update({
       where: { id_periodo: id },
@@ -68,6 +70,7 @@ router.put('/:id', auth, async (req, res) => {
         ...(fecha_fin !== undefined && { fecha_fin: new Date(fecha_fin) }),
         ...(activo !== undefined && { activo }),
         ...(horas_max !== undefined && { horas_max: Number(horas_max) }),
+        ...(horas_esperadas !== undefined && { horas_esperadas: Number(horas_esperadas) }),
       },
     })
     res.json(fmt(periodo))

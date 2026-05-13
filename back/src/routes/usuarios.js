@@ -77,7 +77,7 @@ router.post('/', async (req, res) => {
       const u = await tx.usuario.create({ data: { nombre_completo, email, password_hash, rol } })
 
       if (rol === 'tutor') {
-        await tx.tutorTec.create({
+        const tutor = await tx.tutorTec.create({
           data: {
             id_usuario: u.id_usuario,
             id_periodo: id_periodo ? Number(id_periodo) : null,
@@ -87,6 +87,13 @@ router.post('/', async (req, res) => {
             link_video: link_video || null,
           },
         })
+        if (tutor.id_periodo) {
+          await tx.horasAcreditadas.upsert({
+            where: { id_tutor_id_periodo: { id_tutor: tutor.id_tutor, id_periodo: tutor.id_periodo } },
+            create: { id_tutor: tutor.id_tutor, id_periodo: tutor.id_periodo, horas_impartidas: 0, porcentaje_acred: 0, horas_extra: 0 },
+            update: {},
+          })
+        }
       } else if (rol === 'beneficiario') {
         await tx.beneficiario.create({
           data: {

@@ -194,12 +194,20 @@ export default function Periodos() {
               {...register('fecha_fin', { required: 'Obligatorio' })}
             />
           </div>
-          <Input
-            label="Horas máximas"
-            type="number"
-            error={errors.horas_max?.message}
-            {...register('horas_max', { required: 'Obligatorio', min: 1 })}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Horas máximas"
+              type="number"
+              error={errors.horas_max?.message}
+              {...register('horas_max', { required: 'Obligatorio', min: 1 })}
+            />
+            <Input
+              label="Horas esperadas por semestre"
+              type="number"
+              error={errors.horas_esperadas?.message}
+              {...register('horas_esperadas', { required: 'Obligatorio', min: 1 })}
+            />
+          </div>
           <label className="flex items-center gap-3 cursor-pointer">
             <div className="relative">
               <input

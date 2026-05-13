@@ -57,12 +57,13 @@ model Usuario {
 }
 
 model Periodo {
-  id_periodo  Int      @id @default(autoincrement())
-  nombre      String   @db.VarChar(50)
-  fecha_inicio DateTime @db.Date
-  fecha_fin    DateTime @db.Date
-  activo      Boolean  @default(false)
-  horas_max   Int
+  id_periodo      Int      @id @default(autoincrement())
+  nombre          String   @db.VarChar(50)
+  fecha_inicio    DateTime @db.Date
+  fecha_fin       DateTime @db.Date
+  activo          Boolean  @default(false)
+  horas_max       Int
+  horas_esperadas Int      @default(0)
 
   // Relaciones
   tutores           TutorTec[]
@@ -193,6 +194,7 @@ model ComentarioBitacora {
   id_revisor       Int
   comentario       String           @db.Text
   fecha_comentario DateTime         @default(now())
+  estado           EstadoComentario @default(pendiente)
   leido            Boolean          @default(false)
 
   bitacora Bitacora @relation(fields: [id_bitacora], references: [id_bitacora])
@@ -233,6 +235,8 @@ model HorasAcreditadas {
 
   tutor   TutorTec @relation(fields: [id_tutor], references: [id_tutor])
   periodo Periodo  @relation(fields: [id_periodo], references: [id_periodo])
+
+  @@unique([id_tutor, id_periodo])
 }
 
 model Incidencia {
