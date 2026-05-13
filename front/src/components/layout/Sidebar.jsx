@@ -13,6 +13,7 @@ import {
   ArrowRightOnRectangleIcon,
   DocumentTextIcon,
   UserCircleIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 
 const navByRole = {
@@ -24,6 +25,7 @@ const navByRole = {
     { to: '/coordinador/asignaciones', label: 'Asignaciones', icon: ClipboardDocumentListIcon },
     { to: '/coordinador/horas', label: 'Horas Acreditadas', icon: ClockIcon },
     { to: '/coordinador/progreso', label: 'Progreso Beneficiarios', icon: ChartBarIcon },
+    { to: '/coordinador/consulta-ia', label: 'Consulta IA', icon: SparklesIcon },
   ],
   tutor: [
     { to: '/tutor/dashboard', label: 'Dashboard', icon: HomeIcon },

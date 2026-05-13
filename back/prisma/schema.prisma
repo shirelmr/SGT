@@ -250,3 +250,11 @@ model Incidencia {
   sesion Sesion   @relation(fields: [id_sesion], references: [id_sesion])
   tutor  TutorTec @relation(fields: [id_tutor], references: [id_tutor])
 }
+
+model AuditoriaConsulta {
+  id               Int      @id @default(autoincrement())
+  timestamp        DateTime @default(now())
+  pregunta         String
+  sqlGenerado      String
+  filasDevueltas   Int
+}
