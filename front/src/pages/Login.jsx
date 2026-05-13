@@ -65,7 +65,7 @@ export default function Login() {
             <p className="text-gray-500 text-sm mt-1">Sistema de Gestión Talk!</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
             <Input
               label="Correo electrónico"
               type="email"
