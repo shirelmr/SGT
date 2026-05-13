@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { ArrowLeftIcon, PaperClipIcon } from '@heroicons/react/24/outline';
 import { getBitacora, updateBitacora } from '../../api/bitacoras';
 import { getComentarios, createComentario } from '../../api/comentarios';
+import { getIncidenciasSesion } from '../../api/incidencias';
 import PageHeader from '../../components/shared/PageHeader';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -29,6 +30,7 @@ export default function DetalleBitacora() {
   const navigate = useNavigate();
   const [bitacora, setBitacora] = useState(null);
   const [comentarios, setComentarios] = useState([]);
+  const [incidencias, setIncidencias] = useState([]);
   const [loading, setLoading] = useState(true);
   //const [sending, setSending] = useState(false);
   const [sendingComment, setSendingComment] = useState(false);
@@ -45,12 +47,13 @@ export default function DetalleBitacora() {
       try {
         const bRes = await getBitacora(id);
         setBitacora(bRes.data);
-        try {
-          const cRes = await getComentarios(bRes.data.id);
-          setComentarios(cRes.data || []);
-        } catch {
-          setComentarios([]);
-        }
+        const idSesion = bRes.data.sesion?.id_sesion;
+        const [cRes, iRes] = await Promise.allSettled([
+          getComentarios(bRes.data.id),
+          idSesion ? getIncidenciasSesion(idSesion) : Promise.resolve({ data: [] }),
+        ]);
+        setComentarios(cRes.status === 'fulfilled' ? cRes.value.data || [] : []);
+        setIncidencias(iRes.status === 'fulfilled' ? iRes.value.data || [] : []);
       } catch {
         toast.error('Error al cargar la bitácora');
       } finally {
@@ -126,6 +129,13 @@ export default function DetalleBitacora() {
   const sesion = bitacora.sesion || {};
   const yaAprobada = comentarios.some((c) => c.estado === 'aprobado');
 
+  const tipoLabel = {
+    retardo: 'Retardo',
+    no_se_presento: 'No se presentó',
+    inasistencia: 'Inasistencia',
+    otro: 'Otro',
+  };
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
@@ -194,6 +204,28 @@ export default function DetalleBitacora() {
                 </div>
               )}
             </div>
+          </Card>
+
+          <Card title={`Incidencias (${incidencias.length})`}>
+            {incidencias.length === 0 ? (
+              <p className="text-gray-400 text-sm">Sin incidencias registradas.</p>
+            ) : (
+              <ul className="space-y-3">
+                {incidencias.map((inc) => (
+                  <li key={inc.id_incidencia} className="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                    <div className="flex items-center justify-between mb-1">
+                      <Badge variant="warning">{tipoLabel[inc.tipo] ?? inc.tipo}</Badge>
+                      <span className="text-xs text-gray-400">
+                        {new Date(inc.fecha_registro).toLocaleDateString('es-MX')}
+                      </span>
+                    </div>
+                    {inc.descripcion && (
+                      <p className="text-sm text-gray-600 mt-1">{inc.descripcion}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
         </div>
 
