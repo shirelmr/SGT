@@ -1,33 +1,39 @@
+const COORD_USER = {
+  id_usuario: 99,
+  nombre_completo: 'Coordinador Test',
+  email: 'coord@test.com',
+  rol: 'coordinador',
+}
+
+const MOCK_USERS = [
+  { id: 1, nombre_completo: 'Ana García', email: 'ana@test.com', rol: 'tutor' },
+  { id: 2, nombre_completo: 'Carlos López', email: 'carlos@test.com', rol: 'beneficiario' },
+  { id: 3, nombre_completo: 'María Pérez', email: 'maria@test.com', rol: 'revisor' },
+]
+
 describe('Usuarios page', () => {
   beforeEach(() => {
-    // Mock the API responses so tests don't depend on real database state
-    cy.intercept('GET', '/api/usuarios', {
+    // Use full backend URLs (localhost:3000) so intercepts NEVER match Vite's
+    // own module-serving paths at localhost:5173 (e.g. /src/api/axios.js),
+    // which would return [] instead of JS and leave the page blank.
+    cy.intercept('GET', 'http://localhost:3000/api/**', { statusCode: 200, body: [] })
+
+    // Specific intercepts registered after the catch-all take precedence.
+    cy.intercept('GET', 'http://localhost:3000/api/usuarios*', {
       statusCode: 200,
-      body: [
-        { id: 1, nombre_completo: 'Ana García', email: 'ana@test.com', rol: 'tutor' },
-        { id: 2, nombre_completo: 'Carlos López', email: 'carlos@test.com', rol: 'beneficiario' },
-        { id: 3, nombre_completo: 'María Pérez', email: 'maria@test.com', rol: 'revisor' },
-      ],
+      body: MOCK_USERS,
     }).as('getUsuarios')
+    cy.intercept('GET', 'http://localhost:3000/api/periodos*', { statusCode: 200, body: [] }).as('getPeriodos')
 
-    cy.intercept('GET', '/api/periodos', { statusCode: 200, body: [] }).as('getPeriodos')
-
-    // Log in programmatically as coordinador
-    cy.intercept('POST', '/api/auth/login', {
-      statusCode: 200,
-      body: {
-        token: 'fake-coord-token',
-        user: { id_usuario: 99, nombre_completo: 'Coordinador Test', email: 'coord@test.com', rol: 'coordinador' },
+    // Set auth in localStorage before React initialises so AuthContext finds
+    // the token synchronously and PrivateRoute never redirects to /login.
+    cy.visit('/coordinador/usuarios', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('token', 'fake-coord-token')
+        win.localStorage.setItem('user', JSON.stringify(COORD_USER))
+        win.localStorage.setItem('rol', 'coordinador')
       },
-    }).as('loginCoord')
-
-    cy.visit('/login')
-    cy.get('input[type="email"]').type('coord@test.com')
-    cy.get('input[type="password"]').type('anypassword')
-    cy.get('button[type="submit"]').click()
-    cy.url().should('include', '/coordinador/dashboard')
-
-    cy.visit('/coordinador/usuarios')
+    })
     cy.wait('@getUsuarios')
   })
 
@@ -63,5 +69,40 @@ describe('Usuarios page', () => {
     cy.contains('Matrícula').should('be.visible')
     cy.contains('Carrera').should('be.visible')
     cy.contains('Semestre').should('be.visible')
+  })
+
+  it('filters users by name using the search input', () => {
+    cy.get('input[placeholder="Buscar por nombre..."]').type('Ana')
+    cy.contains('Ana García').should('be.visible')
+    cy.contains('Carlos López').should('not.exist')
+    cy.contains('María Pérez').should('not.exist')
+  })
+
+  it('filters users by role using the role select', () => {
+    // Registered last so it takes precedence over the beforeEach alias.
+    cy.intercept('GET', 'http://localhost:3000/api/usuarios*', {
+      statusCode: 200,
+      body: [MOCK_USERS[0]],
+    }).as('getByRole')
+
+    cy.get('select').first().select('tutor')
+    cy.wait('@getByRole')
+    cy.contains('Ana García').should('be.visible')
+    cy.contains('Carlos López').should('not.exist')
+  })
+
+  it('shows validation errors when submitting empty create form', () => {
+    cy.contains('Nuevo usuario').click()
+    cy.contains('Crear usuario').click()
+    cy.contains('Obligatorio').should('be.visible')
+  })
+
+  // Navigate away and back so the fresh intercept returns the empty list.
+  it('shows empty state when no users exist', () => {
+    cy.intercept('GET', 'http://localhost:3000/api/usuarios*', { statusCode: 200, body: [] }).as('emptyList')
+    cy.get('a[href="/coordinador/dashboard"]').click()
+    cy.get('a[href="/coordinador/usuarios"]').click()
+    cy.wait('@emptyList')
+    cy.contains('No hay usuarios registrados').should('be.visible')
   })
 })
