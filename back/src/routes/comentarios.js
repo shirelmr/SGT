@@ -50,7 +50,6 @@ router.post('/', auth, async (req, res) => {
     if (!revisor) return res.status(404).json({ error: 'Perfil de revisor no encontrado' })
 
     const nuevo = await prisma.$transaction(async (tx) => {
-      // Check for existing approval before creating comment
       const prevAprobado = estado === 'aprobado'
         ? await tx.comentarioBitacora.findFirst({
             where: { id_bitacora: Number(id_bitacora), estado: 'aprobado' },
