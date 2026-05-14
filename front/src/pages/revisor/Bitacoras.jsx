@@ -11,8 +11,8 @@ import EmptyState from '../../components/ui/EmptyState';
 
 const estadoBadge = {
   pendiente: 'warning',
-  revisado: 'info',
   aprobado: 'success',
+  no_aprobada: 'danger',
 };
 
 export default function Bitacoras() {
@@ -118,8 +118,8 @@ export default function Bitacoras() {
         >
           <option value="">Todos los estados</option>
           <option value="pendiente">Pendiente</option>
-          <option value="revisado">Revisado</option>
           <option value="aprobado">Aprobado</option>
+          <option value="no_aprobada">No aprobada</option>
         </select>
       </div>
 

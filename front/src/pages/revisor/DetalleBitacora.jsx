@@ -14,8 +14,8 @@ import Spinner from '../../components/ui/Spinner';
 
 const estadoBadge = {
   pendiente: 'warning',
-  revisado: 'info',
   aprobado: 'success',
+  no_aprobada: 'danger',
 };
 
 function getFileUrl(p) {
@@ -32,15 +32,12 @@ export default function DetalleBitacora() {
   const [comentarios, setComentarios] = useState([]);
   const [incidencias, setIncidencias] = useState([]);
   const [loading, setLoading] = useState(true);
-  //const [sending, setSending] = useState(false);
   const [sendingComment, setSendingComment] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({ defaultValues: { estado: 'pendiente' } });
   const estadoSeleccionado = watch('estado');
-  // const { register, handleSubmit, reset, formState: { errors } } = useForm({
-  //   defaultValues: { estado: 'pendiente' },
-  // });
+
 
   useEffect(() => {
     async function load() {
@@ -63,20 +60,6 @@ export default function DetalleBitacora() {
     load();
   }, [id]);
 
-  // async function onSubmit(data) {
-  //   setSending(true);
-  //   try {
-  //     await createComentario({ ...data, id_bitacora: bitacora.id });
-  //     toast.success('Comentario enviado');
-  //     reset({ estado: 'pendiente' });
-  //     const cRes = await getComentarios(bitacora.id);
-  //     setComentarios(cRes.data || []);
-  //   } catch (err) {
-  //     toast.error(err?.response?.data?.error || 'Error al enviar comentario');
-  //   } finally {
-  //     setSending(false);
-  //   }
-  // }
 
   async function onCommentSubmit(data) {
     setSendingComment(true);
@@ -152,7 +135,6 @@ export default function DetalleBitacora() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Bitácora content */}
         <div className="space-y-4">
           <Card title="Información de la sesión">
             <div className="grid grid-cols-2 gap-3 text-sm">
@@ -241,8 +223,8 @@ export default function DetalleBitacora() {
                 disabled={updatingStatus}
               >
                 <option value="pendiente">Pendiente</option>
-                <option value="revisado">Revisado</option>
                 <option value="aprobado">Aprobado</option>
+                <option value="no_aprobada">No aprobada</option>
               </select>
               {updatingStatus && <Spinner size="sm" />}
             </div>
@@ -277,7 +259,7 @@ export default function DetalleBitacora() {
                   {...register('estado')}
                 >
                   <option value="pendiente">Pendiente</option>
-                  <option value="revisado">Revisado</option>
+                  <option value="no_aprobada">No aprobada</option>
                   <option value="aprobado" disabled={yaAprobada}>
                     {yaAprobada ? 'Aprobado — Bitácora ya aprobada' : 'Aprobado'}
                   </option>
