@@ -16,7 +16,7 @@ export default function RevisorDashboard() {
     getBitacoras()
       .then((r) => {
         const all = r.data || [];
-        const revisadas = all.filter((b) => b.estado === 'revisado' || b.estado === 'aprobado').length;
+        const revisadas = all.filter((b) => b.estado === 'aprobado' || b.estado === 'no_aprobada').length;
         const pendientes = all.filter((b) => !b.estado || b.estado === 'pendiente').length;
         setStats({ total: all.length, revisadas, pendientes });
       })

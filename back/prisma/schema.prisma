@@ -31,7 +31,7 @@ enum TipoIncidencia {
 
 enum EstadoComentario {
   pendiente
-  revisado
+  no_aprobada
   aprobado
 }
 
