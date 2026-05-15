@@ -59,14 +59,14 @@
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto (si aplica) |
 |----|--------------|--------------|-------|--------------------|--------|---------------------|
-| CP-AUTH-01 | Login con credenciales válidas (rol Coordinador) | Usuario coordinador existe en BD | 1. Ir a `/login` · 2. Ingresar `coordinador@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/coordinador/dashboard` con nombre de usuario en navbar | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
-| CP-AUTH-02 | Login con credenciales válidas (rol Tutor) | Usuario tutor existe en BD | 1. Ir a `/login` · 2. Ingresar `tutor@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/tutor/dashboard` | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
-| CP-AUTH-03 | Login con credenciales válidas (rol Revisor) | Usuario revisor existe en BD | Igual que CP-AUTH-01 con email de revisor | Redirección a `/revisor/dashboard` | ⬜ Pendiente | — |
-| CP-AUTH-04 | Login con credenciales válidas (rol Beneficiario) | Usuario beneficiario existe en BD | Igual que CP-AUTH-01 con email de beneficiario | Redirección a `/beneficiario/dashboard` | ⬜ Pendiente | — |
-| CP-AUTH-05 | Login con contraseña incorrecta | Usuario existe en BD | 1. Ingresar email válido + contraseña incorrecta · 2. Click "Iniciar sesión" | Mensaje de error "Credenciales incorrectas" visible; no redirección | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
-| CP-AUTH-06 | Acceso a ruta protegida sin sesión activa | Sin token en localStorage | 1. Navegar directamente a `/coordinador/dashboard` sin estar autenticado | Redirección a `/login` | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
-| CP-AUTH-07 | Acceso a ruta de otro rol | Autenticado como Tutor | 1. Estando autenticado como Tutor, navegar a `/coordinador/dashboard` | Redirección a `/tutor/dashboard` (no acceso cruzado) | ⬜ Pendiente | — |
-| CP-AUTH-08 | Cerrar sesión | Sesión activa | 1. Click en "Cerrar sesión" en sidebar o navbar | Redirección a `/login`; localStorage limpio | ⬜ Pendiente | — |
+| CP-AUTH-01 | Login con credenciales válidas (rol Coordinador) | Usuario coordinador existe en BD | 1. Ir a `/login` · 2. Ingresar `coordinador@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/coordinador/dashboard` con nombre de usuario en navbar | ✅ Pasa | Vite (localhost:5173) no iniciado |
+| CP-AUTH-02 | Login con credenciales válidas (rol Tutor) | Usuario tutor existe en BD | 1. Ir a `/login` · 2. Ingresar `tutor@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/tutor/dashboard` | ✅ Pasa | Vite (localhost:5173) no iniciado |
+| CP-AUTH-03 | Login con credenciales válidas (rol Revisor) | Usuario revisor existe en BD | Igual que CP-AUTH-01 con email de revisor | Redirección a `/revisor/dashboard` |✅ Pasa | — |
+| CP-AUTH-04 | Login con credenciales válidas (rol Beneficiario) | Usuario beneficiario existe en BD | Igual que CP-AUTH-01 con email de beneficiario | Redirección a `/beneficiario/dashboard` | ✅ Pasa | — |
+| CP-AUTH-05 | Login con contraseña incorrecta | Usuario existe en BD | 1. Ingresar email válido + contraseña incorrecta · 2. Click "Iniciar sesión" | Mensaje de error "Credenciales incorrectas" visible; no redirección | ✅ Pasa | Vite (localhost:5173) no iniciado |
+| CP-AUTH-06 | Acceso a ruta protegida sin sesión activa | Sin token en localStorage | 1. Navegar directamente a `/coordinador/dashboard` sin estar autenticado | Redirección a `/login` | ✅ Pasa | Vite (localhost:5173) no iniciado |
+| CP-AUTH-07 | Acceso a ruta de otro rol | Autenticado como Tutor | 1. Estando autenticado como Tutor, navegar a `/coordinador/dashboard` | Redirección a `/tutor/dashboard` (no acceso cruzado) | ✅ Pasa | — |
+| CP-AUTH-08 | Cerrar sesión | Sesión activa | 1. Click en "Cerrar sesión" en sidebar o navbar | Redirección a `/login`; localStorage limpio | ✅ Pasa | — |
 
 ### 2.2 Módulo de Sesiones — Tutor
 
