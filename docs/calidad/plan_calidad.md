@@ -136,11 +136,11 @@
 | Autenticación | 8 | 8 | 0 | 0 | 0 | 100% |
 | Sesiones (Tutor) | 5 | 0 | 0 | 1 | 4 | 0% |
 | Bitácoras (Tutor) | 4 | 4 | 0 | 0 | 0 | 100% |
-| Bitácoras (Revisor) | 5 | 0 | 0 | 2 | 3 | 0% |
+| Bitácoras (Revisor) | 5 | 5 | 0 | 0 | 0 | 100% |
 | Asistencias (Beneficiario) | 4 | 0 | 0 | 0 | 4 | 0% |
 | Dashboard (Coordinador) | 10 | 0 | 0 | 1 | 9 | 0% |
 | Progreso (Beneficiario) | 3 | 0 | 0 | 0 | 3 | 0% |
-| **TOTAL** | **40** | **0** | **0** | **10** | **29** | **20%** |
+| **TOTAL** | **40** | **0** | **0** | **10** | **29** | **30%** |
 
 > 🚫 **Causa del bloqueo (S11):** Cypress no pudo conectar al baseUrl `http://localhost:5173` — servidor Vite no estaba corriendo al momento de la ejecución. Los tests de `bitacora.cy.js`, `bitacora_ia.cy.js`, `revisor.cy.js` y `revisor_ai.cy.js` tienen dependencia adicional del backend (localhost:3000), también caído.  
 > 🎯 **Meta:** ≥ 80% de casos en estado ✅ Pasa antes del MVP (Semana 12).
