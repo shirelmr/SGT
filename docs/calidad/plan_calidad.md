@@ -4,7 +4,7 @@
 > **Equipo:** AIAS · Shirel Marino Ramírez · Arístides Nieto Guzmán · Ana Paola Oviedo Salgado · Itzel Covarrubias Basurto  
 > **Curso:** TC3004B Planeación de Sistemas de Software · Semestre Enero–Junio 2026  
 > **Responsable QA:** Shirel Marino Ramirez
-> **Última actualización:** 20 de abril de 2026 · Semana 11
+> **Última actualización:** 15 de mayo de 2026 · Semana 11
 
 ---
 
@@ -26,7 +26,7 @@
 
 | ID | Semana | Descripción | Responsable | Probabilidad | Impacto | Factor de Riesgo | Estado | Plan de Prevención | Plan de Contingencia |
 |----|--------|-------------|-------------|:------------:|:-------:|:----------------:|--------|-------------------|---------------------|
-| R01 | S04 | Operabilidad insuficiente: ICH actual 72%, por debajo del umbral de 80% requerido para liberar el MVP | Arístides N. | Alta (3) | Alto (3) | 🟡 9 | Activo | Iterar sobre los 3 hallazgos de mayor severidad antes de S5. Re-evaluar heurísticamente el prototipo rediseñado. | Si ICH < 80% al cierre de S11, postergar lanzamiento y ejecutar sprint de UX con 5 correcciones prioritarias. |
+| R01 | S04 | Operabilidad insuficiente: ICH actual 70%, por debajo del umbral de 80% requerido para liberar el MVP | Arístides N. | Alta (3) | Alto (3) | 🟡 9 | Activo | Iterar sobre los 3 hallazgos de mayor severidad antes de S5. Re-evaluar heurísticamente el prototipo rediseñado. | Si ICH < 80% al cierre de S11, postergar lanzamiento y ejecutar sprint de UX con 5 correcciones prioritarias. |
 | R02 | S04 | Disponibilidad en horarios pico: sin prueba de carga no se sabe si el sistema soporta 50+ usuarios simultáneos en bloque de tutorías | Shirel M. | Media (2) | Alto (3) | 🟡 6 | Activo | Ejecutar prueba de carga con JMeter en S11 simulando 50 usuarios concurrentes. | Si el sistema falla bajo carga, escalar a optimización de índices en PostgreSQL y revisar consultas N+1. |
 | R03 | S04 | Confidencialidad de datos de menores: si la autenticación falla, datos de beneficiarios de bachillerato quedan expuestos | Ana Paola O. | Baja (1) | Crítico (4) | 🔴 4 | Activo | Implementar JWT + HTTPS antes de S8. Activar auditoría de accesos desde el despliegue. Solo roles autorizados acceden a datos de menores. | Si se detecta vulnerabilidad en producción, desconectar inmediatamente el sistema y notificar al coordinador del programa. |
 | R04 | S04 | Capacidad de aprendizaje insuficiente: usuarios nuevos no completan el primer registro de sesión sin ayuda | Itzel C. | Alta (3) | Medio (2) | 🟡 6 | Activo | Diseñar flujo onboarding de 3 pasos. Validar en Cámara Gesell S5 que todos los participantes completen la tarea sin ayuda en ≤ 180 seg. | Si el tiempo promedio supera 300 seg., rediseñar el flujo de registro con menos pasos y agregar tooltips contextuales. |
@@ -38,7 +38,7 @@
 | Fecha | Semana | ID Riesgo | Cambio registrado | Quién actualizó |
 |-------|--------|-----------|------------------|-----------------|
 | 20/04/2026 | S11 | R06 | Riesgo nuevo identificado: backend sin iniciar | Arístides N. |
-| _(agregar aquí cada actualización)_ | | | | |
+| 15/05/2026 | S11 | R01, R02 | Riesgos confirmados activos al cierre S11; sin cambio en factor | Shirel M. |
 
 ### 1.3 Resumen de Exposición al Riesgo
 
@@ -185,7 +185,7 @@
 | Evaluación | Fecha | Flujo evaluado | Heurísticas OK | ICH | ¿Cumple meta? |
 |-----------|-------|---------------|:--------------:|:---:|:-------------:|
 | Línea base (S05) | Sem. 5, 2026 | Registro sesión + confirmación | 7 / 10 | **70%** | ❌ No (meta: ≥ 80%) |
-| Re-evaluación (S11) | _pendiente_ | — | — | — | ⬜ Pendiente |
+| Re-evaluación (S11) | 15 may 2026 | Pendiente | — | — | ⬜ Pendiente |
 | Re-evaluación (S12) | _pendiente_ | — | — | — | ⬜ Pendiente |
 
 ### 3.4 Registro de Hallazgos
