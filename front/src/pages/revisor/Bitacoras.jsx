@@ -15,6 +15,12 @@ const estadoBadge = {
   no_aprobada: 'danger',
 };
 
+const formatoEstado = {
+  pendiente: 'Pendiente',
+  aprobado: 'Aprobada',
+  no_aprobada: 'No aprobada',
+};
+
 export default function Bitacoras() {
   const [bitacoras, setBitacoras] = useState([]);
   const [periodos, setPeriodos] = useState([]);
@@ -75,7 +81,7 @@ export default function Bitacoras() {
     {
       key: 'estado',
       label: 'Estado',
-      render: (_, row) => row.estado ? <Badge variant={estadoBadge[row.estado] || 'default'}>{row.estado}</Badge> : <Badge variant="default">Pendiente</Badge>,
+      render: (_, row) => row.estado ? ( <Badge variant={estadoBadge[row.estado] || 'default'}>{formatoEstado[row.estado] || row.estado}</Badge> ) : ( <Badge variant="default">Pendiente</Badge> ),
     },
     {
       key: 'acciones',
