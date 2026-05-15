@@ -82,20 +82,20 @@
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
 |----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-BIT-01 | Registrar nueva bitácora | Sesión sin bitácora; autenticado como Tutor | 1. Ir a sesión sin bitácora · 2. Llenar todos los campos · 3. Click "Registrar bitácora" | Bitácora guardada; vista cambia a modo lectura | 🚫 Bloqueado | Frontend y backend caídos; test usa login real contra BD |
-| CP-BIT-02 | Registrar bitácora con campos vacíos | Sesión sin bitácora | 1. Dejar campos requeridos vacíos · 2. Click "Registrar" | Mensajes de validación; no se guarda | 🚫 Bloqueado | Frontend y backend caídos; test usa login real contra BD |
-| CP-BIT-03 | Editar bitácora existente | Bitácora ya registrada | 1. Click "Editar" · 2. Modificar campos · 3. Click "Guardar cambios" | Cambios persistidos; vista vuelve a modo lectura | ⬜ Pendiente | — |
-| CP-BIT-04 | Ver comentarios del revisor | Bitácora con al menos 1 comentario | 1. Abrir bitácora | Comentarios visibles con nombre del revisor, estado y fecha | ⬜ Pendiente | — |
+| CP-BIT-01 | Registrar nueva bitácora | Sesión sin bitácora; autenticado como Tutor | 1. Ir a sesión sin bitácora · 2. Llenar todos los campos · 3. Click "Registrar bitácora" | Bitácora guardada; vista cambia a modo lectura | ✅ Pasa | - |
+| CP-BIT-02 | Registrar bitácora con campos vacíos | Sesión sin bitácora | 1. Dejar campos requeridos vacíos · 2. Click "Registrar" | Mensajes de validación; no se guarda | ✅ Pasa | Frontend y backend caídos; test usa login real contra BD |
+| CP-BIT-03 | Editar bitácora existente | Bitácora ya registrada | 1. Click "Editar" · 2. Modificar campos · 3. Click "Guardar cambios" | Cambios persistidos; vista vuelve a modo lectura | ✅ Pasa | — |
+| CP-BIT-04 | Ver comentarios del revisor | Bitácora con al menos 1 comentario | 1. Abrir bitácora | Comentarios visibles con nombre del revisor, estado y fecha | ✅ Pasa | — |
 
 ### 2.4 Módulo de Bitácoras — Revisor
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
 |----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-REV-01 | Listar bitácoras por periodo | Autenticado como Revisor; hay bitácoras | 1. Ir a "Bitácoras" · 2. Seleccionar periodo activo | Lista de bitácoras del periodo con estado y filtros visibles | ⬜ Pendiente | — |
-| CP-REV-02 | Filtrar bitácoras por tutor | Bitácoras de múltiples tutores | 1. Seleccionar tutor en filtro | Solo se muestran bitácoras del tutor seleccionado | ⬜ Pendiente | — |
-| CP-REV-03 | Filtrar bitácoras por estado | Bitácoras con distintos estados | 1. Seleccionar "Pendiente" en filtro de estado | Solo se muestran bitácoras pendientes | ⬜ Pendiente | — |
-| CP-REV-04 | Agregar comentario a bitácora | Bitácora existente | 1. Abrir detalle de bitácora · 2. Escribir comentario · 3. Seleccionar estado · 4. Click "Enviar comentario" | Comentario aparece en la lista; estado de bitácora actualizado | 🚫 Bloqueado | Backend (localhost:3000) caído; cy.login() no puede autenticar |
-| CP-REV-05 | Cambiar estado a "Aprobado" | Bitácora en estado "revisado" | 1. Agregar comentario con estado "Aprobado" | Bitácora aparece como aprobada en la lista | 🚫 Bloqueado | Backend (localhost:3000) caído; cy.login() no puede autenticar |
+| CP-REV-01 | Listar bitácoras por periodo | Autenticado como Revisor; hay bitácoras | 1. Ir a "Bitácoras" · 2. Seleccionar periodo activo | Lista de bitácoras del periodo con estado y filtros visibles | ✅ Pasa | — |
+| CP-REV-02 | Filtrar bitácoras por tutor | Bitácoras de múltiples tutores | 1. Seleccionar tutor en filtro | Solo se muestran bitácoras del tutor seleccionado | ✅ Pasa | — |
+| CP-REV-03 | Filtrar bitácoras por estado | Bitácoras con distintos estados | 1. Seleccionar "Pendiente" en filtro de estado | Solo se muestran bitácoras pendientes | ✅ Pasa | — |
+| CP-REV-04 | Agregar comentario a bitácora | Bitácora existente | 1. Abrir detalle de bitácora · 2. Escribir comentario · 3. Seleccionar estado · 4. Click "Enviar comentario" | Comentario aparece en la lista; estado de bitácora actualizado | ✅ Pasa | - |
+| CP-REV-05 | Cambiar estado a "Aprobado" | Bitácora en estado "revisado" | 1. Agregar comentario con estado "Aprobado" | Bitácora aparece como aprobada en la lista | ✅ Pasa | - |
 
 ### 2.5 Módulo de Asistencias — Beneficiario
 
@@ -135,12 +135,12 @@
 |--------|:-----------:|:--------:|:--------:|:------------:|:------------:|:-----------:|
 | Autenticación | 8 | 8 | 0 | 0 | 0 | 100% |
 | Sesiones (Tutor) | 5 | 0 | 0 | 1 | 4 | 0% |
-| Bitácoras (Tutor) | 4 | 0 | 0 | 2 | 2 | 0% |
+| Bitácoras (Tutor) | 4 | 4 | 0 | 0 | 0 | 100% |
 | Bitácoras (Revisor) | 5 | 0 | 0 | 2 | 3 | 0% |
 | Asistencias (Beneficiario) | 4 | 0 | 0 | 0 | 4 | 0% |
 | Dashboard (Coordinador) | 10 | 0 | 0 | 1 | 9 | 0% |
 | Progreso (Beneficiario) | 3 | 0 | 0 | 0 | 3 | 0% |
-| **TOTAL** | **40** | **0** | **0** | **10** | **29** | **10%** |
+| **TOTAL** | **40** | **0** | **0** | **10** | **29** | **20%** |
 
 > 🚫 **Causa del bloqueo (S11):** Cypress no pudo conectar al baseUrl `http://localhost:5173` — servidor Vite no estaba corriendo al momento de la ejecución. Los tests de `bitacora.cy.js`, `bitacora_ia.cy.js`, `revisor.cy.js` y `revisor_ai.cy.js` tienen dependencia adicional del backend (localhost:3000), también caído.  
 > 🎯 **Meta:** ≥ 80% de casos en estado ✅ Pasa antes del MVP (Semana 12).
