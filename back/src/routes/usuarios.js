@@ -20,34 +20,35 @@ router.get('/', auth, async (req, res) => {
     return res.status(403).json({ error: 'Acceso denegado' })
   }
 
-  const { rol } = req.query
+  const { rol, todos } = req.query
 
   try {
     const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const activeId = periodoActivo?.id_periodo
 
-    // Build OR branches so each role is matched against its period profile
-    const allRoleConditions = [
-      { rol: 'coordinador' },
-      periodoActivo
-        ? { rol: 'tutor', tutor: { id_periodo: periodoActivo.id_periodo } }
-        : { rol: 'tutor' },
-      periodoActivo
-        ? { rol: 'revisor', revisor: { id_periodo: periodoActivo.id_periodo } }
-        : { rol: 'revisor' },
-      periodoActivo
-        ? { rol: 'beneficiario', beneficiario: { id_periodo: periodoActivo.id_periodo } }
-        : { rol: 'beneficiario' },
-    ]
+    let allRoleConditions;
 
-    const OR = rol
-      ? allRoleConditions.filter((c) => c.rol === rol)
-      : allRoleConditions
+    if (todos === 'true' && activeId) {
+      // mostrar inactivos: Roles que NO están en el periodo actual o no tienen uno
+      allRoleConditions = [
+        { rol: 'tutor', tutor: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
+        { rol: 'revisor', revisor: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
+        { rol: 'beneficiario', beneficiario: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
+      ]
+    } else {
+      // vista normal: Coordinadores + usuarios del periodo activo
+      allRoleConditions = [
+        { rol: 'coordinador' },
+        activeId ? { rol: 'tutor', tutor: { id_periodo: activeId } } : { rol: 'tutor' },
+        activeId ? { rol: 'revisor', revisor: { id_periodo: activeId } } : { rol: 'revisor' },
+        activeId ? { rol: 'beneficiario', beneficiario: { id_periodo: activeId } } : { rol: 'beneficiario' },
+      ]
+    }
+
+    const OR = rol ? allRoleConditions.filter((c) => c.rol === rol) : allRoleConditions
 
     const users = await prisma.usuario.findMany({
-      where: {
-        id_usuario: { not: req.user.id_usuario },
-        OR,
-      },
+      where: { id_usuario: { not: req.user.id_usuario }, OR },
       orderBy: { id_usuario: 'asc' },
       include: { tutor: true, beneficiario: true, revisor: true, coordinador: true },
     })
@@ -74,13 +75,15 @@ router.post('/', async (req, res) => {
     const password_hash = await bcrypt.hash(password, 10)
 
     const user = await prisma.$transaction(async (tx) => {
+      const periodoActivo = await tx.periodo.findFirst({ where: { activo: true } })
+      const finalPeriodoId = id_periodo ? Number(id_periodo) : (periodoActivo?.id_periodo || null)
       const u = await tx.usuario.create({ data: { nombre_completo, email, password_hash, rol } })
 
       if (rol === 'tutor') {
         const tutor = await tx.tutorTec.create({
           data: {
             id_usuario: u.id_usuario,
-            id_periodo: id_periodo ? Number(id_periodo) : null,
+            id_periodo: finalPeriodoId,
             matricula: matricula || null,
             carrera: carrera || null,
             semestre: semestre ? Number(semestre) : null,
@@ -174,25 +177,53 @@ router.post('/asignar-automatico', auth, async (req, res) => {
 // PUT /api/usuarios/:id
 router.put('/:id', async (req, res) => {
   const id = Number(req.params.id)
-  const { nombre_completo, email, rol, id_tutor } = req.body
+  const { nombre_completo, email, rol, id_periodo, matricula, carrera, semestre, link_video, id_tutor, grado_escolar, escuela, nombre_tutor_legal, tel_tutor, departamento } = req.body
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.usuario.update({
+      // 1. Actualizar usuario base
+      await tx.usuario.update({
         where: { id_usuario: id },
         data: { nombre_completo, email, rol },
-        include: { tutor: true, beneficiario: true, revisor: true, coordinador: true },
       })
 
-      if (id_tutor !== undefined && user.beneficiario) {
-        const updated = await tx.beneficiario.update({
+      const pid = id_periodo ? Number(id_periodo) : null
+
+      // 2. Actualizar el perfil específico y asignarle el nuevo periodo
+      if (rol === 'tutor') {
+        const tutor = await tx.tutorTec.update({
           where: { id_usuario: id },
-          data: { id_tutor: id_tutor ? Number(id_tutor) : null },
+          data: { id_periodo: pid, matricula, carrera, semestre: semestre ? Number(semestre) : null, link_video }
         })
-        user.beneficiario = updated
+        // Si lo renovaron a un nuevo periodo, inicializamos sus horas en 0
+        if (pid) {
+          await tx.horasAcreditadas.upsert({
+            where: { id_tutor_id_periodo: { id_tutor: tutor.id_tutor, id_periodo: pid } },
+            create: { id_tutor: tutor.id_tutor, id_periodo: pid, horas_impartidas: 0, porcentaje_acred: 0, horas_extra: 0 },
+            update: {},
+          })
+        }
+      } else if (rol === 'beneficiario') {
+        await tx.beneficiario.update({
+          where: { id_usuario: id },
+          data: { id_periodo: pid, id_tutor: id_tutor ? Number(id_tutor) : null, grado_escolar, escuela, nombre_tutor_legal, tel_tutor }
+        })
+      } else if (rol === 'revisor') {
+        await tx.revisor.update({
+          where: { id_usuario: id },
+          data: { id_periodo: pid, matricula, carrera, semestre: semestre ? Number(semestre) : null }
+        })
+      } else if (rol === 'coordinador') {
+        await tx.coordinador.update({
+          where: { id_usuario: id },
+          data: { departamento }
+        })
       }
 
-      return user
+      return await tx.usuario.findUnique({
+        where: { id_usuario: id },
+        include: { tutor: true, beneficiario: true, revisor: true, coordinador: true },
+      })
     })
     res.json(fmt(result))
   } catch (err) {

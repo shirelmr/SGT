@@ -38,6 +38,7 @@ export default function Usuarios() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [verTodos, setVerTodos] = useState(false);
 
   const {
     register,
@@ -49,21 +50,25 @@ export default function Usuarios() {
 
   const watchedRol = watch('rol');
 
-  useEffect(() => { loadData(); }, [filtroRol]);
+  useEffect(() => { loadData(); }, [filtroRol, verTodos]); 
 
   async function loadData() {
-    setLoading(true);
-    try {
-      const params = filtroRol ? { rol: filtroRol } : {};
-      const [u, p] = await Promise.allSettled([getUsuarios(params), getPeriodos()]);
-      if (u.status === 'fulfilled') setUsuarios(u.value.data);
-      if (p.status === 'fulfilled') setPeriodos(p.value.data);
-    } catch {
-      toast.error('Error al cargar datos');
-    } finally {
-      setLoading(false);
-    }
+  setLoading(true);
+  try {
+    // Construir los parámetros
+    const params = {};
+    if (filtroRol) params.rol = filtroRol;
+    if (verTodos) params.todos = true;
+
+    const [u, p] = await Promise.allSettled([getUsuarios(params), getPeriodos()]);
+    if (u.status === 'fulfilled') setUsuarios(u.value.data);
+    if (p.status === 'fulfilled') setPeriodos(p.value.data);
+  } catch {
+    toast.error('Error al cargar datos');
+  } finally {
+    setLoading(false);
   }
+}
 
   function openCreate() {
     setEditUser(null);
@@ -183,7 +188,18 @@ export default function Usuarios() {
           <option value="revisor">Revisor</option>
           <option value="coordinador">Coordinador</option>
         </select>
+
+        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer ml-4">
+          <input
+            type="checkbox"
+            checked={verTodos}
+            onChange={(e) => setVerTodos(e.target.checked)}
+            className="rounded border-gray-300 text-orange-500 focus:ring-orange-500 w-4 h-4"
+          />
+          Mostrar inactivos (periodos anteriores)
+        </label>
       </div>
+      
 
       <div className="bg-white rounded-2xl shadow-sm p-6">
         <Table
