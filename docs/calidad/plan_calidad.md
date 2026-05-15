@@ -59,12 +59,12 @@
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto (si aplica) |
 |----|--------------|--------------|-------|--------------------|--------|---------------------|
-| CP-AUTH-01 | Login con credenciales válidas (rol Coordinador) | Usuario coordinador existe en BD | 1. Ir a `/login` · 2. Ingresar `coordinador@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/coordinador/dashboard` con nombre de usuario en navbar | ⬜ Pendiente | — |
-| CP-AUTH-02 | Login con credenciales válidas (rol Tutor) | Usuario tutor existe en BD | 1. Ir a `/login` · 2. Ingresar `tutor@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/tutor/dashboard` | ⬜ Pendiente | — |
+| CP-AUTH-01 | Login con credenciales válidas (rol Coordinador) | Usuario coordinador existe en BD | 1. Ir a `/login` · 2. Ingresar `coordinador@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/coordinador/dashboard` con nombre de usuario en navbar | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
+| CP-AUTH-02 | Login con credenciales válidas (rol Tutor) | Usuario tutor existe en BD | 1. Ir a `/login` · 2. Ingresar `tutor@test.com` + contraseña · 3. Click "Iniciar sesión" | Redirección a `/tutor/dashboard` | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
 | CP-AUTH-03 | Login con credenciales válidas (rol Revisor) | Usuario revisor existe en BD | Igual que CP-AUTH-01 con email de revisor | Redirección a `/revisor/dashboard` | ⬜ Pendiente | — |
 | CP-AUTH-04 | Login con credenciales válidas (rol Beneficiario) | Usuario beneficiario existe en BD | Igual que CP-AUTH-01 con email de beneficiario | Redirección a `/beneficiario/dashboard` | ⬜ Pendiente | — |
-| CP-AUTH-05 | Login con contraseña incorrecta | Usuario existe en BD | 1. Ingresar email válido + contraseña incorrecta · 2. Click "Iniciar sesión" | Mensaje de error "Credenciales incorrectas" visible; no redirección | ⬜ Pendiente | — |
-| CP-AUTH-06 | Acceso a ruta protegida sin sesión activa | Sin token en localStorage | 1. Navegar directamente a `/coordinador/dashboard` sin estar autenticado | Redirección a `/login` | ⬜ Pendiente | — |
+| CP-AUTH-05 | Login con contraseña incorrecta | Usuario existe en BD | 1. Ingresar email válido + contraseña incorrecta · 2. Click "Iniciar sesión" | Mensaje de error "Credenciales incorrectas" visible; no redirección | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
+| CP-AUTH-06 | Acceso a ruta protegida sin sesión activa | Sin token en localStorage | 1. Navegar directamente a `/coordinador/dashboard` sin estar autenticado | Redirección a `/login` | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
 | CP-AUTH-07 | Acceso a ruta de otro rol | Autenticado como Tutor | 1. Estando autenticado como Tutor, navegar a `/coordinador/dashboard` | Redirección a `/tutor/dashboard` (no acceso cruzado) | ⬜ Pendiente | — |
 | CP-AUTH-08 | Cerrar sesión | Sesión activa | 1. Click en "Cerrar sesión" en sidebar o navbar | Redirección a `/login`; localStorage limpio | ⬜ Pendiente | — |
 
@@ -75,15 +75,15 @@
 | CP-SES-01 | Crear nueva sesión | Autenticado como Tutor; tiene beneficiario asignado | 1. Ir a "Mis Sesiones" · 2. Click "Nueva sesión" · 3. Llenar todos los campos · 4. Click "Crear sesión" | Sesión aparece en lista con estado "programada" | ⬜ Pendiente | — |
 | CP-SES-02 | Crear sesión sin beneficiario asignado | Tutor sin beneficiario | 1. Ir a "Nueva sesión" | Lista de beneficiarios vacía; no se puede crear la sesión | ⬜ Pendiente | — |
 | CP-SES-03 | Crear sesión con campos vacíos | Autenticado como Tutor | 1. Ir a "Nueva sesión" · 2. Dejar campos requeridos vacíos · 3. Click "Crear sesión" | Mensajes de validación en cada campo requerido; no se envía el formulario | ⬜ Pendiente | — |
-| CP-SES-04 | Listar sesiones del tutor | Al menos 1 sesión creada | 1. Ir a "Mis Sesiones" | Se listan solo las sesiones del tutor autenticado, ordenadas por fecha descendente | ⬜ Pendiente | — |
+| CP-SES-04 | Listar sesiones del tutor | Al menos 1 sesión creada | 1. Ir a "Mis Sesiones" | Se listan solo las sesiones del tutor autenticado, ordenadas por fecha descendente | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
 | CP-SES-05 | Ver bitácora de una sesión | Sesión existente | 1. En lista de sesiones, click "Ver bitácora" | Se abre la vista de bitácora de esa sesión específica | ⬜ Pendiente | — |
 
 ### 2.3 Módulo de Bitácoras — Tutor
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
 |----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-BIT-01 | Registrar nueva bitácora | Sesión sin bitácora; autenticado como Tutor | 1. Ir a sesión sin bitácora · 2. Llenar todos los campos · 3. Click "Registrar bitácora" | Bitácora guardada; vista cambia a modo lectura | ⬜ Pendiente | — |
-| CP-BIT-02 | Registrar bitácora con campos vacíos | Sesión sin bitácora | 1. Dejar campos requeridos vacíos · 2. Click "Registrar" | Mensajes de validación; no se guarda | ⬜ Pendiente | — |
+| CP-BIT-01 | Registrar nueva bitácora | Sesión sin bitácora; autenticado como Tutor | 1. Ir a sesión sin bitácora · 2. Llenar todos los campos · 3. Click "Registrar bitácora" | Bitácora guardada; vista cambia a modo lectura | 🚫 Bloqueado | Frontend y backend caídos; test usa login real contra BD |
+| CP-BIT-02 | Registrar bitácora con campos vacíos | Sesión sin bitácora | 1. Dejar campos requeridos vacíos · 2. Click "Registrar" | Mensajes de validación; no se guarda | 🚫 Bloqueado | Frontend y backend caídos; test usa login real contra BD |
 | CP-BIT-03 | Editar bitácora existente | Bitácora ya registrada | 1. Click "Editar" · 2. Modificar campos · 3. Click "Guardar cambios" | Cambios persistidos; vista vuelve a modo lectura | ⬜ Pendiente | — |
 | CP-BIT-04 | Ver comentarios del revisor | Bitácora con al menos 1 comentario | 1. Abrir bitácora | Comentarios visibles con nombre del revisor, estado y fecha | ⬜ Pendiente | — |
 
@@ -94,8 +94,8 @@
 | CP-REV-01 | Listar bitácoras por periodo | Autenticado como Revisor; hay bitácoras | 1. Ir a "Bitácoras" · 2. Seleccionar periodo activo | Lista de bitácoras del periodo con estado y filtros visibles | ⬜ Pendiente | — |
 | CP-REV-02 | Filtrar bitácoras por tutor | Bitácoras de múltiples tutores | 1. Seleccionar tutor en filtro | Solo se muestran bitácoras del tutor seleccionado | ⬜ Pendiente | — |
 | CP-REV-03 | Filtrar bitácoras por estado | Bitácoras con distintos estados | 1. Seleccionar "Pendiente" en filtro de estado | Solo se muestran bitácoras pendientes | ⬜ Pendiente | — |
-| CP-REV-04 | Agregar comentario a bitácora | Bitácora existente | 1. Abrir detalle de bitácora · 2. Escribir comentario · 3. Seleccionar estado · 4. Click "Enviar comentario" | Comentario aparece en la lista; estado de bitácora actualizado | ⬜ Pendiente | — |
-| CP-REV-05 | Cambiar estado a "Aprobado" | Bitácora en estado "revisado" | 1. Agregar comentario con estado "Aprobado" | Bitácora aparece como aprobada en la lista | ⬜ Pendiente | — |
+| CP-REV-04 | Agregar comentario a bitácora | Bitácora existente | 1. Abrir detalle de bitácora · 2. Escribir comentario · 3. Seleccionar estado · 4. Click "Enviar comentario" | Comentario aparece en la lista; estado de bitácora actualizado | 🚫 Bloqueado | Backend (localhost:3000) caído; cy.login() no puede autenticar |
+| CP-REV-05 | Cambiar estado a "Aprobado" | Bitácora en estado "revisado" | 1. Agregar comentario con estado "Aprobado" | Bitácora aparece como aprobada en la lista | 🚫 Bloqueado | Backend (localhost:3000) caído; cy.login() no puede autenticar |
 
 ### 2.5 Módulo de Asistencias — Beneficiario
 
@@ -111,7 +111,7 @@
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
 |----|--------------|--------------|-------|--------------------|--------|---------|
 | CP-COORD-01 | Ver estadísticas del dashboard | Autenticado como Coordinador; datos en BD | 1. Ir a `/coordinador/dashboard` | Tarjetas con: tutores activos, beneficiarios inscritos, sesiones del mes, bitácoras pendientes | ⬜ Pendiente | — |
-| CP-COORD-02 | Crear nuevo usuario | Autenticado como Coordinador | 1. Ir a "Usuarios" · 2. Click "Nuevo usuario" · 3. Llenar formulario · 4. Click "Crear usuario" | Usuario aparece en tabla con rol correcto | ⬜ Pendiente | — |
+| CP-COORD-02 | Crear nuevo usuario | Autenticado como Coordinador | 1. Ir a "Usuarios" · 2. Click "Nuevo usuario" · 3. Llenar formulario · 4. Click "Crear usuario" | Usuario aparece en tabla con rol correcto | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
 | CP-COORD-03 | Editar usuario existente | Al menos 1 usuario en BD | 1. Click ícono editar en fila de usuario · 2. Modificar campos · 3. Guardar | Cambios reflejados en tabla | ⬜ Pendiente | — |
 | CP-COORD-04 | Eliminar usuario | Al menos 1 usuario en BD | 1. Click ícono eliminar · 2. Confirmar en diálogo | Usuario desaparece de la tabla | ⬜ Pendiente | — |
 | CP-COORD-05 | Crear periodo académico | Autenticado como Coordinador | 1. Ir a "Periodos" · 2. Click "Nuevo periodo" · 3. Llenar campos · 4. Guardar | Periodo aparece en tabla | ⬜ Pendiente | — |
@@ -131,17 +131,18 @@
 
 ### 2.8 Resumen de Cobertura de Pruebas
 
-| Módulo | Total casos | ✅ Pasan | ❌ Fallan | ⬜ Pendientes | % Cobertura |
-|--------|:-----------:|:--------:|:--------:|:------------:|:-----------:|
-| Autenticación | 8 | 0 | 0 | 8 | 0% |
-| Sesiones (Tutor) | 5 | 0 | 0 | 5 | 0% |
-| Bitácoras (Tutor) | 4 | 0 | 0 | 4 | 0% |
-| Bitácoras (Revisor) | 5 | 0 | 0 | 5 | 0% |
-| Asistencias (Beneficiario) | 4 | 0 | 0 | 4 | 0% |
-| Dashboard (Coordinador) | 10 | 0 | 0 | 10 | 0% |
-| Progreso (Beneficiario) | 3 | 0 | 0 | 3 | 0% |
-| **TOTAL** | **39** | **0** | **0** | **39** | **0%** |
+| Módulo | Total casos | ✅ Pasan | ❌ Fallan | 🚫 Bloqueados | ⬜ Pendientes | % Cobertura |
+|--------|:-----------:|:--------:|:--------:|:------------:|:------------:|:-----------:|
+| Autenticación | 8 | 0 | 0 | 4 | 4 | 0% |
+| Sesiones (Tutor) | 5 | 0 | 0 | 1 | 4 | 0% |
+| Bitácoras (Tutor) | 4 | 0 | 0 | 2 | 2 | 0% |
+| Bitácoras (Revisor) | 5 | 0 | 0 | 2 | 3 | 0% |
+| Asistencias (Beneficiario) | 4 | 0 | 0 | 0 | 4 | 0% |
+| Dashboard (Coordinador) | 10 | 0 | 0 | 1 | 9 | 0% |
+| Progreso (Beneficiario) | 3 | 0 | 0 | 0 | 3 | 0% |
+| **TOTAL** | **39** | **0** | **0** | **10** | **29** | **0%** |
 
+> 🚫 **Causa del bloqueo (S11):** Cypress no pudo conectar al baseUrl `http://localhost:5173` — servidor Vite no estaba corriendo al momento de la ejecución. Los tests de `bitacora.cy.js`, `bitacora_ia.cy.js`, `revisor.cy.js` y `revisor_ai.cy.js` tienen dependencia adicional del backend (localhost:3000), también caído.  
 > 🎯 **Meta:** ≥ 80% de casos en estado ✅ Pasa antes del MVP (Semana 12).
 
 ---
