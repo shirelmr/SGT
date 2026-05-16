@@ -30,8 +30,8 @@ const estadoBitacoraLabel = {
 
 const tipoLabel = {
   retardo: 'Retardo',
-  no_se_presento: 'No se presentó',
-  inasistencia: 'Inasistencia',
+  inasistencia: 'Inasistencia (Aviso previo)',
+  falta_injustificada: 'Falta Injustificada',
   otro: 'Otro',
 };
 
@@ -180,8 +180,8 @@ export default function MisSesionesTutor() {
                     onChange={(e) => setForm((f) => ({ ...f, tipo: e.target.value }))}
                   >
                     <option value="retardo">Retardo</option>
-                    <option value="no_se_presento">No se presentó</option>
-                    <option value="inasistencia">Inasistencia</option>
+                    <option value="inasistencia">Inasistencia (Aviso previo)</option>
+                    <option value="falta_injustificada">Falta Injustificada</option>
                     <option value="otro">Otro</option>
                   </select>
                 </div>
