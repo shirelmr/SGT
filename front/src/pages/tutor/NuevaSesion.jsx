@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { getMisBeneficiarios } from '../../api/tutor';
 import { createSesion } from '../../api/sesiones';
@@ -54,7 +55,18 @@ export default function NuevaSesion() {
   return (
     <div>
       <PageHeader
-        title="Nueva Sesión"
+        title={
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
+              title="Regresar"
+            >
+              <ArrowLeftIcon className="w-5 h-5" />
+            </button>
+            Nueva Sesión
+          </div>
+        }
         subtitle="Registra una nueva sesión de tutoría"
       />
 
@@ -111,7 +123,7 @@ export default function NuevaSesion() {
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-gray-700">Estado</label>
               <select
-                className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-500 bg-gray-50 outline-none"
                 {...register('estado', { required: 'Obligatorio' })}
               >
                 <option value="programada">Programada</option>
@@ -122,7 +134,7 @@ export default function NuevaSesion() {
 
           <Input
             label="Tema"
-            placeholder="Ej. Álgebra - Ecuaciones de segundo grado"
+            placeholder="Ej. Verb to be, Speaking practice, etc."
             error={errors.tema?.message}
             {...register('tema', { required: 'Obligatorio' })}
           />

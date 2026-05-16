@@ -129,11 +129,6 @@ export default function Bitacora() {
 
   return (
     <div>
-      {/* <PageHeader
-        title="Bitácora de Sesión"
-        subtitle={sesion ? `${sesion.tema} • ${new Date(sesion.fecha).toLocaleDateString('es-MX')}` : ''}
-      /> */}
-
       <PageHeader
         title={
           <div className="flex items-center gap-2">
