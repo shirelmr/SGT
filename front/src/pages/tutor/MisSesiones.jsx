@@ -35,6 +35,14 @@ const tipoLabel = {
   otro: 'Otro',
 };
 
+const formatearFechaLocal = (fechaStr, opciones = {}) => {
+  if (!fechaStr) return '';
+  /// Extraemos solo el componente YYYY-MM-DD ignorando la zona horaria
+  const [year, month, day] = fechaStr.split('T')[0].split('-').map(Number);
+  // Creamos la fecha en hora local (los meses en JS van de 0 a 11, por eso el -1)
+  return new Date(year, month - 1, day).toLocaleDateString('es-MX', opciones);
+};
+
 export default function MisSesionesTutor() {
   const [sesiones, setSesiones] = useState([]);
   const [loading, setLoading] = useState(true);

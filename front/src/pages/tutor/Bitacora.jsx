@@ -41,6 +41,12 @@ function getFileUrl(p) {
 function isImage(p) { return /\.(jpg|jpeg|png|webp)$/i.test(p); }
 function isPdf(p) { return /\.pdf$/i.test(p); }
 
+const formatearFechaLocal = (fechaStr, opciones = {}) => {
+  if (!fechaStr) return '';
+  const [year, month, day] = fechaStr.split('T')[0].split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('es-MX', opciones);
+};
+
 export default function Bitacora() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -142,7 +148,7 @@ export default function Bitacora() {
             Bitácora de Sesión
           </div>
         }
-        subtitle={sesion ? `${sesion.tema} • ${new Date(sesion.fecha).toLocaleDateString('es-MX')}` : ''}
+        subtitle={sesion ? `${sesion.tema} • ${formatearFechaLocal(sesion.fecha)}` : ''}
       />
 
       {sesion && (
