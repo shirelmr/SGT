@@ -11,6 +11,12 @@ import Input from '../../components/ui/Input';
 import Badge from '../../components/ui/Badge';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
+const formatearFechaLocal = (fechaStr, opciones = {}) => {
+  if (!fechaStr) return '';
+  const [year, month, day] = fechaStr.split('T')[0].split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('es-MX', opciones);
+};
+
 export default function Periodos() {
   const [periodos, setPeriodos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,9 +71,13 @@ export default function Periodos() {
     setModalOpen(true);
   }
 
-  function openEdit(p) {
+  function openEdit(p) { 
     setEditPeriodo(p);
-    reset({ ...p });
+    reset({
+      ...p,
+      fecha_inicio: p.fecha_inicio ? p.fecha_inicio.split('T')[0] : '',
+      fecha_fin: p.fecha_fin ? p.fecha_fin.split('T')[0] : '',
+    });
     setModalOpen(true);
   }
 
@@ -114,12 +124,12 @@ export default function Periodos() {
     {
       key: 'fecha_inicio',
       label: 'Fecha inicio',
-      render: (v) => v ? new Date(v).toLocaleDateString('es-MX') : '—',
+      render: (v) => v ? formatearFechaLocal(v) : '—',
     },
     {
       key: 'fecha_fin',
       label: 'Fecha fin',
-      render: (v) => v ? new Date(v).toLocaleDateString('es-MX') : '—',
+      render: (v) => v ? formatearFechaLocal(v) : '—',
     },
     { key: 'horas_max', label: 'Horas máx.' },
     {
