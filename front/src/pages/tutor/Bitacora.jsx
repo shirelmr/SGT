@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -42,6 +43,7 @@ function isPdf(p) { return /\.pdf$/i.test(p); }
 
 export default function Bitacora() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [sesion, setSesion] = useState(null);
   const [bitacora, setBitacora] = useState(null);
   const [comentarios, setComentarios] = useState([]);
@@ -127,8 +129,24 @@ export default function Bitacora() {
 
   return (
     <div>
-      <PageHeader
+      {/* <PageHeader
         title="Bitácora de Sesión"
+        subtitle={sesion ? `${sesion.tema} • ${new Date(sesion.fecha).toLocaleDateString('es-MX')}` : ''}
+      /> */}
+
+      <PageHeader
+        title={
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
+              title="Regresar"
+            >
+              <ArrowLeftIcon className="w-5 h-5" />
+            </button>
+            Bitácora de Sesión
+          </div>
+        }
         subtitle={sesion ? `${sesion.tema} • ${new Date(sesion.fecha).toLocaleDateString('es-MX')}` : ''}
       />
 
