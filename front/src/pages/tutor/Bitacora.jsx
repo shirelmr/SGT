@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PaperClipIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { getSesion } from '../../api/sesiones';
 import { getBitacora, createBitacora, updateBitacora, uploadEvidencia } from '../../api/bitacoras';
 import { getComentarios, marcarLeidos } from '../../api/comentarios';
@@ -269,23 +269,32 @@ export default function Bitacora() {
                   </button>
                 </div>
               ) : (
-                <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-4 py-6 cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-colors">
-                  {uploading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <>
-                      <PaperClipIcon className="w-5 h-5 text-gray-400" />
-                      <span className="text-sm text-gray-500">Haz clic para subir archivo</span>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept=".jpg,.jpeg,.png,.webp,.pdf"
-                    className="hidden"
-                    onChange={handleFileChange}
-                    disabled={uploading}
-                  />
-                </label>
+                <>
+                  <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-4 py-6 cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-colors">
+                    {uploading ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <>
+                        <PaperClipIcon className="w-5 h-5 text-gray-400" />
+                        <span className="text-sm text-gray-500">Haz clic para subir archivo</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.pdf"
+                      className="hidden"
+                      onChange={handleFileChange}
+                      disabled={uploading}
+                    />
+                  </label>
+                  
+                  <div className="flex items-start gap-1.5 mt-1 text-yellow-700 bg-yellow-50 p-2.5 rounded-lg border border-yellow-200">
+                    <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs">
+                      <strong>Aviso:</strong> No has adjuntado evidencia. Puedes guardar la bitácora ahora, pero recuerda que el revisor pedirá que la subas para poder aprobarla.
+                    </p>
+                  </div>
+                </>
               )}
             </div>
 

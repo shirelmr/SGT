@@ -20,12 +20,14 @@ const estadoBitacoraBadge = {
   pendiente: 'warning',
   revisado: 'danger',
   aprobado: 'success',
+  no_aprobada: 'danger',
 };
 
 const estadoBitacoraLabel = {
   pendiente: 'Pendiente de revisión',
   revisado: 'En revisión',
   aprobado: 'Aprobada',
+  no_aprobada: 'No aprobada',
 };
 
 const tipoLabel = {
@@ -136,7 +138,6 @@ export default function MisSesionesTutor() {
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
                     {formatearFechaLocal(s.fecha, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
-                    {/* {new Date(s.fecha).toLocaleDateString('es-MX', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} */}
                     {' • '}{s.hora_inicio}
                     {s.beneficiario && ` • ${s.beneficiario.nombre_completo || ''}`}
                   </p>
