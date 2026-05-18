@@ -135,7 +135,8 @@ export default function MisSesionesTutor() {
                     )}
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    {new Date(s.fecha).toLocaleDateString('es-MX', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                    {formatearFechaLocal(s.fecha, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                    {/* {new Date(s.fecha).toLocaleDateString('es-MX', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} */}
                     {' • '}{s.hora_inicio}
                     {s.beneficiario && ` • ${s.beneficiario.nombre_completo || ''}`}
                   </p>

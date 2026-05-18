@@ -156,7 +156,7 @@ export default function Bitacora() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
             <div>
               <p className="text-gray-500 text-xs mb-1">Fecha</p>
-              <p className="font-medium text-gray-800">{new Date(sesion.fecha).toLocaleDateString('es-MX')}</p>
+              <p className="font-medium text-gray-800">{formatearFechaLocal(sesion.fecha)}</p>
             </div>
             <div>
               <p className="text-gray-500 text-xs mb-1">Hora</p>

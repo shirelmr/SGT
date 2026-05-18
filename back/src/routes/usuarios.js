@@ -181,21 +181,30 @@ router.put('/:id', async (req, res) => {
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Actualizar usuario base
+      //obtener rol actual
+      const currentUser = await tx.usuario.findUnique({ where: { id_usuario: id } })
+      if (!currentUser) throw new Error('Usuario no encontrado')
+
+      const finalRol = rol || currentUser.rol
+
       await tx.usuario.update({
         where: { id_usuario: id },
         data: { nombre_completo, email, rol },
       })
 
-      const pid = id_periodo ? Number(id_periodo) : null
+      const pid = id_periodo !== undefined ? (id_periodo ? Number(id_periodo) : null) : undefined
 
-      // 2. Actualizar el perfil específico y asignarle el nuevo periodo
-      if (rol === 'tutor') {
+      if (finalRol === 'tutor') {
         const tutor = await tx.tutorTec.update({
           where: { id_usuario: id },
-          data: { id_periodo: pid, matricula, carrera, semestre: semestre ? Number(semestre) : null, link_video }
+          data: {
+            id_periodo: pid,
+            matricula,
+            carrera,
+            semestre: semestre !== undefined ? (semestre ? Number(semestre) : null) : undefined,
+            link_video
+          }
         })
-        // Si lo renovaron a un nuevo periodo, inicializamos sus horas en 0
         if (pid) {
           await tx.horasAcreditadas.upsert({
             where: { id_tutor_id_periodo: { id_tutor: tutor.id_tutor, id_periodo: pid } },
@@ -203,17 +212,29 @@ router.put('/:id', async (req, res) => {
             update: {},
           })
         }
-      } else if (rol === 'beneficiario') {
+      } else if (finalRol === 'beneficiario') {
         await tx.beneficiario.update({
           where: { id_usuario: id },
-          data: { id_periodo: pid, id_tutor: id_tutor ? Number(id_tutor) : null, grado_escolar, escuela, nombre_tutor_legal, tel_tutor }
+          data: {
+            id_periodo: pid,
+            id_tutor: id_tutor !== undefined ? (id_tutor ? Number(id_tutor) : null) : undefined,
+            grado_escolar,
+            escuela,
+            nombre_tutor_legal,
+            tel_tutor
+          }
         })
-      } else if (rol === 'revisor') {
+      } else if (finalRol === 'revisor') {
         await tx.revisor.update({
           where: { id_usuario: id },
-          data: { id_periodo: pid, matricula, carrera, semestre: semestre ? Number(semestre) : null }
+          data: {
+            id_periodo: pid,
+            matricula,
+            carrera,
+            semestre: semestre !== undefined ? (semestre ? Number(semestre) : null) : undefined
+          }
         })
-      } else if (rol === 'coordinador') {
+      } else if (finalRol === 'coordinador') {
         await tx.coordinador.update({
           where: { id_usuario: id },
           data: { departamento }
@@ -225,6 +246,7 @@ router.put('/:id', async (req, res) => {
         include: { tutor: true, beneficiario: true, revisor: true, coordinador: true },
       })
     })
+    
     res.json(fmt(result))
   } catch (err) {
     console.error(err)
