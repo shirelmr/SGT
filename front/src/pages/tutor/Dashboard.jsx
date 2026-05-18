@@ -29,12 +29,14 @@ const estadoBitacoraBadge = {
   pendiente: 'warning',
   revisado: 'orange',
   aprobado: 'success',
+  no_aprobada: 'danger',
 };
 
 const estadoBitacoraLabel = {
   pendiente: 'Pendiente de revisión',
   revisado: 'En revisión',
   aprobado: 'Aprobada',
+  no_aprobada: 'No aprobada',
 };
 
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
