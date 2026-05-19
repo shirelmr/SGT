@@ -208,7 +208,7 @@ router.post('/', async (req, res) => {
         await tx.beneficiario.create({
           data: {
             id_usuario: u.id_usuario,
-            id_periodo: id_periodo ? Number(id_periodo) : null,
+            id_periodo: finalPeriodoId,
             grado_escolar: grado_escolar || null,
             escuela: escuela || null,
             nombre_tutor_legal: nombre_tutor_legal || null,
