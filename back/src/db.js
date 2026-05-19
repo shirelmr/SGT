@@ -11,6 +11,9 @@ _parsed.searchParams.delete('sslmode')
 const pool = new Pool({
   connectionString: _parsed.toString(),
   ssl: { rejectUnauthorized: false },
+  max: 4,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
 })
 
 const adapter = new PrismaPg(pool)
