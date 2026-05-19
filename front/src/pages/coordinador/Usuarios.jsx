@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import {
   PlusIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon,
-  ArrowDownTrayIcon, EyeIcon, ChevronDownIcon,
+  ArrowDownTrayIcon, EyeIcon, ChevronDownIcon, UserMinusIcon,
 } from '@heroicons/react/24/outline';
 import { getUsuarios, createUsuario, updateUsuario, deleteUsuario, getUsuarioResumen } from '../../api/usuarios';
 import { getHoras } from '../../api/horas';
@@ -68,6 +68,11 @@ export default function Usuarios() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // dar de baja
+  const [bajaOpen, setBajaOpen] = useState(false);
+  const [bajaTarget, setBajaTarget] = useState(null);
+  const [bajaLoading, setBajaLoading] = useState(false);
 
   // resumen modal
   const [resumenOpen, setResumenOpen] = useState(false);
@@ -165,6 +170,20 @@ export default function Usuarios() {
       toast.error(err?.response?.data?.error || 'Error al eliminar');
     } finally {
       setDeleting(false);
+    }
+  }
+
+  async function handleBaja() {
+    setBajaLoading(true);
+    try {
+      await updateUsuario(bajaTarget.id, { id_periodo: null, id_tutor: null });
+      toast.success(`${bajaTarget.nombre_completo} fue dado de baja del periodo`);
+      setBajaOpen(false);
+      loadData();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Error al dar de baja');
+    } finally {
+      setBajaLoading(false);
     }
   }
 
@@ -306,6 +325,15 @@ export default function Usuarios() {
           >
             <TrashIcon className="w-4 h-4" />
           </button>
+          {row.rol === 'beneficiario' && (
+            <button
+              onClick={() => { setBajaTarget(row); setBajaOpen(true); }}
+              className="p-1.5 rounded-lg hover:bg-yellow-50 text-yellow-600 transition-colors"
+              title="Dar de baja"
+            >
+              <UserMinusIcon className="w-4 h-4" />
+            </button>
+          )}
         </div>
       ),
     },
@@ -613,6 +641,16 @@ export default function Usuarios() {
         message={`¿Estás seguro de que deseas eliminar a "${deleteTarget?.nombre_completo}"? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         loading={deleting}
+      />
+
+      <ConfirmDialog
+        isOpen={bajaOpen}
+        onClose={() => setBajaOpen(false)}
+        onConfirm={handleBaja}
+        title="Dar de baja"
+        message={`¿Estás seguro de que deseas dar de baja a "${bajaTarget?.nombre_completo}"? Se eliminará su asignación al periodo y tutor actual.`}
+        confirmLabel="Dar de baja"
+        loading={bajaLoading}
       />
     </div>
   );
