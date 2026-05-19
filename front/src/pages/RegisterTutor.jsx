@@ -123,12 +123,6 @@ export default function RegisterTutor() {
                   max: { value: 12, message: 'Máximo 12' },
                 })}
               />
-              <Input
-                label="Link de video de presentación"
-                placeholder="https://..."
-                error={errors.link_video?.message}
-                {...register('link_video')}
-              />
             </div>
 
             <Input
