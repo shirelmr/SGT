@@ -96,6 +96,7 @@ model TutorTec {
   id_tutor    Int     @id @default(autoincrement())
   id_usuario  Int     @unique
   id_periodo  Int?
+  id_revisor  Int?
   matricula   String? @db.VarChar(20)
   carrera     String? @db.VarChar(100)
   semestre    Int?    @db.SmallInt
@@ -104,6 +105,7 @@ model TutorTec {
 
   usuario      Usuario      @relation(fields: [id_usuario], references: [id_usuario])
   periodo      Periodo?     @relation(fields: [id_periodo], references: [id_periodo])
+  revisor      Revisor?     @relation(fields: [id_revisor], references: [id_revisor])
   beneficiarios Beneficiario[]
   sesiones     Sesion[]
   bitacoras    Bitacora[]
@@ -140,6 +142,7 @@ model Revisor {
   usuario     Usuario              @relation(fields: [id_usuario], references: [id_usuario])
   periodo     Periodo?             @relation(fields: [id_periodo], references: [id_periodo])
   comentarios ComentarioBitacora[]
+  tutores     TutorTec[]
 }
 
 model Coordinador {

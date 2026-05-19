@@ -7,9 +7,9 @@ const router = express.Router()
 
 const fmt = (u) => {
   const base = { id: u.id_usuario, nombre_completo: u.nombre_completo, email: u.email, rol: u.rol }
-  if (u.tutor) return { ...base, id_tutor: u.tutor.id_tutor, id_periodo: u.tutor.id_periodo, matricula: u.tutor.matricula, carrera: u.tutor.carrera, semestre: u.tutor.semestre, link_video: u.tutor.link_video }
+  if (u.tutor) return { ...base, id_tutor: u.tutor.id_tutor, id_periodo: u.tutor.id_periodo, id_revisor: u.tutor.id_revisor, matricula: u.tutor.matricula, carrera: u.tutor.carrera, semestre: u.tutor.semestre, link_video: u.tutor.link_video }
   if (u.beneficiario) return { ...base, id_periodo: u.beneficiario.id_periodo, id_tutor: u.beneficiario.id_tutor, grado_escolar: u.beneficiario.grado_escolar, escuela: u.beneficiario.escuela, nombre_tutor_legal: u.beneficiario.nombre_tutor_legal, tel_tutor: u.beneficiario.tel_tutor }
-  if (u.revisor) return { ...base, id_periodo: u.revisor.id_periodo, matricula: u.revisor.matricula, carrera: u.revisor.carrera, semestre: u.revisor.semestre }
+  if (u.revisor) return { ...base, id_revisor: u.revisor.id_revisor, id_periodo: u.revisor.id_periodo, matricula: u.revisor.matricula, carrera: u.revisor.carrera, semestre: u.revisor.semestre }
   if (u.coordinador) return { ...base, departamento: u.coordinador.departamento }
   return base
 }
@@ -174,10 +174,52 @@ router.post('/asignar-automatico', auth, async (req, res) => {
   }
 })
 
+// POST /api/usuarios/asignar-revisores-automatico
+router.post('/asignar-revisores-automatico', auth, async (req, res) => {
+  if (req.user.rol !== 'coordinador') {
+    return res.status(403).json({ error: 'Acceso denegado' })
+  }
+
+  const n = Number(req.body.tutores_por_revisor)
+  if (!n || n < 1) {
+    return res.status(400).json({ error: 'tutores_por_revisor debe ser mayor a 0' })
+  }
+
+  try {
+    const periodo = await prisma.periodo.findFirst({ where: { activo: true } })
+    if (!periodo) return res.status(400).json({ error: 'No hay periodo activo' })
+
+    const revisores = await prisma.revisor.findMany({ where: { id_periodo: periodo.id_periodo } })
+    if (revisores.length === 0) return res.status(400).json({ error: 'No hay revisores en el periodo activo' })
+
+    const tutores = await prisma.tutorTec.findMany({
+      where: { id_periodo: periodo.id_periodo, id_revisor: null },
+    })
+
+    if (tutores.length === 0) return res.json({ asignados: 0 })
+
+    const toAssign = tutores.slice(0, revisores.length * n)
+
+    await prisma.$transaction(
+      toAssign.map((t, i) =>
+        prisma.tutorTec.update({
+          where: { id_tutor: t.id_tutor },
+          data: { id_revisor: revisores[Math.floor(i / n)].id_revisor },
+        })
+      )
+    )
+
+    res.json({ asignados: toAssign.length })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
 // PUT /api/usuarios/:id
 router.put('/:id', async (req, res) => {
   const id = Number(req.params.id)
-  const { nombre_completo, email, rol, id_periodo, matricula, carrera, semestre, link_video, id_tutor, grado_escolar, escuela, nombre_tutor_legal, tel_tutor, departamento } = req.body
+  const { nombre_completo, email, rol, id_periodo, matricula, carrera, semestre, link_video, id_tutor, id_revisor, grado_escolar, escuela, nombre_tutor_legal, tel_tutor, departamento } = req.body
 
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -199,6 +241,7 @@ router.put('/:id', async (req, res) => {
           where: { id_usuario: id },
           data: {
             id_periodo: pid,
+            id_revisor: id_revisor !== undefined ? (id_revisor ? Number(id_revisor) : null) : undefined,
             matricula,
             carrera,
             semestre: semestre !== undefined ? (semestre ? Number(semestre) : null) : undefined,
