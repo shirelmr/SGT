@@ -5,6 +5,7 @@ import AppLayout from '../components/layout/AppLayout';
 
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import RegisterTutor from '../pages/RegisterTutor';
 import Postulacion from '../pages/Postulacion';
 
 // Coordinador
@@ -48,6 +49,7 @@ export default function AppRouter() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/register/tutor" element={<RegisterTutor />} />
         <Route path="/postulacion" element={<Postulacion />} />
         <Route path="/" element={<RootRedirect />} />
 

@@ -8,37 +8,16 @@ async function sendAceptacionEmail({ nombre, email }) {
   await resend.emails.send({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: '¡Felicidades! Tu postulación como tutor fue aceptada',
+    subject: 'Actualización sobre tu postulación como tutor',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>¡Hola, ${nombre}!</h2>
         <p>
-          Nos complace informarte que tu postulación como tutor ha sido
-          <strong>aceptada</strong>. ¡Bienvenido al equipo!
+          Tu video y captura de pantalla han sido revisados por nuestro equipo.
         </p>
         <p>
-          Para comenzar, necesitas crear tu cuenta en el sistema. Haz clic en
-          el siguiente botón e ingresa con el correo con el que postulaste
-          (<strong>${email}</strong>).
-        </p>
-        <p style="text-align: center; margin: 32px 0;">
-          <a
-            href="${registerUrl}"
-            style="
-              background-color: #2563eb;
-              color: #ffffff;
-              padding: 12px 24px;
-              border-radius: 6px;
-              text-decoration: none;
-              font-weight: bold;
-            "
-          >
-            Crear mi cuenta
-          </a>
-        </p>
-        <p style="color: #6b7280; font-size: 14px;">
-          Si el botón no funciona, copia y pega este enlace en tu navegador:<br />
-          <a href="${registerUrl}">${registerUrl}</a>
+          Por favor, <strong>espera instrucciones por parte de Servicio Social</strong>
+          para continuar con el proceso.
         </p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
         <p style="color: #6b7280; font-size: 13px;">
