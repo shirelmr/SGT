@@ -46,6 +46,30 @@ const fmt = (b) => ({
   ...(b.comentarios !== undefined && { comentarios: b.comentarios }),
 })
 
+// POST /api/bitacoras/sin-bitacora  (revisor only — creates a minimal review record for sessions without a bitácora)
+router.post('/sin-bitacora', auth, async (req, res) => {
+  if (req.user.rol !== 'revisor') {
+    return res.status(403).json({ error: 'Solo revisores pueden usar este endpoint' })
+  }
+  const { id_sesion, estado } = req.body
+  if (!id_sesion || !estado) {
+    return res.status(400).json({ error: 'id_sesion y estado son requeridos' })
+  }
+  try {
+    const sesion = await prisma.sesion.findUnique({ where: { id_sesion: Number(id_sesion) } })
+    if (!sesion) return res.status(404).json({ error: 'Sesión no encontrada' })
+
+    const bitacora = await prisma.bitacora.create({
+      data: { id_sesion: Number(id_sesion), id_tutor: sesion.id_tutor, estado },
+      include: baseInclude,
+    })
+    res.status(201).json(fmt(bitacora))
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
 // GET /api/bitacoras
 router.get('/', auth, async (req, res) => {
   const { id_periodo } = req.query
@@ -146,19 +170,50 @@ router.put('/:id', auth, async (req, res) => {
   const id = Number(req.params.id)
   const { actividades, logros, dificultades, plan_siguiente, evidencia, estado } = req.body
   try {
-    const bitacora = await prisma.bitacora.update({
-      where: { id_bitacora: parseInt(id) },
-      data: {
-        ...(actividades !== undefined && { actividades }),
-        ...(logros !== undefined && { logros }),
-        ...(dificultades !== undefined && { dificultades }),
-        ...(plan_siguiente !== undefined && { plan_siguiente }),
-        ...(evidencia !== undefined && { evidencia }),
-        ...(estado !== undefined && { estado }),
-      },
-      include: baseInclude,
+    const result = await prisma.$transaction(async (tx) => {
+      if (estado === 'aprobado') {
+        const current = await tx.bitacora.findUnique({
+          where: { id_bitacora: id },
+          include: {
+            sesion: { include: { periodo: { select: { horas_esperadas: true } } } },
+          },
+        })
+
+        if (current && current.estado !== 'aprobado' && current.sesion) {
+          const { duracion_hrs, id_tutor, id_periodo } = current.sesion
+          const horas_esperadas = Number(current.sesion.periodo?.horas_esperadas ?? 0)
+
+          if (horas_esperadas > 0) {
+            const existing = await tx.horasAcreditadas.findUnique({
+              where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
+            })
+            const nuevasImpartidas = Number(existing?.horas_impartidas ?? 0) + Number(duracion_hrs)
+            const pct = Math.min((nuevasImpartidas / horas_esperadas) * 100, 100)
+
+            await tx.horasAcreditadas.upsert({
+              where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
+              create: { id_tutor, id_periodo, horas_impartidas: nuevasImpartidas, porcentaje_acred: pct, horas_extra: 0 },
+              update: { horas_impartidas: nuevasImpartidas, porcentaje_acred: pct },
+            })
+          }
+        }
+      }
+
+      return tx.bitacora.update({
+        where: { id_bitacora: id },
+        data: {
+          ...(actividades !== undefined && { actividades }),
+          ...(logros !== undefined && { logros }),
+          ...(dificultades !== undefined && { dificultades }),
+          ...(plan_siguiente !== undefined && { plan_siguiente }),
+          ...(evidencia !== undefined && { evidencia }),
+          ...(estado !== undefined && { estado }),
+        },
+        include: baseInclude,
+      })
     })
-    res.json(fmt(bitacora))
+
+    res.json(fmt(result))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })

@@ -7,13 +7,7 @@ import { BookOpenIcon } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
-const ROLES = [
-  { value: 'beneficiario', label: 'Beneficiario' },
-  { value: 'revisor', label: 'Revisor' },
-  { value: 'coordinador', label: 'Coordinador' },
-];
-
-export default function Register() {
+export default function RegisterTutor() {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -27,12 +21,12 @@ export default function Register() {
   } = useForm();
 
   const password = watch('password');
-  const selectedRol = watch('rol');
 
   const onSubmit = async (data) => {
     setLoading(true);
     setError('');
     const { confirmPassword, ...payload } = data;
+    payload.rol = 'tutor';
     if (payload.semestre) payload.semestre = Number(payload.semestre);
 
     try {
@@ -76,11 +70,10 @@ export default function Register() {
             <h1 className="font-sora text-3xl font-bold text-gray-900">
               SGT <span style={{ color: '#4a1f06' }}>Talk!</span>
             </h1>
-            <p className="text-gray-500 text-sm mt-1">Crear una cuenta nueva</p>
+            <p className="text-gray-500 text-sm mt-1">Registro de Tutor</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* ── Basic fields ── */}
             <Input
               label="Nombre completo"
               type="text"
@@ -106,93 +99,38 @@ export default function Register() {
               })}
             />
 
-            {/* ── Role selector ── */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Rol</label>
-              <select
-                className={`border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white ${errors.rol ? 'border-red-400' : ''}`}
-                {...register('rol', { required: 'El rol es obligatorio' })}
-              >
-                <option value="">Selecciona un rol</option>
-                {ROLES.map((r) => (
-                  <option key={r.value} value={r.value}>{r.label}</option>
-                ))}
-              </select>
-              {errors.rol && <p className="text-xs text-red-500">{errors.rol.message}</p>}
+            <div className="space-y-3 rounded-xl border-2 border-orange-100 bg-orange-50 p-4">
+              <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide">Datos del tutor</p>
+              <Input
+                label="Matrícula"
+                placeholder="A01234567"
+                error={errors.matricula?.message}
+                {...register('matricula')}
+              />
+              <Input
+                label="Carrera"
+                placeholder="Ingeniería en Sistemas"
+                error={errors.carrera?.message}
+                {...register('carrera')}
+              />
+              <Input
+                label="Semestre"
+                type="number"
+                placeholder="6"
+                error={errors.semestre?.message}
+                {...register('semestre', {
+                  min: { value: 1, message: 'Mínimo 1' },
+                  max: { value: 12, message: 'Máximo 12' },
+                })}
+              />
+              <Input
+                label="Link de video de presentación"
+                placeholder="https://..."
+                error={errors.link_video?.message}
+                {...register('link_video')}
+              />
             </div>
 
-            {/* ── Role-specific fields ── */}
-            {selectedRol === 'beneficiario' && (
-              <div className="space-y-3 rounded-xl border-2 border-orange-100 bg-orange-50 p-4">
-                <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide">Datos del beneficiario</p>
-                <Input
-                  label="Grado escolar"
-                  placeholder="Primaria, Secundaria..."
-                  error={errors.grado_escolar?.message}
-                  {...register('grado_escolar')}
-                />
-                <Input
-                  label="Escuela"
-                  placeholder="Nombre de la institución"
-                  error={errors.escuela?.message}
-                  {...register('escuela')}
-                />
-                <Input
-                  label="Nombre del tutor legal"
-                  placeholder="Nombre completo"
-                  error={errors.nombre_tutor_legal?.message}
-                  {...register('nombre_tutor_legal')}
-                />
-                <Input
-                  label="Teléfono del tutor legal"
-                  placeholder="55 1234 5678"
-                  error={errors.tel_tutor?.message}
-                  {...register('tel_tutor')}
-                />
-              </div>
-            )}
-
-            {selectedRol === 'coordinador' && (
-              <div className="space-y-3 rounded-xl border-2 border-orange-100 bg-orange-50 p-4">
-                <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide">Datos del coordinador</p>
-                <Input
-                  label="Departamento"
-                  placeholder="Ej. Rectoría, Coordinación académica..."
-                  error={errors.departamento?.message}
-                  {...register('departamento')}
-                />
-              </div>
-            )}
-
-            {selectedRol === 'revisor' && (
-              <div className="space-y-3 rounded-xl border-2 border-orange-100 bg-orange-50 p-4">
-                <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide">Datos del revisor</p>
-                <Input
-                  label="Matrícula"
-                  placeholder="A01234567"
-                  error={errors.matricula?.message}
-                  {...register('matricula')}
-                />
-                <Input
-                  label="Carrera"
-                  placeholder="Ingeniería en Sistemas"
-                  error={errors.carrera?.message}
-                  {...register('carrera')}
-                />
-                <Input
-                  label="Semestre"
-                  type="number"
-                  placeholder="6"
-                  error={errors.semestre?.message}
-                  {...register('semestre', {
-                    min: { value: 1, message: 'Mínimo 1' },
-                    max: { value: 12, message: 'Máximo 12' },
-                  })}
-                />
-              </div>
-            )}
-
-            {/* ── Password fields ── */}
             <Input
               label="Contraseña"
               type="password"

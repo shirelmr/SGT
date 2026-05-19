@@ -33,6 +33,7 @@ enum EstadoComentario {
   pendiente
   no_aprobada
   aprobado
+  aprobado_sin_horas
 }
 
 enum EstadoPostulacion {
