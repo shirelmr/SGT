@@ -614,10 +614,16 @@ export default function Usuarios() {
           )}
 
           {watchedRol === 'revisor' && (
-            <div className="pt-2 border-t border-gray-100">
-              <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+              <Input label="Matrícula" {...register('matricula')} />
+              <Input label="Carrera" {...register('carrera')} />
+              <Input label="Semestre" type="number" {...register('semestre')} />
+              <div className="flex flex-col gap-1 sm:col-span-2">
                 <label className="text-sm font-medium text-gray-700">Periodo</label>
-                <select className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400" {...register('id_periodo')}>
+                <select 
+                  className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400" 
+                  {...register('id_periodo')}
+                >
                   <option value="">Sin periodo</option>
                   {periodos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
