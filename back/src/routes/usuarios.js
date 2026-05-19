@@ -20,23 +20,29 @@ router.get('/', auth, async (req, res) => {
     return res.status(403).json({ error: 'Acceso denegado' })
   }
 
-  const { rol, todos } = req.query
+  const { rol, todos, id_periodo } = req.query
 
   try {
     const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
     const activeId = periodoActivo?.id_periodo
 
-    let allRoleConditions;
+    let allRoleConditions
 
-    if (todos === 'true' && activeId) {
-      // mostrar inactivos: Roles que NO están en el periodo actual o no tienen uno
+    if (id_periodo) {
+      const pid = Number(id_periodo)
+      allRoleConditions = [
+        { rol: 'coordinador' },
+        { rol: 'tutor', tutor: { id_periodo: pid } },
+        { rol: 'revisor', revisor: { id_periodo: pid } },
+        { rol: 'beneficiario', beneficiario: { id_periodo: pid } },
+      ]
+    } else if (todos === 'true' && activeId) {
       allRoleConditions = [
         { rol: 'tutor', tutor: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
         { rol: 'revisor', revisor: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
         { rol: 'beneficiario', beneficiario: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
       ]
     } else {
-      // vista normal: Coordinadores + usuarios del periodo activo
       allRoleConditions = [
         { rol: 'coordinador' },
         activeId ? { rol: 'tutor', tutor: { id_periodo: activeId } } : { rol: 'tutor' },
@@ -57,6 +63,108 @@ router.get('/', auth, async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
+// GET /api/usuarios/:id/resumen
+router.get('/:id/resumen', auth, async (req, res) => {
+  if (req.user.rol !== 'coordinador') return res.status(403).json({ error: 'Acceso denegado' })
+
+  const id = Number(req.params.id)
+  const periodoId = req.query.id_periodo ? Number(req.query.id_periodo) : null
+
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id_usuario: id },
+      include: { tutor: true, beneficiario: true, revisor: true, coordinador: true },
+    })
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' })
+
+    const pid = periodoId
+      || usuario.tutor?.id_periodo
+      || usuario.beneficiario?.id_periodo
+      || usuario.revisor?.id_periodo
+      || null
+
+    let stats = {}
+    let tutorAsignado = null
+
+    if (usuario.rol === 'tutor' && usuario.tutor) {
+      const tutorId = usuario.tutor.id_tutor
+      const whereSession = { id_tutor: tutorId, ...(pid ? { id_periodo: pid } : {}) }
+
+      const [sesiones, horas] = await Promise.all([
+        prisma.sesion.findMany({
+          where: whereSession,
+          include: { bitacora: { select: { estado: true } } },
+        }),
+        pid
+          ? prisma.horasAcreditadas.findUnique({
+              where: { id_tutor_id_periodo: { id_tutor: tutorId, id_periodo: pid } },
+            })
+          : Promise.resolve(null),
+      ])
+
+      const bitacoras = sesiones.flatMap((s) => (s.bitacora ? [s.bitacora] : []))
+      stats = {
+        sesiones_total: sesiones.length,
+        sesiones_realizadas: sesiones.filter((s) => s.estado === 'realizada').length,
+        sesiones_programadas: sesiones.filter((s) => s.estado === 'programada').length,
+        bitacoras_total: bitacoras.length,
+        bitacoras_aprobadas: bitacoras.filter((b) => b.estado === 'aprobado' || b.estado === 'aprobado_sin_horas').length,
+        bitacoras_pendientes: bitacoras.filter((b) => b.estado === 'pendiente').length,
+        bitacoras_no_aprobadas: bitacoras.filter((b) => b.estado === 'no_aprobada').length,
+        horas_impartidas: Number(horas?.horas_impartidas ?? 0),
+        horas_extra: Number(horas?.horas_extra ?? 0),
+        porcentaje_acred: Number(horas?.porcentaje_acred ?? 0),
+      }
+    } else if (usuario.rol === 'beneficiario' && usuario.beneficiario) {
+      const benefId = usuario.beneficiario.id_benef
+      const sesiones = await prisma.sesion.findMany({
+        where: { id_beneficiario: benefId, ...(pid ? { id_periodo: pid } : {}) },
+      })
+      stats = {
+        sesiones_total: sesiones.length,
+        sesiones_realizadas: sesiones.filter((s) => s.estado === 'realizada').length,
+        sesiones_programadas: sesiones.filter((s) => s.estado === 'programada').length,
+      }
+
+      if (usuario.beneficiario.id_tutor) {
+        const tutorRec = await prisma.tutorTec.findUnique({
+          where: { id_tutor: usuario.beneficiario.id_tutor },
+          include: { usuario: { select: { nombre_completo: true } } },
+        })
+        tutorAsignado = tutorRec?.usuario?.nombre_completo || null
+      }
+    } else if (usuario.rol === 'revisor' && usuario.revisor) {
+      const revisorId = usuario.revisor.id_revisor
+      const periodoFilter = pid ? { sesion: { id_periodo: pid } } : {}
+
+      const [total, aprobadas] = await Promise.all([
+        prisma.bitacora.count({
+          where: { comentarios: { some: { id_revisor: revisorId } }, ...periodoFilter },
+        }),
+        prisma.bitacora.count({
+          where: { estado: 'aprobado', comentarios: { some: { id_revisor: revisorId } }, ...periodoFilter },
+        }),
+      ])
+      stats = { bitacoras_revisadas: total, bitacoras_aprobadas: aprobadas }
+    }
+
+    const perfil = usuario.tutor || usuario.beneficiario || usuario.revisor || usuario.coordinador || null
+
+    res.json({
+      id: usuario.id_usuario,
+      nombre_completo: usuario.nombre_completo,
+      email: usuario.email,
+      rol: usuario.rol,
+      perfil,
+      tutor_asignado: tutorAsignado,
+      stats,
+    })
+  } catch (err) {
+    console.error('[resumen error]', err)
+    res.status(500).json({ error: 'Error interno del servidor', detail: err.message })
   }
 })
 
