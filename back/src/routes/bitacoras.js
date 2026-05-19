@@ -81,6 +81,11 @@ router.get('/', auth, async (req, res) => {
       if (!tutor) return res.status(404).json({ error: 'Perfil de tutor no encontrado' })
       where.id_tutor = tutor.id_tutor
     }
+    if (req.user.rol === 'revisor') {
+      const revisor = await prisma.revisor.findUnique({ where: { id_usuario: req.user.id_usuario } })
+      if (!revisor) return res.status(404).json({ error: 'Perfil de revisor no encontrado' })
+      where.tutor = { id_revisor: revisor.id_revisor }
+    }
     if (id_periodo) {
       where.sesion = { id_periodo: Number(id_periodo) }
     }
