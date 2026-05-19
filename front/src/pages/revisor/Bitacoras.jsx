@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getBitacoras } from '../../api/bitacoras';
+import { getSesionesSinBitacora } from '../../api/incidencias';
 import { getPeriodos } from '../../api/periodos';
 import PageHeader from '../../components/shared/PageHeader';
 import Table from '../../components/ui/Table';
@@ -13,16 +14,26 @@ const estadoBadge = {
   pendiente: 'warning',
   aprobado: 'success',
   no_aprobada: 'danger',
+  aprobado_sin_horas: 'info',
 };
 
 const formatoEstado = {
   pendiente: 'Pendiente',
   aprobado: 'Aprobada',
   no_aprobada: 'No aprobada',
+  aprobado_sin_horas: 'Aprobada sin horas',
+};
+
+const tipoIncidenciaLabel = {
+  retardo: 'Retardo',
+  no_se_presento: 'No se presentó',
+  inasistencia: 'Inasistencia',
+  otro: 'Otro',
 };
 
 export default function Bitacoras() {
   const [bitacoras, setBitacoras] = useState([]);
+  const [sesionesSinBitacora, setSesionesSinBitacora] = useState([]);
   const [periodos, setPeriodos] = useState([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState('');
   const [filterTutor, setFilterTutor] = useState('');
@@ -43,9 +54,15 @@ export default function Bitacoras() {
   useEffect(() => {
     if (!selectedPeriodo) return;
     setLoading(true);
-    getBitacoras({ id_periodo: selectedPeriodo })
-      .then((r) => setBitacoras(r.data || []))
-      .catch(() => setBitacoras([]))
+    Promise.all([
+      getBitacoras({ id_periodo: selectedPeriodo }),
+      getSesionesSinBitacora(selectedPeriodo),
+    ])
+      .then(([bRes, sRes]) => {
+        setBitacoras(bRes.data || []);
+        setSesionesSinBitacora(sRes.data || []);
+      })
+      .catch(() => { setBitacoras([]); setSesionesSinBitacora([]); })
       .finally(() => setLoading(false));
   }, [selectedPeriodo]);
 
@@ -126,19 +143,54 @@ export default function Bitacoras() {
           <option value="pendiente">Pendiente</option>
           <option value="aprobado">Aprobado</option>
           <option value="no_aprobada">No aprobada</option>
+          <option value="aprobado_sin_horas">Aprobado sin horas</option>
         </select>
       </div>
 
       {!selectedPeriodo ? (
         <EmptyState icon="📋" title="Selecciona un periodo" description="Elige un periodo para ver las bitácoras" />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <Table
-            columns={columns}
-            data={filtered}
-            loading={loading}
-            emptyMessage="No hay bitácoras en este periodo"
-          />
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <h2 className="font-sora font-semibold text-gray-800 mb-4">Bitácoras</h2>
+            <Table
+              columns={columns}
+              data={filtered}
+              loading={loading}
+              emptyMessage="No hay bitácoras en este periodo"
+            />
+          </div>
+
+          {sesionesSinBitacora.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <h2 className="font-sora font-semibold text-gray-800 mb-1">Sesiones con incidencias sin bitácora</h2>
+              <p className="text-sm text-gray-500 mb-4">Sesiones donde el tutor registró una incidencia pero no entregó bitácora</p>
+              <Table
+                columns={[
+                  { key: 'tutor', label: 'Tutor', render: (_, row) => row.tutor?.nombre_completo || '—' },
+                  { key: 'beneficiario', label: 'Beneficiario', render: (_, row) => row.beneficiario?.nombre_completo || '—' },
+                  { key: 'fecha', label: 'Fecha sesión', render: (_, row) => row.fecha ? new Date(row.fecha).toLocaleDateString('es-MX') : '—' },
+                  {
+                    key: 'incidencias', label: 'Incidencias', render: (_, row) => (
+                      <div className="flex flex-wrap gap-1">
+                        {row.incidencias.map((inc) => (
+                          <Badge key={inc.id_incidencia} variant="warning">{tipoIncidenciaLabel[inc.tipo] ?? inc.tipo}</Badge>
+                        ))}
+                      </div>
+                    ),
+                  },
+                  {
+                    key: 'acciones', label: 'Acciones', render: (_, row) => (
+                      <Button size="sm" onClick={() => navigate(`/revisor/bitacoras/${row.id_sesion}`)}>Ver</Button>
+                    ),
+                  },
+                ]}
+                data={sesionesSinBitacora}
+                loading={loading}
+                emptyMessage="Sin sesiones pendientes"
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
