@@ -18,7 +18,7 @@ import {
 
 const navByRole = {
   coordinador: [
-    { to: '/coordinador/dashboard', label: 'Dashboard', icon: HomeIcon },
+    { to: '/coordinador/dashboard', label: 'Tablero', icon: HomeIcon },
     { to: '/coordinador/postulaciones', label: 'Postulaciones', icon: ClipboardDocumentCheckIcon },
     { to: '/coordinador/usuarios', label: 'Usuarios', icon: UsersIcon },
     { to: '/coordinador/periodos', label: 'Periodos', icon: CalendarDaysIcon },
@@ -28,13 +28,13 @@ const navByRole = {
     { to: '/coordinador/consulta-ia', label: 'Consulta IA', icon: SparklesIcon },
   ],
   tutor: [
-    { to: '/tutor/dashboard', label: 'Dashboard', icon: HomeIcon },
+    { to: '/tutor/dashboard', label: 'Tablero', icon: HomeIcon },
     { to: '/tutor/sesiones', label: 'Mis Sesiones', icon: CalendarDaysIcon },
     { to: '/tutor/horas', label: 'Mis Horas', icon: ClockIcon },
     { to: '/tutor/perfil', label: 'Mi Perfil', icon: UserCircleIcon },
   ],
   revisor: [
-    { to: '/revisor/dashboard', label: 'Dashboard', icon: HomeIcon },
+    { to: '/revisor/dashboard', label: 'Tablero', icon: HomeIcon },
     { to: '/revisor/bitacoras', label: 'Bitácoras', icon: DocumentTextIcon },
   ],
   beneficiario: [
