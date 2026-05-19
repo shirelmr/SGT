@@ -15,6 +15,11 @@ router.get('/', auth, async (req, res) => {
       const tutor = await prisma.tutorTec.findUnique({ where: { id_usuario: req.user.id_usuario } })
       if (!tutor) return res.status(404).json({ error: 'Perfil de tutor no encontrado' })
       where.id_tutor = tutor.id_tutor
+
+      // forzamos a que busque solo las horas del periodo actual del tutor
+      if (!id_periodo && tutor.id_periodo) {
+        where.id_periodo = tutor.id_periodo
+      }
     }
 
     const horas = await prisma.horasAcreditadas.findMany({
