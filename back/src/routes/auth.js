@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
   const {
     nombre_completo, email, password, rol,
     // tutor
-    matricula, carrera, semestre, link_video,
+    matricula, carrera, semestre,
     // beneficiario
     grado_escolar, escuela, nombre_tutor_legal, tel_tutor,
     // coordinador
@@ -69,7 +69,6 @@ router.post('/register', async (req, res) => {
             matricula: matricula || null,
             carrera: carrera || null,
             semestre: semestre ? Number(semestre) : null,
-            link_video: link_video || null,
           },
         })
       } else if (rol === 'beneficiario') {

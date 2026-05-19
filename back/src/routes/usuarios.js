@@ -7,7 +7,7 @@ const router = express.Router()
 
 const fmt = (u) => {
   const base = { id: u.id_usuario, nombre_completo: u.nombre_completo, email: u.email, rol: u.rol }
-  if (u.tutor) return { ...base, id_tutor: u.tutor.id_tutor, id_periodo: u.tutor.id_periodo, id_revisor: u.tutor.id_revisor, matricula: u.tutor.matricula, carrera: u.tutor.carrera, semestre: u.tutor.semestre, link_video: u.tutor.link_video }
+  if (u.tutor) return { ...base, id_tutor: u.tutor.id_tutor, id_periodo: u.tutor.id_periodo, id_revisor: u.tutor.id_revisor, matricula: u.tutor.matricula, carrera: u.tutor.carrera, semestre: u.tutor.semestre }
   if (u.beneficiario) return { ...base, id_periodo: u.beneficiario.id_periodo, id_tutor: u.beneficiario.id_tutor, grado_escolar: u.beneficiario.grado_escolar, escuela: u.beneficiario.escuela, nombre_tutor_legal: u.beneficiario.nombre_tutor_legal, tel_tutor: u.beneficiario.tel_tutor }
   if (u.revisor) return { ...base, id_revisor: u.revisor.id_revisor, id_periodo: u.revisor.id_periodo, matricula: u.revisor.matricula, carrera: u.revisor.carrera, semestre: u.revisor.semestre }
   if (u.coordinador) return { ...base, departamento: u.coordinador.departamento }
@@ -170,7 +170,7 @@ router.get('/:id/resumen', auth, async (req, res) => {
 
 // POST /api/usuarios
 router.post('/', async (req, res) => {
-  const { nombre_completo, email, password, rol, id_periodo, matricula, carrera, semestre, link_video, grado_escolar, escuela, nombre_tutor_legal, tel_tutor, departamento } = req.body
+  const { nombre_completo, email, password, rol, id_periodo, matricula, carrera, semestre, grado_escolar, escuela, nombre_tutor_legal, tel_tutor, departamento } = req.body
 
   if (!nombre_completo || !email || !password || !rol) {
     return res.status(400).json({ error: 'Nombre, email, contraseña y rol son obligatorios' })
@@ -195,7 +195,6 @@ router.post('/', async (req, res) => {
             matricula: matricula || null,
             carrera: carrera || null,
             semestre: semestre ? Number(semestre) : null,
-            link_video: link_video || null,
           },
         })
         if (tutor.id_periodo) {
@@ -327,7 +326,7 @@ router.post('/asignar-revisores-automatico', auth, async (req, res) => {
 // PUT /api/usuarios/:id
 router.put('/:id', async (req, res) => {
   const id = Number(req.params.id)
-  const { nombre_completo, email, rol, id_periodo, matricula, carrera, semestre, link_video, id_tutor, id_revisor, grado_escolar, escuela, nombre_tutor_legal, tel_tutor, departamento } = req.body
+  const { nombre_completo, email, rol, id_periodo, matricula, carrera, semestre, id_tutor, id_revisor, grado_escolar, escuela, nombre_tutor_legal, tel_tutor, departamento } = req.body
 
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -353,7 +352,6 @@ router.put('/:id', async (req, res) => {
             matricula,
             carrera,
             semestre: semestre !== undefined ? (semestre ? Number(semestre) : null) : undefined,
-            link_video
           }
         })
         if (pid) {

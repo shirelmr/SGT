@@ -101,7 +101,6 @@ model TutorTec {
   matricula   String? @db.VarChar(20)
   carrera     String? @db.VarChar(100)
   semestre    Int?    @db.SmallInt
-  link_video  String? @db.VarChar(300)
   link_zoom   String? @db.VarChar(300)
 
   usuario      Usuario      @relation(fields: [id_usuario], references: [id_usuario])
