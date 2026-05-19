@@ -72,9 +72,11 @@ router.post('/register', async (req, res) => {
           },
         })
       } else if (rol === 'beneficiario') {
+        const periodoActivoBenef = await tx.periodo.findFirst({ where: { activo: true } })
         await tx.beneficiario.create({
           data: {
             id_usuario: u.id_usuario,
+            id_periodo: periodoActivoBenef?.id_periodo ?? null,
             grado_escolar: grado_escolar || null,
             escuela: escuela || null,
             nombre_tutor_legal: nombre_tutor_legal || null,

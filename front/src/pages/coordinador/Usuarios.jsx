@@ -603,13 +603,6 @@ export default function Usuarios() {
               <Input label="Escuela" {...register('escuela')} />
               <Input label="Nombre tutor legal" {...register('nombre_tutor_legal')} />
               <Input label="Tel. tutor" {...register('tel_tutor')} />
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">Periodo</label>
-                <select className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400" {...register('id_periodo')}>
-                  <option value="">Sin periodo</option>
-                  {periodos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-                </select>
-              </div>
             </div>
           )}
 
