@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarDaysIcon, LinkIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, LinkIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import { useBeneficiarioDashboard } from '../../hooks/useBeneficiarioDashboard';
@@ -115,13 +115,22 @@ export default function Tablero() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Card title="Próxima Sesión" borderColor="#f97316" className="lg:col-span-2">
           {proxima ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <CalendarDaysIcon className="w-5 h-5 text-orange-500" />
-                <span className="font-medium">
+            <div className="flex flex-col gap-2 text-sm text-gray-600">
+                {/* Fecha */}
+                <div className="flex items-center gap-2">
+                <CalendarDaysIcon className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                <span className="font-medium capitalize">
                   {new Date(proxima.fecha).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </span>
               </div>
+
+                {/* Hora */}
+                <div className="flex items-center gap-2">
+                  <ClockIcon className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                  <span className="font-medium">
+                    {proxima.hora_inicio} hrs
+                  </span>
+                </div>
               
               <div>
                 <p className="text-sm font-semibold text-gray-900">{proxima.tema}</p>
