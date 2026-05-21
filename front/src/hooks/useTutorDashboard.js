@@ -4,26 +4,35 @@ import { getSesiones } from '../api/sesiones';
 import { getHoras } from '../api/horas';
 import { getAsistencia, confirmarAsistencia } from '../api/asistencias';
 
+const getLocalDate = (fechaStr) => {
+  if (!fechaStr) return new Date(0);
+  const [year, month, day] = fechaStr.split('T')[0].split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export function getProximaSesion(sesiones) {
-  const now = new Date();
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0); 
+  
   return sesiones
-    .filter((s) => s.estado === 'programada' && new Date(s.fecha) >= now)
-    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))[0] ?? null;
+    .filter((s) => s.estado === 'programada' && getLocalDate(s.fecha) >= hoy)
+    .sort((a, b) => getLocalDate(a.fecha) - getLocalDate(b.fecha))[0] ?? null;
 }
 
 export function getUltimasSesiones(sesiones, cantidad = 3) {
   return sesiones
     .filter((s) => s.estado !== 'programada')
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+    .sort((a, b) => getLocalDate(b.fecha) - getLocalDate(a.fecha))
     .slice(0, cantidad);
 }
 
 export function getBitacorasPendientes(sesiones) {
   const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
+  hoy.setHours(0, 0, 0, 0); 
+  
   return sesiones
-    .filter((s) => new Date(s.fecha) < hoy && !s.bitacora)
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    .filter((s) => getLocalDate(s.fecha) < hoy && !s.bitacora)
+    .sort((a, b) => getLocalDate(b.fecha) - getLocalDate(a.fecha));
 }
 
 export function useTutorDashboard() {

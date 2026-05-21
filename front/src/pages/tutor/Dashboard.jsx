@@ -148,7 +148,7 @@ export default function TutorDashboard() {
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <CalendarDaysIcon className="w-4 h-4 text-orange-500" />
                 <span>
-                  {new Date(proxima.fecha).toLocaleDateString('es-MX', {
+                  {new Date(proxima.fecha.split('T')[0] + 'T12:00:00').toLocaleDateString('es-MX', {
                     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
                   })}
                 </span>
@@ -234,7 +234,7 @@ export default function TutorDashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-gray-800 truncate">{s.tema}</p>
                     <p className="text-xs text-gray-500">
-                      {new Date(s.fecha).toLocaleDateString('es-MX')}
+                      {new Date(s.fecha.split('T')[0] + 'T12:00:00').toLocaleDateString('es-MX')}
                     </p>
                   </div>
                   <Link
@@ -262,7 +262,7 @@ export default function TutorDashboard() {
                 <div>
                   <p className="text-sm font-medium text-gray-800">{s.tema}</p>
                   <p className="text-xs text-gray-500">
-                    {new Date(s.fecha).toLocaleDateString('es-MX')} • {s.hora_inicio}
+                    {new Date(s.fecha.split('T')[0] + 'T12:00:00').toLocaleDateString('es-MX')} • {s.hora_inicio}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
