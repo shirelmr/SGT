@@ -28,6 +28,26 @@ function validateSelectOnly(sql) {
   return sql
 }
 
+router.get('/history', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100)
+    const history = await prisma.auditoriaConsulta.findMany({
+      orderBy: { timestamp: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        timestamp: true,
+        pregunta: true,
+        sqlGenerado: true,
+        filasDevueltas: true
+      }
+    })
+    res.json(history)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
 router.post('/', async (req, res) => {
     console.log('KEY:', GEMINI_API_KEY)
     console.log('BODY:', req.body)

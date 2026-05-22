@@ -1,8 +1,15 @@
-import { useState } from 'react';
-import { SparklesIcon, CodeBracketIcon } from '@heroicons/react/24/outline';
-import { askDb } from '../../api/askDb';
+import { useState, useEffect, useCallback } from 'react';
+import { SparklesIcon, CodeBracketIcon, ClockIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { askDb, getHistory } from '../../api/askDb';
 import PageHeader from '../../components/shared/PageHeader';
 import Button from '../../components/ui/Button';
+
+function formatDate(iso) {
+  return new Date(iso).toLocaleString('es-MX', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
 
 export default function ConsultaIA() {
   const [pregunta, setPregunta] = useState('');
@@ -10,17 +17,40 @@ export default function ConsultaIA() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const { data } = await getHistory(20);
+      setHistory(data);
+    } catch {
+      // historial no crítico, falla silenciosamente
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadHistory(); }, [loadHistory]);
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!pregunta.trim()) return;
+    await ejecutarPregunta(pregunta.trim());
+  }
 
+  async function ejecutarPregunta(texto) {
+    setPregunta(texto);
     setLoading(true);
     setResult(null);
     setError(null);
 
     try {
-      const { data } = await askDb(pregunta.trim());
+      const { data } = await askDb(texto);
       setResult(data);
+      await loadHistory();
     } catch (err) {
       setError(err?.response?.data?.error || 'Error al procesar la consulta');
     } finally {
@@ -71,8 +101,7 @@ export default function ConsultaIA() {
 
       {/* Results */}
       {result && (
-        <div className="space-y-4">
-          {/* SQL generated */}
+        <div className="space-y-4 mb-8">
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-2 mb-3">
               <CodeBracketIcon className="w-4 h-4 text-gray-400" />
@@ -85,12 +114,9 @@ export default function ConsultaIA() {
             </pre>
           </div>
 
-          {/* Data table */}
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-semibold text-gray-700">
-                Resultados
-              </span>
+              <span className="text-sm font-semibold text-gray-700">Resultados</span>
               <span className="text-xs text-gray-400">
                 {result.results.length} {result.results.length === 1 ? 'fila' : 'filas'}
               </span>
@@ -117,15 +143,9 @@ export default function ConsultaIA() {
                   </thead>
                   <tbody>
                     {result.results.map((row, i) => (
-                      <tr
-                        key={i}
-                        className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
-                      >
+                      <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                         {columns.map((col) => (
-                          <td
-                            key={col}
-                            className="px-3 py-2.5 text-gray-700 whitespace-nowrap"
-                          >
+                          <td key={col} className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
                             {row[col] === null || row[col] === undefined
                               ? <span className="text-gray-300">—</span>
                               : String(row[col])}
@@ -140,6 +160,67 @@ export default function ConsultaIA() {
           </div>
         </div>
       )}
+
+      {/* History */}
+      <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ClockIcon className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-semibold text-gray-700">Historial de consultas</span>
+          </div>
+          <button
+            onClick={loadHistory}
+            disabled={historyLoading}
+            className="text-gray-400 hover:text-orange-500 transition-colors"
+            title="Recargar historial"
+          >
+            <ArrowPathIcon className={`w-4 h-4 ${historyLoading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+
+        {history.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-6">
+            {historyLoading ? 'Cargando...' : 'No hay consultas registradas aún.'}
+          </p>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {history.map((item) => (
+              <div key={item.id} className="py-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-800 truncate">{item.pregunta}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {formatDate(item.timestamp)} · {item.filasDevueltas} {item.filasDevueltas === 1 ? 'fila' : 'filas'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                      className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {expandedId === item.id ? 'Ocultar SQL' : 'Ver SQL'}
+                    </button>
+                    <button
+                      onClick={() => ejecutarPregunta(item.pregunta)}
+                      disabled={loading}
+                      className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-600 font-medium transition-colors disabled:opacity-40"
+                    >
+                      <SparklesIcon className="w-3.5 h-3.5" />
+                      Re-ejecutar
+                    </button>
+                  </div>
+                </div>
+
+                {expandedId === item.id && (
+                  <pre className="mt-2 bg-gray-50 rounded-lg px-3 py-2 text-xs text-gray-600 font-mono overflow-x-auto whitespace-pre-wrap">
+                    {item.sqlGenerado}
+                  </pre>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
