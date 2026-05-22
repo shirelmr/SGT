@@ -304,16 +304,16 @@
 | Moderador/a | Itzel Covarrubias Basurto |
 | Observadores | Todos los integrantes del equipo |
 | Sistema a evaluar | MVP funcional con backend integrado |
-| Objetivo | Verificar ICH ≥ 80% y tiempo promedio T1 ≤ 180 seg post-correcciones |
+| Objetivo | Verificar ICH ≥ 80%, tasa de éxito en flujos críticos y corregir fricciones cognitivas |
 
 #### Participantes planeados
 
 | # | Perfil | Cantidad |
 |---|--------|:--------:|
 | TutorTEC (estudiantes universitarios) | Tutor | 3 |
-| Beneficiarios (preparatoria / secundaria) | Beneficiario | 3 |
+| Beneficiarios (preparatoria / secundaria) | Beneficiario | 2 |
 | Coordinador del programa | Coordinador | 1 |
-| **Total** | — | **7** |
+| **Total** | — | **6** |
 
 #### Lista de verificación pre-sesión
 
@@ -345,9 +345,8 @@
 | P3 | Tutor | | | — | — | — | — |
 | P4 | Beneficiario | — | — | | | — | — |
 | P5 | Beneficiario | — | — | | | — | — |
-| P6 | Beneficiario | — | — | | | — | — |
-| P7 | Coordinador | — | — | — | — | | |
-| **Promedio** | — | | | | | | |
+| P6 | Coordinador | — | — | — | — | | |
+| **Promedio** | — | **[ ]** | **[ ]** | **[ ]** | **[ ]** | **[ ]** | **[ ]** |
 | **Meta** | — | ≤ 180 | ≤ 240 | ≤ 60 | ≤ 60 | ≤ 120 | ≤ 90 |
 
 ---
