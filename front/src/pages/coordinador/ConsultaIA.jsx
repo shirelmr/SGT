@@ -3,6 +3,7 @@ import { SparklesIcon, CodeBracketIcon, ClockIcon, ArrowPathIcon } from '@heroic
 import { askDb, getHistory } from '../../api/askDb';
 import PageHeader from '../../components/shared/PageHeader';
 import Button from '../../components/ui/Button';
+import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString('es-MX', {
@@ -20,6 +21,8 @@ export default function ConsultaIA() {
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+
+  const [warningData, setWarningData] = useState(null); // { mensaje, pregunta }
 
   const loadHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -41,14 +44,21 @@ export default function ConsultaIA() {
     await ejecutarPregunta(pregunta.trim());
   }
 
-  async function ejecutarPregunta(texto) {
+  async function ejecutarPregunta(texto, confirmarAltoVolumen = false) {
     setPregunta(texto);
     setLoading(true);
     setResult(null);
     setError(null);
+    setWarningData(null);
 
     try {
-      const { data } = await askDb(texto);
+      const { data } = await askDb(texto, confirmarAltoVolumen);
+
+      if (data.warning) {
+        setWarningData({ mensaje: data.mensaje, pregunta: texto });
+        return;
+      }
+
       setResult(data);
       await loadHistory();
     } catch (err) {
@@ -58,6 +68,11 @@ export default function ConsultaIA() {
     }
   }
 
+  async function handleConfirmarAltoVolumen() {
+    if (!warningData) return;
+    await ejecutarPregunta(warningData.pregunta, true);
+  }
+
   const columns = result?.results?.length > 0 ? Object.keys(result.results[0]) : [];
 
   return (
@@ -65,6 +80,16 @@ export default function ConsultaIA() {
       <PageHeader
         title="Consulta IA"
         subtitle="Haz preguntas en español sobre los datos del sistema"
+      />
+
+      <ConfirmDialog
+        isOpen={!!warningData}
+        onClose={() => setWarningData(null)}
+        onConfirm={handleConfirmarAltoVolumen}
+        title="Consulta de alto volumen"
+        message={warningData?.mensaje || ''}
+        confirmLabel="Continuar de todas formas"
+        loading={loading}
       />
 
       {/* Query input */}
@@ -102,11 +127,25 @@ export default function ConsultaIA() {
       {/* Results */}
       {result && (
         <div className="space-y-4 mb-8">
+          {result.respuesta && (
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <SparklesIcon className="w-4 h-4 text-orange-500" />
+                <span className="text-xs font-semibold text-orange-600 uppercase tracking-wide">
+                  Respuesta IA
+                </span>
+              </div>
+              <p className="text-sm text-orange-900 whitespace-pre-wrap leading-relaxed">
+                {result.respuesta}
+              </p>
+            </div>
+          )}
+
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-2 mb-3">
               <CodeBracketIcon className="w-4 h-4 text-gray-400" />
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                SQL generado
+                SQL generado {result.sqls?.length > 1 ? `(${result.sqls.length} consultas)` : ''}
               </span>
             </div>
             <pre className="bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-700 font-mono overflow-x-auto whitespace-pre-wrap">
