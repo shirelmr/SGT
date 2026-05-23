@@ -67,17 +67,33 @@
 | CP-AUTH-04 | Validaciones obligatorias en login | Pantalla de login abierta | Enviar formulario sin capturar datos | Se muestra mensaje de campo obligatorio | ✅ Pasa |
 | CP-AUTH-05 | Validación de formato email en cliente | Pantalla de login abierta | Capturar correo inválido y contraseña válida, luego enviar | Se muestra mensaje de correo inválido | ✅ Pasa |
 | CP-AUTH-06 | Login exitoso y navegación por rol coordinador | Intercept de login configurado con respuesta 200 y rol coordinador | Capturar credenciales de coordinador y enviar el formulario | Se redirige a coordinador dashboard | ✅ Pasa |
+| CP-AUTH-07 | Login exitoso y navegación por rol beneficiario | Intercept de login configurado con respuesta 200 y rol beneficiario | Capturar credenciales de beneficiario y enviar el formulario | Se redirige a beneficiario dashboard | ✅ Pasa |
+| CP-AUTH-08 | Login exitoso y navegación por rol revisor | Intercept de login configurado con respuesta 200 y rol revisor | Capturar credenciales de revisor y enviar el formulario | Se redirige a revisor dashboard | ✅ Pasa |
 
 #### 2.1.2 Register
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-AUTH-07 | Mostrar correctamente la vista de creación de cuenta | Usuario no autenticado, navegación a register | Abrir register y verificar campos nombre, email, rol, contraseña, confirmación y enlace a login | Todos los elementos esperados están visibles | ✅ Pasa |
-| CP-AUTH-08 | Validación de coincidencia de contraseña | Pantalla de register abierta | Llenar nombre, email, rol y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | ✅ Pasa |
-| CP-AUTH-09 | Validaciones obligatorias en registro | Pantalla de register abierta | Enviar formulario sin datos | Se muestran mensajes de campos obligatorios | ✅ Pasa |
-| CP-AUTH-10 | Navegación entre register y login | Pantalla de register abierta | Click en Inicia sesión | La URL cambia a login | ✅ Pasa |
-| CP-AUTH-11 | Validación de longitud mínima de contraseña | Pantalla de register abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | ✅ Pasa |
-| CP-AUTH-12 | Manejo de error de backend al registrar | Intercept de register configurado con 409 | Llenar formulario válido con correo existente y enviar | Se muestra mensaje de error al registrarse | ✅ Pasa |
+| CP-AUTH-09 | Mostrar correctamente la vista de creación de cuenta | Usuario no autenticado, navegación a register | Abrir register y verificar campos nombre, email, rol, contraseña, confirmación y enlace a login | Todos los elementos esperados están visibles | ✅ Pasa |
+| CP-AUTH-10 | Validación de coincidencia de contraseña | Pantalla de register abierta | Llenar nombre, email, rol y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | ✅ Pasa |
+| CP-AUTH-11 | Validaciones obligatorias en registro | Pantalla de register abierta | Enviar formulario sin datos | Se muestran mensajes de campos obligatorios | ✅ Pasa |
+| CP-AUTH-12 | Navegación entre register y login | Pantalla de register abierta | Click en Inicia sesión | La URL cambia a login | ✅ Pasa |
+| CP-AUTH-13 | Validación de longitud mínima de contraseña | Pantalla de register abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | ✅ Pasa |
+| CP-AUTH-14 | Manejo de error de backend al registrar | Intercept de register configurado con 409 | Llenar formulario válido con correo existente y enviar | Se muestra mensaje de error al registrarse | ✅ Pasa |
+| CP-AUTH-15 | Registro exitoso como beneficiario | Intercept de register configurado con token y usuario | Llenar formulario válido con los campos llenos | Se muestra mensaje de exito al registrarse | ✅ Pasa |
+| CP-AUTH-16 | Registro exitoso como revisor | Intercept de register configurado con token y usuario | Llenar formulario válido con los campos llenos | Se muestra mensaje de exito al registrarse | ✅ Pasa |
+| CP-AUTH-17 | Registro exitoso como coordinador | Intercept de register configurado con token y usuario | Llenar formulario válido con los campos llenos | Se muestra mensaje de exito al registrarse | ✅ Pasa |
+
+#### 2.1.3 RegisterTutor
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-AUTH-18 | Mostrar correctamente la vista de registro de tutor | Usuario no autenticado, navegación a /register/tutor | Abrir la pantalla de registro de tutor y verificar nombre, correo, matrícula, carrera, semestre, contraseña y confirmación | Todos los elementos del formulario se muestran visibles | ✅ Pasa |
+| CP-AUTH-19 | Validaciones obligatorias en registro de tutor | Pantalla de registro de tutor abierta | Enviar el formulario sin capturar datos | Se muestran mensajes de campos obligatorios | ✅ Pasa |
+| CP-AUTH-20 | Validación de coincidencia de contraseña en tutor | Pantalla de registro de tutor abierta | Llenar campos obligatorios y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | ✅ Pasa |
+| CP-AUTH-21 | Validación de longitud mínima de contraseña en tutor | Pantalla de registro de tutor abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | ✅ Pasa |
+| CP-AUTH-22 | Registro de tutor exitoso y redirección a dashboard | Intercept de register configurado con respuesta 201 y rol tutor | Llenar el formulario con datos válidos y enviar | Se guarda la sesión y la URL redirige a /tutor/dashboard | ✅ Pasa |
+| CP-AUTH-23 | Manejo de error de backend al registrar tutor | Intercept de register configurado con respuesta 409 o 500 | Llenar el formulario con correo duplicado o forzar error del servidor y enviar | Se muestra mensaje de error al registrarse | ✅ Pasa |
 
 ### 2.2 Módulo de Bitácora - Tutor
 
@@ -126,12 +142,12 @@
 
 | Módulo | Total casos | Estado |
 |--------|:-----------:|--------|
-| Autenticación | 12 | Documentado |
+| Autenticación | 18 | Documentado |
 | Bitácora - Tutor | 4 | Documentado |
 | Revisión - Revisor | 4 | Documentado |
 | Sesiones - Tutor | 6 | Documentado |
 | Usuarios - Coordinador | 9 | Documentado |
-| **TOTAL** | **35** | **Documentado** |
+| **TOTAL** | **41** | **Documentado** |
 
 ## 3. Evaluación Heurística — Nielsen
 

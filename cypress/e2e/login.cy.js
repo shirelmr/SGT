@@ -6,18 +6,19 @@ describe('Login', () => {
 
   //CP-AUTH-01
   it('renders the login page', () => {
-    cy.contains('SGT').should('be.visible')
+    cy.contains('TALK!').should('be.visible')
     cy.get('input[type="email"]').should('be.visible')
     cy.get('input[type="password"]').should('be.visible')
-    cy.get('button[type="submit"]').contains('Iniciar sesión').should('be.visible')
+    cy.get('button[type="submit"]').contains('Entrar').should('be.visible')
     cy.contains('Regístrate').should('be.visible')
+    cy.contains('¿Quieres ser tutor?').should('be.visible')
   })
 
   //CP-AUTH-02
   it('shows an error with wrong credentials', () => {
     cy.intercept('POST', /\/api\/auth\/login/, {
       statusCode: 401,
-      body: { error: 'Credenciales incorrectas' },
+      body: { error: 'Credenciales inválidas' },
     }).as('loginFail')
 
     cy.fixture('users').then(({ invalid }) => {
@@ -25,12 +26,12 @@ describe('Login', () => {
       cy.get('input[type="password"]').type(invalid.password)
       cy.get('button[type="submit"]').click()
       cy.wait('@loginFail')
-      cy.contains('Credenciales').should('be.visible')
+      cy.contains('Credenciales inválidas').should('be.visible')
     })
   })
 
   //CP-AUTH-03 
-  it('redirects to dashboard on successful login', () => {
+  it('redirects to dashboard on successful login for role tutor', () => {
     cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
     cy.intercept('POST', /\/api\/auth\/login/, {
       statusCode: 200,
@@ -80,66 +81,40 @@ describe('Login', () => {
     cy.wait('@loginCoord')
     cy.url().should('include', '/coordinador/dashboard')
   })
-})
 
-describe('Register', () => {
-  beforeEach(() => {
-    cy.logout()
-    cy.visit('/register')
-  })
+  //CP-AUTH-07
+  it('redirects beneficiario to /beneficiario/dashboard',() => {
+    cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
+    cy.intercept('POST', /\/api\/auth\/login/, {
+      statusCode: 200,
+      body: {
+        token: 'fake-benef-token',
+        user: { id_usuario: 100, nombre_completo: 'Beneficiario Test', email: 'benef@test.com', rol: 'beneficiario' },
+      },
+    }).as('loginBenef')
 
-  it('renders the register page', () => {
-    cy.contains('Crear una cuenta nueva').should('be.visible')
-    cy.get('input[placeholder="Juan Pérez"]').should('be.visible')
-    cy.get('input[type="email"]').should('be.visible')
-    cy.get('select').should('be.visible')
-    cy.get('input[type="password"]').should('have.length', 2)
-    cy.contains('Inicia sesión').should('be.visible')
-  })
-
-  it('shows error when passwords do not match', () => {
-    cy.get('input[placeholder="Juan Pérez"]').type('Test Persona')
-    cy.get('input[type="email"]').type('nuevo@test.com')
-    cy.get('select').select('tutor')
-    cy.get('input[type="password"]').first().type('password123')
-    cy.get('input[type="password"]').last().type('differentpassword')
+    cy.get('input[type="email"]').type('benef@test.com')
+    cy.get('input[type="password"]').type('anypassword')
     cy.get('button[type="submit"]').click()
-    cy.contains('no coinciden').should('be.visible')
+    cy.wait('@loginBenef')
+    cy.url().should('include', '/beneficiario/dashboard')
   })
 
-  it('shows validation errors when submitting empty form', () => {
+  //CP-AUTH-08
+  it('redirects revisor to /revisor/dashboard',() => {
+    cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
+    cy.intercept('POST', /\/api\/auth\/login/, {
+      statusCode: 200,
+      body: {
+        token: 'fake-revisor-token',
+        user: { id_usuario: 101, nombre_completo: 'Revisor Test', email: 'revisor@test.com', rol: 'revisor' },
+      },
+    }).as('loginRevisor')
+
+    cy.get('input[type="email"]').type('revisor@test.com')
+    cy.get('input[type="password"]').type('anypassword')
     cy.get('button[type="submit"]').click()
-    cy.contains('obligatorio').should('be.visible')
-  })
-
-  it('has a working link back to login', () => {
-    cy.contains('Inicia sesión').click()
-    cy.url().should('include', '/login')
-  })
-
-  it('shows password min-length error', () => {
-    cy.get('input[placeholder="Juan Pérez"]').type('Test Persona')
-    cy.get('input[type="email"]').type('nuevo@test.com')
-    cy.get('select').select('tutor')
-    cy.get('input[type="password"]').first().type('abc')
-    cy.get('input[type="password"]').last().type('abc')
-    cy.get('button[type="submit"]').click()
-    cy.contains('Mínimo 6 caracteres').should('be.visible')
-  })
-
-  it('shows error when registering with duplicate email', () => {
-    cy.intercept('POST', /\/api\/auth\/register/, {
-      statusCode: 409,
-      body: { error: 'Error al registrarse. Intenta de nuevo.' },
-    }).as('registerFail')
-
-    cy.get('input[placeholder="Juan Pérez"]').type('Test Persona')
-    cy.get('input[type="email"]').type('existing@test.com')
-    cy.get('select').select('tutor')
-    cy.get('input[type="password"]').first().type('password123')
-    cy.get('input[type="password"]').last().type('password123')
-    cy.get('button[type="submit"]').click()
-    cy.wait('@registerFail')
-    cy.contains('Error al registrarse').should('be.visible')
+    cy.wait('@loginRevisor')
+    cy.url().should('include', '/revisor/dashboard')
   })
 })

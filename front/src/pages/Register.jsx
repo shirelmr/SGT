@@ -124,10 +124,10 @@ export default function Register() {
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(248,248,236,0.7)' }}>
                 Datos del beneficiario
               </p>
-              <Input label="Grado escolar" placeholder="Primaria, Secundaria..." labelClassName={labelCls} className={inputCls} error={errors.grado_escolar?.message} {...register('grado_escolar')} />
-              <Input label="Escuela" placeholder="Nombre de la institución" labelClassName={labelCls} className={inputCls} error={errors.escuela?.message} {...register('escuela')} />
-              <Input label="Nombre del tutor legal" placeholder="Nombre completo" labelClassName={labelCls} className={inputCls} error={errors.nombre_tutor_legal?.message} {...register('nombre_tutor_legal')} />
-              <Input label="Teléfono del tutor legal" placeholder="55 1234 5678" labelClassName={labelCls} className={inputCls} error={errors.tel_tutor?.message} {...register('tel_tutor')} />
+              <Input label="Grado escolar" placeholder="Primaria, Secundaria..." labelClassName={labelCls} className={inputCls} error={errors.grado_escolar?.message} {...register('grado_escolar', { required: 'El grado escolar es obligatorio' })} />
+              <Input label="Escuela" placeholder="Nombre de la institución" labelClassName={labelCls} className={inputCls} error={errors.escuela?.message} {...register('escuela', { required: 'La escuela es obligatoria' })} />
+              <Input label="Nombre del tutor legal" placeholder="Nombre completo" labelClassName={labelCls} className={inputCls} error={errors.nombre_tutor_legal?.message} {...register('nombre_tutor_legal', { required: 'El nombre del tutor legal es obligatorio' })} />
+              <Input label="Teléfono del tutor legal" placeholder="55 1234 5678" labelClassName={labelCls} className={inputCls} error={errors.tel_tutor?.message} {...register('tel_tutor', { required: 'El teléfono del tutor legal es obligatorio' })} />
             </div>
           )}
 
@@ -139,7 +139,7 @@ export default function Register() {
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(248,248,236,0.7)' }}>
                 Datos del coordinador
               </p>
-              <Input label="Departamento" placeholder="Ej. Rectoría, Coordinación académica..." labelClassName={labelCls} className={inputCls} error={errors.departamento?.message} {...register('departamento')} />
+              <Input label="Departamento" placeholder="Ej. Rectoría, Coordinación académica..." labelClassName={labelCls} className={inputCls} error={errors.departamento?.message} {...register('departamento', { required: 'El departamento es obligatorio' })} />
             </div>
           )}
 
@@ -151,10 +151,11 @@ export default function Register() {
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(248,248,236,0.7)' }}>
                 Datos del revisor
               </p>
-              <Input label="Matrícula" placeholder="A01234567" labelClassName={labelCls} className={inputCls} error={errors.matricula?.message} {...register('matricula')} />
-              <Input label="Carrera" placeholder="Ingeniería en Sistemas" labelClassName={labelCls} className={inputCls} error={errors.carrera?.message} {...register('carrera')} />
+              <Input label="Matrícula" placeholder="A01234567" labelClassName={labelCls} className={inputCls} error={errors.matricula?.message} {...register('matricula', { required: 'La matrícula es obligatoria' })} />
+              <Input label="Carrera" placeholder="Ingeniería en Sistemas" labelClassName={labelCls} className={inputCls} error={errors.carrera?.message} {...register('carrera', { required: 'La carrera es obligatoria' })} />
               <Input label="Semestre" type="number" placeholder="6" labelClassName={labelCls} className={inputCls} error={errors.semestre?.message}
                 {...register('semestre', {
+                  required: 'El semestre es obligatorio',
                   min: { value: 1, message: 'Mínimo 1' },
                   max: { value: 12, message: 'Máximo 12' },
                 })}
