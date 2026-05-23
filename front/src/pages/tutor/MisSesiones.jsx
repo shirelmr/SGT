@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, FunnelIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, FunnelIcon, CalendarDaysIcon, ChevronDownIcon, ChevronUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { getSesiones } from '../../api/sesiones';
 import { getIncidenciasSesion, createIncidencia } from '../../api/incidencias';
 import PageHeader from '../../components/shared/PageHeader';
@@ -90,44 +90,113 @@ const formatearFechaLocal = (fechaStr, opciones = {}) => {
   return new Date(year, month - 1, day).toLocaleDateString('es-MX', opciones);
 };
 
-// ─── Card reutilizable de sesión ──────────────────────────────────────────
+// ─── Card reutilizable de sesión (expandible) ─────────────────────────────
 function SesionCard({ s, openModal }) {
+  const [open, setOpen] = useState(false);
   const hasUnread = s.bitacora_tiene_comentarios_nuevos;
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-shadow hover:shadow-md">
+      {/* ── Fila principal (siempre visible) ── */}
+      <div className="flex items-center gap-3 p-4">
+
+        {/* Área expandible (tema + badges + fecha) */}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex-1 min-w-0 text-left"
+        >
           <h3 className="font-sora font-semibold text-gray-800 text-sm">{s.tema}</h3>
-          <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
-          {hasUnread && (
-            <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 rounded-full px-2 py-0.5 text-xs font-medium">
-              <ChatBubbleLeftIcon className="w-3 h-3" />
-              Nuevo comentario
-            </span>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {formatearFechaLocal(s.fecha, { day: 'numeric', month: 'short' })}
+            {s.beneficiario && ` · ${s.beneficiario.nombre_completo}`}
+          </p>
+          <div className="flex items-center gap-2 flex-wrap mt-1.5">
+            <span className="text-xs text-gray-400">Sesión:</span>
+            <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
+            {s.bitacora && (
+              <>
+                <span className="text-gray-200">|</span>
+                <span className="text-xs text-gray-400">Bitácora:</span>
+                <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
+                  {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
+                </Badge>
+              </>
+            )}
+            {hasUnread && (
+              <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 rounded-full px-2 py-0.5 text-xs font-medium">
+                <ChatBubbleLeftIcon className="w-3 h-3" />
+                Nuevo comentario
+              </span>
+            )}
+          </div>
+        </button>
+
+        {/* Zona derecha: CTA rápido + checkmark + chevron */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {!s.bitacora && !open && (
+            <Link to={`/tutor/sesiones/${s.id}/bitacora`} onClick={(e) => e.stopPropagation()}>
+              <Button size="sm" variant="primary">Registrar bitácora</Button>
+            </Link>
           )}
+          {s.bitacora?.estado === 'aprobado' && (
+            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+          )}
+          <button onClick={() => setOpen((v) => !v)} className="text-gray-400 p-1">
+            {open ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
+          </button>
         </div>
-        <p className="text-xs text-gray-500 mt-1">
-          {formatearFechaLocal(s.fecha, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
-          {' • '}{s.hora_inicio}
-          {s.beneficiario && ` • ${s.beneficiario.nombre_completo || ''}`}
-        </p>
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {s.bitacora && (
-          <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
-            {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
-          </Badge>
-        )}
-        <Button size="sm" variant="ghost" onClick={() => openModal(s)}>
-          <ExclamationCircleIcon className="w-4 h-4" />
-          Incidencia
-        </Button>
-        <Link to={`/tutor/sesiones/${s.id}/bitacora`}>
-          <Button size="sm" variant={s.bitacora ? 'secondary' : 'primary'}>
-            {s.bitacora ? 'Ver bitácora' : 'Registrar bitácora'}
-          </Button>
-        </Link>
-      </div>
+
+      {/* ── Panel expandido ── */}
+      {open && (
+        <div className="border-t border-gray-100 px-4 pb-4 pt-3 space-y-4">
+          {/* Detalles de la sesión */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Fecha</p>
+              <p className="text-sm font-medium text-gray-800">
+                {formatearFechaLocal(s.fecha, { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Día</p>
+              <p className="text-sm font-medium text-gray-800 capitalize">
+                {formatearFechaLocal(s.fecha, { weekday: 'long' })}
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Hora</p>
+              <p className="text-sm font-medium text-gray-800">{s.hora_inicio || '—'}</p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Duración</p>
+              <p className="text-sm font-medium text-gray-800">
+                {s.duracion_hrs ? `${s.duracion_hrs} hr(s)` : '—'}
+              </p>
+            </div>
+          </div>
+
+          {s.beneficiario && (
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Beneficiario</p>
+              <p className="text-sm font-medium text-gray-800">{s.beneficiario.nombre_completo}</p>
+            </div>
+          )}
+
+          {/* Acciones */}
+          <div className="flex items-center gap-2 flex-wrap pt-1">
+            <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openModal(s); }}>
+              <ExclamationCircleIcon className="w-4 h-4" />
+              Incidencia
+            </Button>
+            <Link to={`/tutor/sesiones/${s.id}/bitacora`}>
+              <Button size="sm" variant={s.bitacora ? 'secondary' : 'primary'}>
+                {s.bitacora ? 'Ver bitácora' : 'Registrar bitácora'}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

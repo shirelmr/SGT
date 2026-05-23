@@ -25,6 +25,7 @@ import NuevaSesion from '../pages/tutor/NuevaSesion';
 import Bitacora from '../pages/tutor/Bitacora';
 import MisHoras from '../pages/tutor/MisHoras';
 import TutorPerfil from '../pages/tutor/Perfil';
+import MisAlumnos from '../pages/tutor/MisAlumnos';
 
 // Revisor
 import RevisorDashboard from '../pages/revisor/Dashboard';
@@ -74,6 +75,7 @@ export default function AppRouter() {
             <Route path="/tutor/sesiones" element={<MisSesionesTutor />} />
             <Route path="/tutor/sesiones/nueva" element={<NuevaSesion />} />
             <Route path="/tutor/sesiones/:id/bitacora" element={<Bitacora />} />
+            <Route path="/tutor/alumnos" element={<MisAlumnos />} />
             <Route path="/tutor/horas" element={<MisHoras />} />
             <Route path="/tutor/perfil" element={<TutorPerfil />} />
           </Route>

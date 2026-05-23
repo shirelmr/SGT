@@ -30,6 +30,7 @@ const navByRole = {
   tutor: [
     { to: '/tutor/dashboard', label: 'Tablero', icon: HomeIcon },
     { to: '/tutor/sesiones', label: 'Mis Sesiones', icon: CalendarDaysIcon },
+    { to: '/tutor/alumnos', label: 'Mis Alumnos', icon: AcademicCapIcon },
     { to: '/tutor/horas', label: 'Mis Horas', icon: ClockIcon },
     { to: '/tutor/perfil', label: 'Mi Perfil', icon: UserCircleIcon },
   ],

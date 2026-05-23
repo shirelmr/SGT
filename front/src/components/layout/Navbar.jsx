@@ -4,18 +4,19 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Badge from '../ui/Badge';
 
 const pageTitles = {
-  '/coordinador/dashboard': 'Dashboard',
+  '/coordinador/dashboard': 'Tablero',
   '/coordinador/usuarios': 'Usuarios',
   '/coordinador/periodos': 'Periodos',
   '/coordinador/asignaciones': 'Asignaciones',
   '/coordinador/horas': 'Horas Acreditadas',
   '/coordinador/progreso': 'Progreso de Beneficiarios',
   '/coordinador/postulaciones': 'Postulaciones',
-  '/tutor/dashboard': 'Dashboard',
+  '/tutor/dashboard': 'Tablero',
   '/tutor/sesiones': 'Mis Sesiones',
   '/tutor/sesiones/nueva': 'Nueva Sesión',
+  '/tutor/alumnos': 'Mis Alumnos',
   '/tutor/horas': 'Mis Horas',
-  '/revisor/dashboard': 'Dashboard',
+  '/revisor/dashboard': 'Tablero',
   '/revisor/bitacoras': 'Bitácoras',
   '/beneficiario/dashboard': 'Tablero',
   '/beneficiario/sesiones': 'Mis Sesiones',

@@ -36,7 +36,7 @@ export default function RevisorDashboard() {
 
   return (
     <div>
-      <PageHeader title="Dashboard" subtitle="Resumen de bitácoras asignadas" />
+      <PageHeader title="Tablero" subtitle="Resumen de bitácoras asignadas" />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {cards.map((c) => {

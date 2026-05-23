@@ -94,7 +94,7 @@ export default function Perfil() {
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sesiones en línea</p>
 
           <Input
-            label="Link de Zoom / Meet"
+            label="Mi enlace de Zoom/Google Meet"
             placeholder="https://zoom.us/j/..."
             error={errors.link_zoom?.message}
             {...register('link_zoom')}

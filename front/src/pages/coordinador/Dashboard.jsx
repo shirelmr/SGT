@@ -41,7 +41,7 @@ export default function CoordinadorDashboard() {
   return (
     <div>
       <PageHeader
-        title="Dashboard"
+        title="Tablero"
         subtitle="Resumen general del sistema"
       />
 
