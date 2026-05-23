@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { getSesiones } from '../../api/sesiones';
 import { getIncidenciasSesion, createIncidencia } from '../../api/incidencias';
 import PageHeader from '../../components/shared/PageHeader';
@@ -18,17 +18,62 @@ const estadoBadge = {
 
 const estadoBitacoraBadge = {
   pendiente: 'warning',
-  revisado: 'danger',
-  aprobado: 'success',
   no_aprobada: 'danger',
+  aprobado: 'success',
+  aprobado_sin_horas: 'orange',
 };
 
 const estadoBitacoraLabel = {
   pendiente: 'Pendiente de revisión',
-  revisado: 'En revisión',
-  aprobado: 'Aprobada',
   no_aprobada: 'No aprobada',
+  aprobado: 'Aprobada',
+  aprobado_sin_horas: 'Aprobada sin horas',
 };
+
+// ─── Opciones de filtro ────────────────────────────────────────────────────
+const FILTROS_SESION = [
+  { value: 'todas', label: 'Todas' },
+  { value: 'programada', label: 'Programada' },
+  { value: 'realizada', label: 'Realizada' },
+  { value: 'cancelada', label: 'Cancelada' },
+];
+
+const FILTROS_BITACORA = [
+  { value: 'todas', label: 'Todas' },
+  { value: 'sin_bitacora', label: 'Sin registrar' },
+  { value: 'pendiente', label: 'Pendiente' },
+  { value: 'no_aprobada', label: 'No aprobada' },
+  { value: 'aprobado', label: 'Aprobada' },
+  { value: 'aprobado_sin_horas', label: 'Sin horas' },
+];
+
+// ─── Pill de filtro ────────────────────────────────────────────────────────
+const colorPill = {
+  // sesion
+  programada: 'bg-blue-100 text-blue-700 border-blue-300',
+  realizada:  'bg-green-100 text-green-700 border-green-300',
+  cancelada:  'bg-red-100 text-red-700 border-red-300',
+  // bitacora
+  sin_bitacora:      'bg-gray-100 text-gray-600 border-gray-300',
+  pendiente:         'bg-yellow-100 text-yellow-700 border-yellow-300',
+  no_aprobada:       'bg-red-100 text-red-700 border-red-300',
+  aprobado:          'bg-green-100 text-green-700 border-green-300',
+  aprobado_sin_horas:'bg-orange-100 text-orange-700 border-orange-300',
+};
+
+function FilterPill({ value, label, active, onClick }) {
+  const color = active
+    ? colorPill[value] ?? 'bg-orange-500 text-white border-orange-500'
+    : 'bg-white text-gray-500 border-gray-200 hover:border-orange-300 hover:text-orange-600';
+  return (
+    <button
+      onClick={onClick}
+      className={`px-3 py-1 rounded-full text-xs font-medium border transition-all whitespace-nowrap ${color} ${active ? 'shadow-sm' : ''}`}
+    >
+      {label}
+    </button>
+  );
+}
 
 const tipoLabel = {
   retardo: 'Retardo',
@@ -53,6 +98,12 @@ export default function MisSesionesTutor() {
   const [loadingInc, setLoadingInc] = useState(false);
   const [savingInc, setSavingInc] = useState(false);
   const [form, setForm] = useState({ tipo: 'retardo', descripcion: '' });
+
+  // ── Filtros ──────────────────────────────────────────────────────────────
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroSesion, setFiltroSesion] = useState('todas');
+  const [filtroBitacora, setFiltroBitacora] = useState('todas');
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,7 +143,45 @@ export default function MisSesionesTutor() {
     }
   }
 
-  const sorted = [...sesiones].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  // ── Lógica de filtrado (client-side) ────────────────────────────────────
+  const filtered = useMemo(() => {
+    let result = [...sesiones].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    // 1. Búsqueda por texto
+    if (busqueda.trim()) {
+      const q = busqueda.trim().toLowerCase();
+      result = result.filter((s) => {
+        const tema = (s.tema || '').toLowerCase();
+        const beneficiario = (s.beneficiario?.nombre_completo || '').toLowerCase();
+        return tema.includes(q) || beneficiario.includes(q);
+      });
+    }
+
+    // 2. Estado de la sesión
+    if (filtroSesion !== 'todas') {
+      result = result.filter((s) => s.estado === filtroSesion);
+    }
+
+    // 3. Estado de la bitácora
+    if (filtroBitacora !== 'todas') {
+      if (filtroBitacora === 'sin_bitacora') {
+        result = result.filter((s) => !s.bitacora);
+      } else {
+        result = result.filter((s) => s.bitacora?.estado === filtroBitacora);
+      }
+    }
+
+    return result;
+  }, [sesiones, busqueda, filtroSesion, filtroBitacora]);
+
+  const hayFiltrosActivos =
+    busqueda.trim() !== '' || filtroSesion !== 'todas' || filtroBitacora !== 'todas';
+
+  function limpiarFiltros() {
+    setBusqueda('');
+    setFiltroSesion('todas');
+    setFiltroBitacora('todas');
+  }
 
   if (loading) {
     return <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>;
@@ -111,7 +200,77 @@ export default function MisSesionesTutor() {
         }
       />
 
-      {sorted.length === 0 ? (
+      {/* ── Panel de filtros ─────────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 mb-4 space-y-3">
+        {/* Buscador */}
+        <div className="relative">
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por tema o beneficiario…"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-sm border-2 border-gray-200 rounded-xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
+          />
+          {busqueda && (
+            <button
+              onClick={() => setBusqueda('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Filtro estado de sesión */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1">
+            <FunnelIcon className="w-3 h-3" /> Sesión
+          </span>
+          {FILTROS_SESION.map((f) => (
+            <FilterPill
+              key={f.value}
+              value={f.value}
+              label={f.label}
+              active={filtroSesion === f.value}
+              onClick={() => setFiltroSesion(f.value)}
+            />
+          ))}
+        </div>
+
+        {/* Filtro estado de bitácora */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1">
+            <FunnelIcon className="w-3 h-3" /> Bitácora
+          </span>
+          {FILTROS_BITACORA.map((f) => (
+            <FilterPill
+              key={f.value}
+              value={f.value}
+              label={f.label}
+              active={filtroBitacora === f.value}
+              onClick={() => setFiltroBitacora(f.value)}
+            />
+          ))}
+        </div>
+
+        {/* Resumen y limpiar */}
+        {hayFiltrosActivos && (
+          <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+            <span className="text-xs text-gray-500">
+              {filtered.length} {filtered.length === 1 ? 'sesión encontrada' : 'sesiones encontradas'} de {sesiones.length}
+            </span>
+            <button
+              onClick={limpiarFiltros}
+              className="text-xs text-orange-500 hover:text-orange-700 font-medium transition-colors"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        )}
+      </div>
+
+      {filtered.length === 0 && sesiones.length === 0 ? (
         <EmptyState
           icon="📅"
           title="Sin sesiones"
@@ -119,9 +278,17 @@ export default function MisSesionesTutor() {
           action={() => navigate('/tutor/sesiones/nueva')}
           actionLabel="Nueva sesión"
         />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon="🔍"
+          title="Sin resultados"
+          description="Ninguna sesión coincide con los filtros seleccionados."
+          action={limpiarFiltros}
+          actionLabel="Limpiar filtros"
+        />
       ) : (
         <div className="space-y-3">
-          {sorted.map((s) => {
+          {filtered.map((s) => {
             const hasUnread = s.bitacora_tiene_comentarios_nuevos;
             return (
               <div key={s.id} className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
