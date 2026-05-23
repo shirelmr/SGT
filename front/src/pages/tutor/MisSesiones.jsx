@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, FunnelIcon, CalendarDaysIcon, ChevronDownIcon, ChevronUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, CalendarDaysIcon, ChevronDownIcon, ChevronUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { getSesiones } from '../../api/sesiones';
 import { getIncidenciasSesion, createIncidencia } from '../../api/incidencias';
 import PageHeader from '../../components/shared/PageHeader';
@@ -30,50 +30,7 @@ const estadoBitacoraLabel = {
   aprobado_sin_horas: 'Aprobada sin horas',
 };
 
-// ─── Opciones de filtro ────────────────────────────────────────────────────
-const FILTROS_SESION = [
-  { value: 'todas', label: 'Todas' },
-  { value: 'programada', label: 'Programada' },
-  { value: 'realizada', label: 'Realizada' },
-  { value: 'cancelada', label: 'Cancelada' },
-];
-
-const FILTROS_BITACORA = [
-  { value: 'todas', label: 'Todas' },
-  { value: 'sin_bitacora', label: 'Sin registrar' },
-  { value: 'pendiente', label: 'Pendiente' },
-  { value: 'no_aprobada', label: 'No aprobada' },
-  { value: 'aprobado', label: 'Aprobada' },
-  { value: 'aprobado_sin_horas', label: 'Sin horas' },
-];
-
-// ─── Pill de filtro ────────────────────────────────────────────────────────
-const colorPill = {
-  // sesion
-  programada: 'bg-blue-100 text-blue-700 border-blue-300',
-  realizada:  'bg-green-100 text-green-700 border-green-300',
-  cancelada:  'bg-red-100 text-red-700 border-red-300',
-  // bitacora
-  sin_bitacora:      'bg-gray-100 text-gray-600 border-gray-300',
-  pendiente:         'bg-yellow-100 text-yellow-700 border-yellow-300',
-  no_aprobada:       'bg-red-100 text-red-700 border-red-300',
-  aprobado:          'bg-green-100 text-green-700 border-green-300',
-  aprobado_sin_horas:'bg-orange-100 text-orange-700 border-orange-300',
-};
-
-function FilterPill({ value, label, active, onClick }) {
-  const color = active
-    ? colorPill[value] ?? 'bg-orange-500 text-white border-orange-500'
-    : 'bg-white text-gray-500 border-gray-200 hover:border-orange-300 hover:text-orange-600';
-  return (
-    <button
-      onClick={onClick}
-      className={`px-3 py-1 rounded-full text-xs font-medium border transition-all whitespace-nowrap ${color} ${active ? 'shadow-sm' : ''}`}
-    >
-      {label}
-    </button>
-  );
-}
+const SELECT_CLS = 'px-3 py-1.5 text-sm border-2 border-gray-200 rounded-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white';
 
 const tipoLabel = {
   retardo: 'Retardo',
@@ -361,73 +318,44 @@ export default function MisSesionesTutor() {
         }
       />
 
-      {/* ── Panel de filtros ─────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl shadow-sm p-4 mb-4 space-y-3">
-        {/* Buscador */}
+      {/* ── Filtros ──────────────────────────────────────────────────────── */}
+      <div className="mb-4 flex items-center gap-3 flex-wrap">
         <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Buscar por tema o beneficiario…"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border-2 border-gray-200 rounded-xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
+            className="pl-9 pr-8 py-1.5 text-sm border-2 border-gray-200 rounded-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 w-56"
           />
           {busqueda && (
-            <button
-              onClick={() => setBusqueda('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
+            <button onClick={() => setBusqueda('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
               <XMarkIcon className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* Filtro estado de sesión */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1">
-            <FunnelIcon className="w-3 h-3" /> Sesión
-          </span>
-          {FILTROS_SESION.map((f) => (
-            <FilterPill
-              key={f.value}
-              value={f.value}
-              label={f.label}
-              active={filtroSesion === f.value}
-              onClick={() => setFiltroSesion(f.value)}
-            />
-          ))}
-        </div>
+        <select value={filtroSesion} onChange={(e) => setFiltroSesion(e.target.value)} className={SELECT_CLS}>
+          <option value="todas">Todas las sesiones</option>
+          <option value="programada">Programada</option>
+          <option value="realizada">Realizada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
 
-        {/* Filtro estado de bitácora */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1">
-            <FunnelIcon className="w-3 h-3" /> Bitácora
-          </span>
-          {FILTROS_BITACORA.map((f) => (
-            <FilterPill
-              key={f.value}
-              value={f.value}
-              label={f.label}
-              active={filtroBitacora === f.value}
-              onClick={() => setFiltroBitacora(f.value)}
-            />
-          ))}
-        </div>
+        <select value={filtroBitacora} onChange={(e) => setFiltroBitacora(e.target.value)} className={SELECT_CLS}>
+          <option value="todas">Todas las bitácoras</option>
+          <option value="sin_bitacora">Sin registrar</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="no_aprobada">No aprobada</option>
+          <option value="aprobado">Aprobada</option>
+          <option value="aprobado_sin_horas">Sin horas</option>
+        </select>
 
-        {/* Resumen y limpiar */}
         {hayFiltrosActivos && (
-          <div className="flex items-center justify-between pt-1 border-t border-gray-100">
-            <span className="text-xs text-gray-500">
-              {filtered.length} {filtered.length === 1 ? 'sesión encontrada' : 'sesiones encontradas'} de {sesiones.length}
-            </span>
-            <button
-              onClick={limpiarFiltros}
-              className="text-xs text-orange-500 hover:text-orange-700 font-medium transition-colors"
-            >
-              Limpiar filtros
-            </button>
-          </div>
+          <button onClick={limpiarFiltros} className="text-xs text-orange-500 hover:text-orange-700 font-medium transition-colors">
+            Limpiar
+          </button>
         )}
       </div>
 
