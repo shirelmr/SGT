@@ -57,106 +57,81 @@
 
 ### 2.1 Módulo de Autenticación
 
-#### 2.1.1 Auth-Login
+#### 2.1.1 Login
 
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto (si aplica) |
-|----|--------------|--------------|-------|--------------------|--------|---------------------|
-| CP-AUTH-01 | Mostrar correctamente la vista de inicio de sesión | Usuario no autenticado, navegación a la pantalla de login | Abrir login. Verificar logo/título SGT. Verificar campos email y contraseña. Verificar botón Iniciar sesión y enlace Regístrate. | Todos los elementos de UI se muestran visibles. | ✅ Pasa | — |
-| CP-AUTH-02 |  Manejo de error de autenticación | Intercept de login configurado con respuesta 401 | Escribir email/password inválidos. Enviar formulario. | Se consume el endpoint de login y aparece mensaje de credenciales incorrectas | ✅ Pasa | — |
-| CP-AUTH-03 | Login exitoso y navegación por rol tutor |  Intercept de login configurado con respuesta 200 y rol tutor | Escribir credenciales de tutor. Enviar formulario. Esperar respuesta de login | Se guarda sesión y la URL redirige a tutor dashboard |✅ Pasa | — |
-| CP-AUTH-04 | Validaciones obligatorias en login (Formulario vacio) | Pantalla de login abierta | Enviar formulario sin capturar datos | Se muestra mensaje de campo obligatorio | ✅ Pasa | — |
-| CP-AUTH-05 | Validación de formato email en cliente | Pantalla de login abierta | Capturar correo inválido y contraseña válida. Enviar formulario | Se muestra mensaje de correo inválido | ✅ Pasa | — |
-| CP-AUTH-06 | Login exitoso y navegación por rol coordinador | Intercept de login configurado con respuesta 200 y rol coordinador | Capturar credenciales. Enviar formulario. Esperar respuesta de login | Se redirige a coordinador dashboard | ✅ Pasa | — |
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-AUTH-01 | Mostrar correctamente la vista de inicio de sesión | Usuario no autenticado, navegación a la pantalla de login | Abrir login y verificar título, campos email/contraseña, botón Iniciar sesión y enlace Regístrate | Todos los elementos de UI se muestran visibles | ✅ Pasa |
+| CP-AUTH-02 | Manejo de error de autenticación | Intercept de login configurado con respuesta 401 | Escribir credenciales inválidas y enviar el formulario | Aparece mensaje de credenciales incorrectas | ✅ Pasa |
+| CP-AUTH-03 | Login exitoso y navegación por rol tutor | Intercept de login configurado con respuesta 200 y rol tutor | Escribir credenciales de tutor y enviar el formulario | Se guarda sesión y la URL redirige a tutor dashboard | ✅ Pasa |
+| CP-AUTH-04 | Validaciones obligatorias en login | Pantalla de login abierta | Enviar formulario sin capturar datos | Se muestra mensaje de campo obligatorio | ✅ Pasa |
+| CP-AUTH-05 | Validación de formato email en cliente | Pantalla de login abierta | Capturar correo inválido y contraseña válida, luego enviar | Se muestra mensaje de correo inválido | ✅ Pasa |
+| CP-AUTH-06 | Login exitoso y navegación por rol coordinador | Intercept de login configurado con respuesta 200 y rol coordinador | Capturar credenciales de coordinador y enviar el formulario | Se redirige a coordinador dashboard | ✅ Pasa |
 
-#### 2.1.1 Auth-Register
+#### 2.1.2 Register
 
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto (si aplica) |
-|----|--------------|--------------|-------|--------------------|--------|---------------------|
-| CP-AUTH-07 | Mostrar correctamente la vista de creación de cuenta | Usuario no autenticado, navegación a register | Abrir register. Verificar campos nombre, email, rol, contraseña y confirmación. Verificar enlace Inicia sesión | Todos los elementos esperados están visibles | ✅ Pasa | — |
-| CP-AUTH-08 |  Validación de coincidencia de contraseña |Pantalla de register abierta | Llenar nombre, email, rol. Capturar contraseña y confirmación distintas. Enviar formulario. |Se muestra mensaje de contraseñas no coinciden | ✅ Pasa | — |
-| CP-AUTH-09 | Validaciones obligatorias en registro |  Pantalla de register abierta | Enviar formulario sin datos | Se muestran mensajes de campos obligatorios |✅ Pasa | — |
-| CP-AUTH-10 | Navegación entre register y login | Pantalla de register abierta | Click en Inicia sesión | La URL cambia a login | ✅ Pasa | — |
-| CP-AUTH-11 | Validación de longitud mínima de contraseña | Pantalla de register abierta | Llenar formulario con contraseña corta en ambos campos. Enviar formulario. | Se muestra mensaje de mínimo 6 caracteres. | ✅ Pasa | — |
-| CP-AUTH-12 | Manejo de error de backend al registrar |  Intercept de register configurado con 409. | Llenar formulario válido con correo existente. Enviar formulario. | Se consume endpoint de registro y se muestra mensaje de error al registrarse | ✅ Pasa | — |
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-AUTH-07 | Mostrar correctamente la vista de creación de cuenta | Usuario no autenticado, navegación a register | Abrir register y verificar campos nombre, email, rol, contraseña, confirmación y enlace a login | Todos los elementos esperados están visibles | ✅ Pasa |
+| CP-AUTH-08 | Validación de coincidencia de contraseña | Pantalla de register abierta | Llenar nombre, email, rol y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | ✅ Pasa |
+| CP-AUTH-09 | Validaciones obligatorias en registro | Pantalla de register abierta | Enviar formulario sin datos | Se muestran mensajes de campos obligatorios | ✅ Pasa |
+| CP-AUTH-10 | Navegación entre register y login | Pantalla de register abierta | Click en Inicia sesión | La URL cambia a login | ✅ Pasa |
+| CP-AUTH-11 | Validación de longitud mínima de contraseña | Pantalla de register abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | ✅ Pasa |
+| CP-AUTH-12 | Manejo de error de backend al registrar | Intercept de register configurado con 409 | Llenar formulario válido con correo existente y enviar | Se muestra mensaje de error al registrarse | ✅ Pasa |
 
-### 2.2 Módulo de Sesiones — Tutor
+### 2.2 Módulo de Bitácora - Tutor
 
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
-|----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-SES-01 | Crear nueva sesión | Autenticado como Tutor; tiene beneficiario asignado | 1. Ir a "Mis Sesiones" · 2. Click "Nueva sesión" · 3. Llenar todos los campos · 4. Click "Crear sesión" | Sesión aparece en lista con estado "programada" | ⬜ Pendiente | — |
-| CP-SES-02 | Crear sesión sin beneficiario asignado | Tutor sin beneficiario | 1. Ir a "Nueva sesión" | Lista de beneficiarios vacía; no se puede crear la sesión | ⬜ Pendiente | — |
-| CP-SES-03 | Crear sesión con campos vacíos | Autenticado como Tutor | 1. Ir a "Nueva sesión" · 2. Dejar campos requeridos vacíos · 3. Click "Crear sesión" | Mensajes de validación en cada campo requerido; no se envía el formulario | ⬜ Pendiente | — |
-| CP-SES-04 | Listar sesiones del tutor | Al menos 1 sesión creada | 1. Ir a "Mis Sesiones" | Se listan solo las sesiones del tutor autenticado, ordenadas por fecha descendente | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
-| CP-SES-05 | Ver bitácora de una sesión | Sesión existente | 1. En lista de sesiones, click "Ver bitácora" | Se abre la vista de bitácora de esa sesión específica | ⬜ Pendiente | — |
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-BIT-01 | Enviar formulario llenando todos los campos | Tutor autenticado y formulario de bitácora abierto | Llenar actividades, logros, dificultades y plan siguiente; luego enviar | La bitácora se registra correctamente | ✅ Pasa |
+| CP-BIT-02 | No permitir envío sin campos obligatorios | Formulario de bitácora abierto | Intentar enviar el formulario vacío | Se evidencian validaciones de requerido y no se completa el registro | ✅ Pasa |
+| CP-BIT-03 | Registrar bitácora sin archivo de evidencia | Formulario de bitácora abierto | Llenar los campos de texto sin adjuntar archivo y enviar | La bitácora se registra correctamente | ✅ Pasa |
+| CP-BIT-04 | Permitir registrar múltiples bitácoras | Tutor autenticado con acceso al formulario | Llenar una bitácora válida y enviarla nuevamente con otro contenido | Se permite el registro en ambos intentos | ✅ Pasa |
 
-### 2.3 Módulo de Bitácoras — Tutor
+### 2.3 Módulo de Revisión - Revisor
 
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
-|----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-BIT-01 | Registrar nueva bitácora | Sesión sin bitácora; autenticado como Tutor | 1. Ir a sesión sin bitácora · 2. Llenar todos los campos · 3. Click "Registrar bitácora" | Bitácora guardada; vista cambia a modo lectura | ✅ Pasa | - |
-| CP-BIT-02 | Registrar bitácora con campos vacíos | Sesión sin bitácora | 1. Dejar campos requeridos vacíos · 2. Click "Registrar" | Mensajes de validación; no se guarda | ✅ Pasa | Frontend y backend caídos; test usa login real contra BD |
-| CP-BIT-03 | Editar bitácora existente | Bitácora ya registrada | 1. Click "Editar" · 2. Modificar campos · 3. Click "Guardar cambios" | Cambios persistidos; vista vuelve a modo lectura | ✅ Pasa | — |
-| CP-BIT-04 | Ver comentarios del revisor | Bitácora con al menos 1 comentario | 1. Abrir bitácora | Comentarios visibles con nombre del revisor, estado y fecha | ✅ Pasa | — |
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-REV-01 | Cargar detalle de bitácora con sus datos asociados | Revisor autenticado y endpoints de bitácora, comentarios e incidencias disponibles | Abrir el detalle de la bitácora 1 | Se muestran actividades, logros, estado, tutor, beneficiario, comentarios e incidencias | ✅ Pasa |
+| CP-REV-02 | Aprobar bitácora y añadir comentario exitosamente | Detalle de bitácora cargado y endpoint de comentarios disponible | Seleccionar estado aprobado, escribir comentario y aprobar la bitácora | Se publica el comentario, se aprueba la bitácora y se acredita horas | ✅ Pasa |
+| CP-REV-03 | Mostrar validación de comentario vacío | Detalle de bitácora cargado | Intentar publicar un comentario sin texto | Se muestra mensaje de validación indicando que el comentario no puede estar vacío | ✅ Pasa |
+| CP-REV-04 | Mostrar error si falla la actualización del estado | Intercept de actualización de bitácora con error 500 | Cambiar el estado de revisión y esperar la respuesta fallida | Se muestra un mensaje de error al actualizar el estado | ✅ Pasa |
 
-### 2.4 Módulo de Bitácoras — Revisor
+### 2.4 Módulo de Sesiones - Tutor
 
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
-|----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-REV-01 | Listar bitácoras por periodo | Autenticado como Revisor; hay bitácoras | 1. Ir a "Bitácoras" · 2. Seleccionar periodo activo | Lista de bitácoras del periodo con estado y filtros visibles | ✅ Pasa | — |
-| CP-REV-02 | Filtrar bitácoras por tutor | Bitácoras de múltiples tutores | 1. Seleccionar tutor en filtro | Solo se muestran bitácoras del tutor seleccionado | ✅ Pasa | — |
-| CP-REV-03 | Filtrar bitácoras por estado | Bitácoras con distintos estados | 1. Seleccionar "Pendiente" en filtro de estado | Solo se muestran bitácoras pendientes | ✅ Pasa | — |
-| CP-REV-04 | Agregar comentario a bitácora | Bitácora existente | 1. Abrir detalle de bitácora · 2. Escribir comentario · 3. Seleccionar estado · 4. Click "Enviar comentario" | Comentario aparece en la lista; estado de bitácora actualizado | ✅ Pasa | - |
-| CP-REV-05 | Cambiar estado a "Aprobado" | Bitácora en estado "revisado" | 1. Agregar comentario con estado "Aprobado" | Bitácora aparece como aprobada en la lista | ✅ Pasa | - |
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-SES-01 | Mostrar sesiones con su tema y estado | Tutor autenticado y endpoint de sesiones con datos mock | Abrir la vista de sesiones | Se visualizan las sesiones con tema y estado | ✅ Pasa |
+| CP-SES-02 | Mostrar badge de bitácora aprobada | Una sesión con bitácora aprobada en la lista | Abrir la vista de sesiones | Se muestra el badge Aprobada | ✅ Pasa |
+| CP-SES-03 | Mostrar acción Ver bitácora o Registrar bitácora según corresponda | Una sesión con bitácora y otra sin bitácora | Abrir la vista de sesiones | Aparece Ver bitácora para la sesión con bitácora y Registrar bitácora para la sesión sin bitácora | ✅ Pasa |
+| CP-SES-04 | Mostrar estado vacío cuando no hay sesiones | Endpoint de sesiones responde lista vacía | Abrir la vista de sesiones | Se muestra el mensaje Sin sesiones | ✅ Pasa |
+| CP-SES-05 | Mostrar acción principal en el estado vacío | Endpoint de sesiones responde lista vacía | Abrir la vista de sesiones | Se muestra el botón Nueva sesión | ✅ Pasa |
+| CP-SES-06 | Redirigir al login sin autenticación | Sin token en localStorage | Intentar acceder a /tutor/sesiones | La aplicación redirige a /login | ✅ Pasa |
 
-### 2.5 Módulo de Asistencias — Beneficiario
+### 2.5 Módulo de Usuarios - Coordinador
 
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
-|----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-ASIS-01 | Ver lista de sesiones | Autenticado como Beneficiario; tiene sesiones asignadas | 1. Ir a "Mis Sesiones" | Sesiones listadas ordenadas por fecha; se muestra estado y tutor | ⬜ Pendiente | — |
-| CP-ASIS-02 | Confirmar asistencia a sesión realizada | Sesión con estado "realizada" y `confirma_benef = false` | 1. Ver sesión pasada · 2. Click "Confirmar asistencia" | Badge "Asistencia confirmada" visible; botón desaparece | ⬜ Pendiente | — |
-| CP-ASIS-03 | No mostrar botón en sesiones programadas | Sesión con estado "programada" | 1. Ver sesión futura | No aparece botón de confirmar asistencia | ⬜ Pendiente | — |
-| CP-ASIS-04 | No mostrar botón en sesión ya confirmada | Sesión con `confirma_benef = true` | 1. Ver sesión ya confirmada | Solo aparece badge de confirmación; sin botón | ⬜ Pendiente | — |
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-USR-01 | Mostrar la tabla de usuarios | Coordinador autenticado y endpoint de usuarios con datos mock | Abrir la pantalla de usuarios | Se muestran los registros de usuarios esperados | ✅ Pasa |
+| CP-USR-02 | Mostrar badges de rol | Lista con usuarios de distintos roles | Abrir la pantalla de usuarios | Se ven etiquetas de Tutor, Beneficiario y Revisor | ✅ Pasa |
+| CP-USR-03 | Abrir modal de nuevo usuario | Pantalla de usuarios cargada | Click en Nuevo usuario | Se abre el modal con campos de creación | ✅ Pasa |
+| CP-USR-04 | Cerrar modal con cancelar | Modal de creación abierto | Click en Cancelar | El modal se cierra | ✅ Pasa |
+| CP-USR-05 | Mostrar campos específicos al elegir rol tutor | Modal de creación abierto | Seleccionar rol tutor | Se muestran Matrícula, Carrera y Semestre | ✅ Pasa |
+| CP-USR-06 | Filtrar usuarios por nombre | Lista con múltiples usuarios | Escribir Ana en el buscador | Solo se muestra el usuario que coincide | ✅ Pasa |
+| CP-USR-07 | Filtrar usuarios por rol | Endpoint de usuarios preparado para el filtro | Seleccionar tutor en el filtro de rol | Solo aparecen usuarios con rol tutor | ✅ Pasa |
+| CP-USR-08 | Validación de formulario vacío al crear | Modal de creación abierto | Click en Crear usuario sin capturar datos | Se muestran mensajes de obligatorio | ✅ Pasa |
+| CP-USR-09 | Mostrar estado vacío cuando no hay usuarios | Endpoint de usuarios responde lista vacía | Recargar el módulo de usuarios | Se muestra el mensaje No hay usuarios registrados | ✅ Pasa |
 
-### 2.6 Dashboard — Coordinador
+### 2.6 Resumen de Cobertura de Pruebas
 
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
-|----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-COORD-01 | Ver estadísticas del dashboard | Autenticado como Coordinador; datos en BD | 1. Ir a `/coordinador/dashboard` | Tarjetas con: tutores activos, beneficiarios inscritos, sesiones del mes, bitácoras pendientes | ⬜ Pendiente | — |
-| CP-COORD-02 | Crear nuevo usuario | Autenticado como Coordinador | 1. Ir a "Usuarios" · 2. Click "Nuevo usuario" · 3. Llenar formulario · 4. Click "Crear usuario" | Usuario aparece en tabla con rol correcto | 🚫 Bloqueado | Vite (localhost:5173) no iniciado |
-| CP-COORD-03 | Editar usuario existente | Al menos 1 usuario en BD | 1. Click ícono editar en fila de usuario · 2. Modificar campos · 3. Guardar | Cambios reflejados en tabla | ⬜ Pendiente | — |
-| CP-COORD-04 | Eliminar usuario | Al menos 1 usuario en BD | 1. Click ícono eliminar · 2. Confirmar en diálogo | Usuario desaparece de la tabla | ⬜ Pendiente | — |
-| CP-COORD-05 | Crear periodo académico | Autenticado como Coordinador | 1. Ir a "Periodos" · 2. Click "Nuevo periodo" · 3. Llenar campos · 4. Guardar | Periodo aparece en tabla | ⬜ Pendiente | — |
-| CP-COORD-06 | Activar periodo (desactiva el anterior) | Al menos 1 periodo activo | 1. Editar periodo inactivo · 2. Activar toggle "Periodo activo" · 3. Guardar | Nuevo periodo activo; anterior en inactivo. Warning visible en formulario | ⬜ Pendiente | — |
-| CP-COORD-07 | Asignar tutor a beneficiario | Tutor y beneficiario en mismo periodo | 1. Ir a "Asignaciones" · 2. Seleccionar periodo · 3. Seleccionar tutor en dropdown del beneficiario | Asignación guardada; `id_tutor` actualizado | ⬜ Pendiente | — |
-| CP-COORD-08 | Ver horas acreditadas por tutor | Sesiones realizadas con bitácora aprobada | 1. Ir a "Horas Acreditadas" · 2. Seleccionar periodo | Tabla con horas impartidas, % acreditado y horas acreditadas por tutor | ⬜ Pendiente | — |
-| CP-COORD-09 | Registrar examen de inicio de beneficiario | Beneficiario sin examen | 1. Ir a "Progreso Beneficiarios" · 2. Click "Registrar examen" · 3. Ingresar % y fecha | Examen registrado; columna muestra valor en badge azul | ⬜ Pendiente | — |
-| CP-COORD-10 | Registrar examen de término de beneficiario | Beneficiario con examen de inicio ya registrado | 1. Click "Registrar examen" · 2. Ingresar % de término | Examen registrado; barra de progreso visible | ⬜ Pendiente | — |
-
-### 2.7 Módulo de Progreso — Beneficiario
-
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
-|----|--------------|--------------|-------|--------------------|--------|---------|
-| CP-PROG-01 | Ver progreso con ambos exámenes | Ambos exámenes registrados | 1. Ir a "Mi Progreso" | Examen inicio, examen término y barra de avance general visible | ⬜ Pendiente | — |
-| CP-PROG-02 | Ver progreso sin exámenes | Sin exámenes registrados | 1. Ir a "Mi Progreso" | Mensaje "Examen aún no aplicado" en ambas tarjetas | ⬜ Pendiente | — |
-| CP-PROG-03 | Mensaje motivacional correcto | Avance calculado | 1. Ver avance ≤ 30% · 2. Ver avance entre 31–60% · 3. Ver avance > 60% | Mensajes: "¡Estás comenzando!" / "¡Buen progreso!" / "¡Excelente desempeño!" | ⬜ Pendiente | — |
-
-### 2.8 Resumen de Cobertura de Pruebas
-
-| Módulo | Total casos | ✅ Pasan | ❌ Fallan | 🚫 Bloqueados | ⬜ Pendientes | % Cobertura |
-|--------|:-----------:|:--------:|:--------:|:------------:|:------------:|:-----------:|
-| Autenticación | 8 | 8 | 0 | 0 | 0 | 100% |
-| Sesiones (Tutor) | 5 | 0 | 0 | 1 | 4 | 0% |
-| Bitácoras (Tutor) | 4 | 4 | 0 | 0 | 0 | 100% |
-| Bitácoras (Revisor) | 5 | 5 | 0 | 0 | 0 | 100% |
-| Asistencias (Beneficiario) | 4 | 0 | 0 | 0 | 4 | 0% |
-| Dashboard (Coordinador) | 10 | 0 | 0 | 1 | 9 | 0% |
-| Progreso (Beneficiario) | 3 | 0 | 0 | 0 | 3 | 0% |
-| **TOTAL** | **40** | **0** | **0** | **10** | **29** | **30%** |
-
-> 🚫 **Causa del bloqueo (S11):** Cypress no pudo conectar al baseUrl `http://localhost:5173` — servidor Vite no estaba corriendo al momento de la ejecución. Los tests de `bitacora.cy.js`, `bitacora_ia.cy.js`, `revisor.cy.js` y `revisor_ai.cy.js` tienen dependencia adicional del backend (localhost:3000), también caído.  
-> 🎯 **Meta:** ≥ 80% de casos en estado ✅ Pasa antes del MVP (Semana 12).
-
----
+| Módulo | Total casos | Estado |
+|--------|:-----------:|--------|
+| Autenticación | 12 | Documentado |
+| Bitácora - Tutor | 4 | Documentado |
+| Revisión - Revisor | 4 | Documentado |
+| Sesiones - Tutor | 6 | Documentado |
+| Usuarios - Coordinador | 9 | Documentado |
+| **TOTAL** | **35** | **Documentado** |
 
 ## 3. Evaluación Heurística — Nielsen
 

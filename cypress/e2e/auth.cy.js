@@ -4,6 +4,7 @@ describe('Login', () => {
     cy.visit('/login')
   })
 
+  //CP-AUTH-01
   it('renders the login page', () => {
     cy.contains('SGT').should('be.visible')
     cy.get('input[type="email"]').should('be.visible')
@@ -12,6 +13,7 @@ describe('Login', () => {
     cy.contains('Regístrate').should('be.visible')
   })
 
+  //CP-AUTH-02
   it('shows an error with wrong credentials', () => {
     cy.intercept('POST', /\/api\/auth\/login/, {
       statusCode: 401,
@@ -27,7 +29,7 @@ describe('Login', () => {
     })
   })
 
-  // FIX: uses cy.intercept so it doesn't depend on test_sgt_001@example.com existing in the DB
+  //CP-AUTH-03 
   it('redirects to dashboard on successful login', () => {
     cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
     cy.intercept('POST', /\/api\/auth\/login/, {
@@ -47,12 +49,13 @@ describe('Login', () => {
     })
   })
 
+  //CP-AUTH-04
   it('shows validation errors when submitting empty form', () => {
     cy.get('button[type="submit"]').click()
     cy.contains('obligatorio').should('be.visible')
   })
 
-  // NEW: validates email format client-side (no API call needed)
+  //CP-AUTH-05
   it('shows error for invalid email format', () => {
     cy.get('input[type="email"]').type('notanemail')
     cy.get('input[type="password"]').type('password123')
@@ -60,7 +63,7 @@ describe('Login', () => {
     cy.contains('Correo inválido').should('be.visible')
   })
 
-  // NEW: verifies coordinador role redirects to the correct dashboard
+  //CP-AUTH-06
   it('redirects coordinador to /coordinador/dashboard', () => {
     cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
     cy.intercept('POST', /\/api\/auth\/login/, {
@@ -114,7 +117,6 @@ describe('Register', () => {
     cy.url().should('include', '/login')
   })
 
-  // NEW: password field has a minLength of 6 — verify the validation message
   it('shows password min-length error', () => {
     cy.get('input[placeholder="Juan Pérez"]').type('Test Persona')
     cy.get('input[type="email"]').type('nuevo@test.com')
@@ -125,7 +127,6 @@ describe('Register', () => {
     cy.contains('Mínimo 6 caracteres').should('be.visible')
   })
 
-  // NEW: simulates a 409 from the API (duplicate email) and checks the inline error block
   it('shows error when registering with duplicate email', () => {
     cy.intercept('POST', /\/api\/auth\/register/, {
       statusCode: 409,
