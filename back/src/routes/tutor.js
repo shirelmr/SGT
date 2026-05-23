@@ -56,19 +56,62 @@ router.get('/mis-beneficiarios', auth, async (req, res) => {
     })
     if (!tutor) return res.json([])
 
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+
     const beneficiarios = await prisma.beneficiario.findMany({
       where: { id_tutor: tutor.id_tutor },
-      include: { usuario: { select: { id_usuario: true, nombre_completo: true, email: true } } },
+      include: {
+        usuario: { select: { id_usuario: true, nombre_completo: true, email: true } },
+        sesiones: {
+          where: { id_tutor: tutor.id_tutor },
+          select: { id_sesion: true, fecha: true, estado: true },
+          orderBy: { fecha: 'asc' },
+        },
+        benefef_periodos: {
+          where: periodoActivo ? { id_periodo: periodoActivo.id_periodo } : { id_periodo: -1 },
+          select: {
+            pct_examen_inicio: true,
+            pct_examen_termino: true,
+            fecha_examen_inicio: true,
+            fecha_examen_termino: true,
+          },
+        },
+      },
     })
 
-    res.json(beneficiarios.map((b) => ({
-      id_benef: b.id_benef,
-      id_usuario: b.usuario.id_usuario,
-      nombre_completo: b.usuario.nombre_completo,
-      email: b.usuario.email,
-      escuela: b.escuela,
-      grado_escolar: b.grado_escolar,
-    })))
+    const hoy = new Date()
+
+    res.json(beneficiarios.map((b) => {
+      const sesiones = b.sesiones
+      const realizadas = sesiones.filter((s) => s.estado === 'realizada').length
+      const proxima = sesiones
+        .filter((s) => s.estado === 'programada' && new Date(s.fecha) >= hoy)
+        .sort((a, z) => new Date(a.fecha) - new Date(z.fecha))[0] ?? null
+      const ultima = sesiones
+        .filter((s) => s.estado === 'realizada')
+        .sort((a, z) => new Date(z.fecha) - new Date(a.fecha))[0] ?? null
+      const progreso = b.benefef_periodos[0] ?? null
+
+      return {
+        id_benef: b.id_benef,
+        nombre_completo: b.usuario.nombre_completo,
+        email: b.usuario.email,
+        escuela: b.escuela,
+        grado_escolar: b.grado_escolar,
+        nombre_tutor_legal: b.nombre_tutor_legal,
+        tel_tutor: b.tel_tutor,
+        sesiones: {
+          total: sesiones.length,
+          realizadas,
+          proxima: proxima?.fecha ?? null,
+          ultima: ultima?.fecha ?? null,
+        },
+        examen_inicio: progreso?.pct_examen_inicio ?? null,
+        examen_termino: progreso?.pct_examen_termino ?? null,
+        fecha_examen_inicio: progreso?.fecha_examen_inicio ?? null,
+        fecha_examen_termino: progreso?.fecha_examen_termino ?? null,
+      }
+    }))
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error interno del servidor' })

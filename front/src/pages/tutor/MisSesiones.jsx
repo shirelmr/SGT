@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, CalendarDaysIcon, ChevronDownIcon, ChevronUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { getSesiones } from '../../api/sesiones';
 import { getIncidenciasSesion, createIncidencia } from '../../api/incidencias';
 import PageHeader from '../../components/shared/PageHeader';
@@ -18,17 +18,19 @@ const estadoBadge = {
 
 const estadoBitacoraBadge = {
   pendiente: 'warning',
-  revisado: 'danger',
-  aprobado: 'success',
   no_aprobada: 'danger',
+  aprobado: 'success',
+  aprobado_sin_horas: 'orange',
 };
 
 const estadoBitacoraLabel = {
   pendiente: 'Pendiente de revisión',
-  revisado: 'En revisión',
-  aprobado: 'Aprobada',
   no_aprobada: 'No aprobada',
+  aprobado: 'Aprobada',
+  aprobado_sin_horas: 'Aprobada sin horas',
 };
+
+const SELECT_CLS = 'px-3 py-1.5 text-sm border-2 border-gray-200 rounded-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white';
 
 const tipoLabel = {
   retardo: 'Retardo',
@@ -45,6 +47,117 @@ const formatearFechaLocal = (fechaStr, opciones = {}) => {
   return new Date(year, month - 1, day).toLocaleDateString('es-MX', opciones);
 };
 
+// ─── Card reutilizable de sesión (expandible) ─────────────────────────────
+function SesionCard({ s, openModal }) {
+  const [open, setOpen] = useState(false);
+  const hasUnread = s.bitacora_tiene_comentarios_nuevos;
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-shadow hover:shadow-md">
+      {/* ── Fila principal (siempre visible) ── */}
+      <div className="flex items-center gap-3 p-4">
+
+        {/* Área expandible (tema + badges + fecha) */}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex-1 min-w-0 text-left"
+        >
+          <h3 className="font-sora font-semibold text-gray-800 text-sm">{s.tema}</h3>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {formatearFechaLocal(s.fecha, { day: 'numeric', month: 'short' })}
+            {s.beneficiario && ` · ${s.beneficiario.nombre_completo}`}
+          </p>
+          <div className="flex items-center gap-2 flex-wrap mt-1.5">
+            <span className="text-xs text-gray-400">Sesión:</span>
+            <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
+            {s.bitacora && (
+              <>
+                <span className="text-gray-200">|</span>
+                <span className="text-xs text-gray-400">Bitácora:</span>
+                <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
+                  {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
+                </Badge>
+              </>
+            )}
+            {hasUnread && (
+              <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 rounded-full px-2 py-0.5 text-xs font-medium">
+                <ChatBubbleLeftIcon className="w-3 h-3" />
+                Nuevo comentario
+              </span>
+            )}
+          </div>
+        </button>
+
+        {/* Zona derecha: CTA rápido + checkmark + chevron */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {!s.bitacora && !open && (
+            <Link to={`/tutor/sesiones/${s.id}/bitacora`} onClick={(e) => e.stopPropagation()}>
+              <Button size="sm" variant="primary">Registrar bitácora</Button>
+            </Link>
+          )}
+          {s.bitacora?.estado === 'aprobado' && (
+            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+          )}
+          <button onClick={() => setOpen((v) => !v)} className="text-gray-400 p-1">
+            {open ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Panel expandido ── */}
+      {open && (
+        <div className="border-t border-gray-100 px-4 pb-4 pt-3 space-y-4">
+          {/* Detalles de la sesión */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Fecha</p>
+              <p className="text-sm font-medium text-gray-800">
+                {formatearFechaLocal(s.fecha, { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Día</p>
+              <p className="text-sm font-medium text-gray-800 capitalize">
+                {formatearFechaLocal(s.fecha, { weekday: 'long' })}
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Hora</p>
+              <p className="text-sm font-medium text-gray-800">{s.hora_inicio || '—'}</p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Duración</p>
+              <p className="text-sm font-medium text-gray-800">
+                {s.duracion_hrs ? `${s.duracion_hrs} hr(s)` : '—'}
+              </p>
+            </div>
+          </div>
+
+          {s.beneficiario && (
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-400 mb-0.5">Beneficiario</p>
+              <p className="text-sm font-medium text-gray-800">{s.beneficiario.nombre_completo}</p>
+            </div>
+          )}
+
+          {/* Acciones */}
+          <div className="flex items-center gap-2 flex-wrap pt-1">
+            <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openModal(s); }}>
+              <ExclamationCircleIcon className="w-4 h-4" />
+              Incidencia
+            </Button>
+            <Link to={`/tutor/sesiones/${s.id}/bitacora`}>
+              <Button size="sm" variant={s.bitacora ? 'secondary' : 'primary'}>
+                {s.bitacora ? 'Ver bitácora' : 'Registrar bitácora'}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MisSesionesTutor() {
   const [sesiones, setSesiones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +166,13 @@ export default function MisSesionesTutor() {
   const [loadingInc, setLoadingInc] = useState(false);
   const [savingInc, setSavingInc] = useState(false);
   const [form, setForm] = useState({ tipo: 'retardo', descripcion: '' });
+
+  // ── Filtros ──────────────────────────────────────────────────────────────
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroSesion, setFiltroSesion] = useState('todas');
+  const [filtroBitacora, setFiltroBitacora] = useState('todas');
+  const [mostrarTodos, setMostrarTodos] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,7 +212,79 @@ export default function MisSesionesTutor() {
     }
   }
 
-  const sorted = [...sesiones].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  // ── Lógica de filtrado (client-side) ────────────────────────────────────
+  const filtered = useMemo(() => {
+    let result = [...sesiones].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    // 0. Período: solo activo por defecto
+    if (!mostrarTodos) {
+      result = result.filter((s) => s.periodo?.activo === true);
+    }
+
+    // 1. Búsqueda por texto
+    if (busqueda.trim()) {
+      const q = busqueda.trim().toLowerCase();
+      result = result.filter((s) => {
+        const tema = (s.tema || '').toLowerCase();
+        const beneficiario = (s.beneficiario?.nombre_completo || '').toLowerCase();
+        return tema.includes(q) || beneficiario.includes(q);
+      });
+    }
+
+    // 2. Estado de la sesión
+    if (filtroSesion !== 'todas') {
+      result = result.filter((s) => s.estado === filtroSesion);
+    }
+
+    // 3. Estado de la bitácora
+    if (filtroBitacora !== 'todas') {
+      if (filtroBitacora === 'sin_bitacora') {
+        result = result.filter((s) => !s.bitacora);
+      } else {
+        result = result.filter((s) => s.bitacora?.estado === filtroBitacora);
+      }
+    }
+
+    return result;
+  }, [sesiones, busqueda, filtroSesion, filtroBitacora, mostrarTodos]);
+
+  // ── Agrupación por período (solo en vista "todos") ───────────────────────
+  const grupos = useMemo(() => {
+    if (!mostrarTodos) return null;
+    const map = {};
+    filtered.forEach((s) => {
+      const key = s.id_periodo ?? 0;
+      if (!map[key]) {
+        map[key] = {
+          id: key,
+          nombre: s.periodo?.nombre ?? `Período ${key}`,
+          activo: s.periodo?.activo ?? false,
+          sesiones: [],
+        };
+      }
+      map[key].sesiones.push(s);
+    });
+    // Período activo primero, luego descendente por id
+    return Object.values(map).sort((a, b) => {
+      if (a.activo !== b.activo) return b.activo - a.activo;
+      return b.id - a.id;
+    });
+  }, [filtered, mostrarTodos]);
+
+  const hayFiltrosActivos =
+    busqueda.trim() !== '' || filtroSesion !== 'todas' || filtroBitacora !== 'todas';
+
+  function limpiarFiltros() {
+    setBusqueda('');
+    setFiltroSesion('todas');
+    setFiltroBitacora('todas');
+  }
+
+  // Cuenta de sesiones históricas (períodos inactivos) para mostrar en el botón
+  const sesionesHistoricas = useMemo(
+    () => sesiones.filter((s) => s.periodo?.activo === false).length,
+    [sesiones]
+  );
 
   if (loading) {
     return <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>;
@@ -102,16 +294,72 @@ export default function MisSesionesTutor() {
     <div>
       <PageHeader
         title="Mis Sesiones"
-        subtitle="Administra tus sesiones de tutoría"
+        subtitle={mostrarTodos ? 'Todos los períodos' : 'Período activo'}
         right={
-          <Button onClick={() => navigate('/tutor/sesiones/nueva')}>
-            <PlusIcon className="w-4 h-4" />
-            Nueva sesión
-          </Button>
+          <div className="flex items-center gap-2">
+            {sesionesHistoricas > 0 && (
+              <button
+                onClick={() => setMostrarTodos((v) => !v)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                  mostrarTodos
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-orange-300 hover:text-orange-600'
+                }`}
+              >
+                <CalendarDaysIcon className="w-3.5 h-3.5" />
+                {mostrarTodos ? 'Solo período activo' : `Ver historial (${sesionesHistoricas})`}
+              </button>
+            )}
+            <Button onClick={() => navigate('/tutor/sesiones/nueva')}>
+              <PlusIcon className="w-4 h-4" />
+              Nueva sesión
+            </Button>
+          </div>
         }
       />
 
-      {sorted.length === 0 ? (
+      {/* ── Filtros ──────────────────────────────────────────────────────── */}
+      <div className="mb-4 flex items-center gap-3 flex-wrap">
+        <div className="relative">
+          <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Buscar por tema o beneficiario…"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="pl-9 pr-8 py-1.5 text-sm border-2 border-gray-200 rounded-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 w-56"
+          />
+          {busqueda && (
+            <button onClick={() => setBusqueda('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        <select value={filtroSesion} onChange={(e) => setFiltroSesion(e.target.value)} className={SELECT_CLS}>
+          <option value="todas">Todas las sesiones</option>
+          <option value="programada">Programada</option>
+          <option value="realizada">Realizada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+
+        <select value={filtroBitacora} onChange={(e) => setFiltroBitacora(e.target.value)} className={SELECT_CLS}>
+          <option value="todas">Todas las bitácoras</option>
+          <option value="sin_bitacora">Sin registrar</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="no_aprobada">No aprobada</option>
+          <option value="aprobado">Aprobada</option>
+          <option value="aprobado_sin_horas">Sin horas</option>
+        </select>
+
+        {hayFiltrosActivos && (
+          <button onClick={limpiarFiltros} className="text-xs text-orange-500 hover:text-orange-700 font-medium transition-colors">
+            Limpiar
+          </button>
+        )}
+      </div>
+
+      {filtered.length === 0 && sesiones.length === 0 ? (
         <EmptyState
           icon="📅"
           title="Sin sesiones"
@@ -119,48 +367,44 @@ export default function MisSesionesTutor() {
           action={() => navigate('/tutor/sesiones/nueva')}
           actionLabel="Nueva sesión"
         />
-      ) : (
-        <div className="space-y-3">
-          {sorted.map((s) => {
-            const hasUnread = s.bitacora_tiene_comentarios_nuevos;
-            return (
-              <div key={s.id} className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-sora font-semibold text-gray-800 text-sm">{s.tema}</h3>
-                    <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
-                    {hasUnread && (
-                      <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 rounded-full px-2 py-0.5 text-xs font-medium">
-                        <ChatBubbleLeftIcon className="w-3 h-3" />
-                        Nuevo comentario
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatearFechaLocal(s.fecha, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
-                    {' • '}{s.hora_inicio}
-                    {s.beneficiario && ` • ${s.beneficiario.nombre_completo || ''}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {s.bitacora && (
-                    <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
-                      {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
-                    </Badge>
-                  )}
-                  <Button size="sm" variant="ghost" onClick={() => openModal(s)}>
-                    <ExclamationCircleIcon className="w-4 h-4" />
-                    Incidencia
-                  </Button>
-                  <Link to={`/tutor/sesiones/${s.id}/bitacora`}>
-                    <Button size="sm" variant={s.bitacora ? 'secondary' : 'primary'}>
-                      {s.bitacora ? 'Ver bitácora' : 'Registrar bitácora'}
-                    </Button>
-                  </Link>
-                </div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon="🔍"
+          title="Sin resultados"
+          description="Ninguna sesión coincide con los filtros seleccionados."
+          action={limpiarFiltros}
+          actionLabel="Limpiar filtros"
+        />
+      ) : mostrarTodos ? (
+        /* ── Vista agrupada por período ─────────────────────────────────── */
+        <div className="space-y-6">
+          {grupos.map((grupo) => (
+            <div key={grupo.id}>
+              {/* Encabezado de período */}
+              <div className="flex items-center gap-3 mb-3">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                  grupo.activo
+                    ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                    : 'bg-gray-100 text-gray-500 border border-gray-200'
+                }`}>
+                  <CalendarDaysIcon className="w-3.5 h-3.5" />
+                  {grupo.nombre}
+                  {grupo.activo && <span className="ml-1 text-orange-500">● activo</span>}
+                </span>
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-xs text-gray-400">{grupo.sesiones.length} {grupo.sesiones.length === 1 ? 'sesión' : 'sesiones'}</span>
               </div>
-            );
-          })}
+              {/* Cards del período */}
+              <div className="space-y-3">
+                {grupo.sesiones.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* ── Vista normal (solo período activo) ─────────────────────────── */
+        <div className="space-y-3">
+          {filtered.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} />)}
         </div>
       )}
 

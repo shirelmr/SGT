@@ -27,16 +27,16 @@ const estadoBadge = {
 
 const estadoBitacoraBadge = {
   pendiente: 'warning',
-  revisado: 'orange',
-  aprobado: 'success',
   no_aprobada: 'danger',
+  aprobado: 'success',
+  aprobado_sin_horas: 'orange',
 };
 
 const estadoBitacoraLabel = {
   pendiente: 'Pendiente de revisión',
-  revisado: 'En revisión',
-  aprobado: 'Aprobada',
   no_aprobada: 'No aprobada',
+  aprobado: 'Aprobada',
+  aprobado_sin_horas: 'Aprobada sin horas',
 };
 
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -258,28 +258,41 @@ export default function TutorDashboard() {
         ) : (
           <ul className="divide-y divide-gray-50">
             {ultimasTres.map((s) => (
-              <li key={s.id} className="py-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-800">{s.tema}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(s.fecha.split('T')[0] + 'T12:00:00').toLocaleDateString('es-MX')} • {s.hora_inicio}
+              <li key={s.id} className="py-3 flex items-start justify-between gap-3">
+                {/* Tema + fecha */}
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-800 truncate">{s.tema}</p>
+                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                    <CalendarDaysIcon className="w-3 h-3 flex-shrink-0" />
+                    {new Date(s.fecha.split('T')[0] + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })}
+                    {' • '}{s.hora_inicio}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Badges + checkmark + link */}
+                <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
                   {s.bitacora_tiene_comentarios_nuevos && (
                     <ChatBubbleLeftIcon className="w-4 h-4 text-red-500" />
                   )}
+                  <span className="text-xs text-gray-400">Sesión:</span>
                   <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
                   {s.bitacora && (
-                    <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
-                      {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
-                    </Badge>
+                    <>
+                      <span className="text-gray-200 select-none">|</span>
+                      <span className="text-xs text-gray-400">Bitácora:</span>
+                      <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
+                        {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
+                      </Badge>
+                    </>
+                  )}
+                  {s.bitacora?.estado === 'aprobado' && (
+                    <CheckCircleIcon className="w-4 h-4 text-green-500" />
                   )}
                   <Link
                     to={`/tutor/sesiones/${s.id}/bitacora`}
-                    className="text-xs text-orange-500 hover:underline font-medium"
+                    className="text-xs text-orange-500 hover:underline font-medium ml-1"
                   >
-                    Ver bitácora
+                    Ver →
                   </Link>
                 </div>
               </li>

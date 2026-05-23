@@ -7,7 +7,7 @@ const router = express.Router()
 const include = {
   tutor: { include: { usuario: { select: { nombre_completo: true } } } },
   beneficiario: { include: { usuario: { select: { nombre_completo: true } } } },
-  periodo: { select: { nombre: true } },
+  periodo: { select: { nombre: true, activo: true } },
   bitacora: { select: { id_bitacora: true, estado: true } },
 }
 
