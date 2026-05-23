@@ -70,6 +70,15 @@
 
 #### 2.1.1 Auth-Register
 
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto (si aplica) |
+|----|--------------|--------------|-------|--------------------|--------|---------------------|
+| CP-AUTH-07 | Mostrar correctamente la vista de creación de cuenta | Usuario no autenticado, navegación a register | Abrir register. Verificar campos nombre, email, rol, contraseña y confirmación. Verificar enlace Inicia sesión | Todos los elementos esperados están visibles | ✅ Pasa | — |
+| CP-AUTH-08 |  Validación de coincidencia de contraseña |Pantalla de register abierta | Llenar nombre, email, rol. Capturar contraseña y confirmación distintas. Enviar formulario. |Se muestra mensaje de contraseñas no coinciden | ✅ Pasa | — |
+| CP-AUTH-09 | Validaciones obligatorias en registro |  Pantalla de register abierta | Enviar formulario sin datos | Se muestran mensajes de campos obligatorios |✅ Pasa | — |
+| CP-AUTH-10 | Navegación entre register y login | Pantalla de register abierta | Click en Inicia sesión | La URL cambia a login | ✅ Pasa | — |
+| CP-AUTH-11 | Validación de longitud mínima de contraseña | Pantalla de register abierta | Llenar formulario con contraseña corta en ambos campos. Enviar formulario. | Se muestra mensaje de mínimo 6 caracteres. | ✅ Pasa | — |
+| CP-AUTH-12 | Manejo de error de backend al registrar |  Intercept de register configurado con 409. | Llenar formulario válido con correo existente. Enviar formulario. | Se consume endpoint de registro y se muestra mensaje de error al registrarse | ✅ Pasa | — |
+
 ### 2.2 Módulo de Sesiones — Tutor
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado | Defecto |
