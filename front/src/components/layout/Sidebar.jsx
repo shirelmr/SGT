@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { talkLogo } from '../../assets';
 import {
   HomeIcon,
   UsersIcon,
@@ -8,7 +9,6 @@ import {
   ClipboardDocumentCheckIcon,
   AcademicCapIcon,
   ChartBarIcon,
-  BookOpenIcon,
   ClockIcon,
   ArrowRightOnRectangleIcon,
   DocumentTextIcon,
@@ -76,14 +76,11 @@ export default function Sidebar({ onClose }) {
       style={{ backgroundColor: '#ee7e4c' }}
     >
       {/* Logo */}
-      <div className="px-6 mb-8">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#f8f8ec' }}>
-            <BookOpenIcon className="w-5 h-5" style={{ color: '#4a1f06' }} />
-          </div>
+      <div className="px-6 mb-5">
+        <div className="flex items-center gap-3">
+          <img src={talkLogo} alt="Talk! logo" className="w-15 h-15 object-contain" />
           <div>
-            <span className="font-sora font-bold text-lg" style={{ color: '#4a1f06' }}>SGT</span>
-            <span className="font-sora font-bold text-lg" style={{ color: '#f8f8ec' }}> Talk!</span>
+            <span className="font-sora font-bold text-3xl" style={{ color: '#f8f8ec' }}>Talk!</span>
           </div>
         </div>
       </div>
@@ -111,10 +108,9 @@ export default function Sidebar({ onClose }) {
               to={item.to}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? ''
-                    : 'hover:bg-black/10'
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
+                  ? ''
+                  : 'hover:bg-black/10'
                 }`
               }
               style={({ isActive }) =>
