@@ -1,13 +1,13 @@
 import { forwardRef } from 'react';
 
 const Input = forwardRef(function Input(
-  { label, error, className = '', type = 'text', ...props },
+  { label, error, className = '', labelClassName = '', type = 'text', ...props },
   ref
 ) {
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label className="text-sm font-medium text-gray-700">{label}</label>
+        <label className={`text-sm font-medium text-gray-700 ${labelClassName}`}>{label}</label>
       )}
       <input
         ref={ref}

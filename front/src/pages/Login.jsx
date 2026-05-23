@@ -3,9 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
-import { BookOpenIcon } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import AuthLayout from '../components/layout/AuthLayout';
 
 export default function Login() {
   const { login } = useAuth();
@@ -36,40 +36,28 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: '#ee7e4c' }}
-    >
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #f8f8ec, transparent)' }}
-        />
-        <div
-          className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #f8f8ec, transparent)' }}
-        />
-      </div>
+    <AuthLayout>
+      <div
+          className="w-full max-w-lg rounded-2xl p-10"
+          style={{ backgroundColor: '#ee7e4c', boxShadow: '0 8px 40px rgba(74,31,6,0.18)' }}
+        >
+          <h2
+            className="text-2xl font-bold mb-1"
+            style={{ color: '#f8f8ec', fontFamily: 'Sora, sans-serif' }}
+          >
+            Iniciar sesión
+          </h2>
+          <p className="text-sm mb-7" style={{ color: 'rgba(248,248,236,0.75)' }}>
+            Accede a tu cuenta del Sistema Talk!
+          </p>
 
-      <div className="relative w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg" style={{ backgroundColor: '#ee7e4c' }}>
-              <BookOpenIcon className="w-8 h-8" style={{ color: '#4a1f06' }} />
-            </div>
-            <h1 className="font-sora text-3xl font-bold text-gray-900">
-              SGT <span style={{ color: '#4a1f06' }}>Talk!</span>
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">Sistema de Gestión Talk!</p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
             <Input
               label="Correo electrónico"
               type="email"
               placeholder="tu@email.com"
+              labelClassName="!text-white"
+              className="!bg-white/20 !border-white/30 !text-white placeholder:!text-white/60"
               error={errors.email?.message}
               {...register('email', {
                 required: 'El correo es obligatorio',
@@ -83,6 +71,8 @@ export default function Login() {
               label="Contraseña"
               type="password"
               placeholder="••••••••"
+              labelClassName="!text-white"
+              className="!bg-white/20 !border-white/30 !text-white placeholder:!text-white/60"
               error={errors.password?.message}
               {...register('password', { required: 'La contraseña es obligatoria' })}
             />
@@ -96,33 +86,31 @@ export default function Login() {
             <Button
               type="submit"
               loading={loading}
-              className="w-full mt-2"
               size="lg"
+              className="w-full !bg-white !text-[#4a1f06] hover:!bg-white/90"
             >
-              Iniciar sesión
+              Entrar
             </Button>
           </form>
 
-          <p className="text-center text-gray-500 text-sm mt-6">
-            ¿No tienes cuenta?{' '}
-            <Link to="/register" className="font-semibold hover:underline" style={{ color: '#ee7e4c' }}>
-              Regístrate
-            </Link>
-          </p>
-          <p className="text-center text-sm mt-2">
-            <Link
-              to="/postulacion"
-              className="font-semibold hover:underline"
-              style={{ color: '#4a1f06' }}
-            >
-              ¿Quieres ser tutor? → Postúlate aquí
-            </Link>
-          </p>
-          <p className="text-center text-gray-400 text-xs mt-3">
+          <div className="mt-6 space-y-2 text-center text-sm">
+            <p style={{ color: 'rgba(248,248,236,0.75)' }}>
+              ¿No tienes cuenta?{' '}
+              <Link to="/register" className="font-semibold hover:underline" style={{ color: '#f8f8ec' }}>
+                Regístrate
+              </Link>
+            </p>
+            <p>
+              <Link to="/postulacion" className="font-semibold hover:underline" style={{ color: 'rgba(248,248,236,0.85)' }}>
+                ¿Quieres ser tutor? → Postúlate aquí
+              </Link>
+            </p>
+          </div>
+
+          <p className="text-center text-xs mt-8" style={{ color: 'rgba(248,248,236,0.4)' }}>
             Sistema de Gestión Talk! &copy; 2026
           </p>
         </div>
-      </div>
-    </div>
+    </AuthLayout>
   );
 }
