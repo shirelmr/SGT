@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, FunnelIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { getSesiones } from '../../api/sesiones';
 import { getIncidenciasSesion, createIncidencia } from '../../api/incidencias';
 import PageHeader from '../../components/shared/PageHeader';
@@ -90,6 +90,48 @@ const formatearFechaLocal = (fechaStr, opciones = {}) => {
   return new Date(year, month - 1, day).toLocaleDateString('es-MX', opciones);
 };
 
+// ─── Card reutilizable de sesión ──────────────────────────────────────────
+function SesionCard({ s, openModal }) {
+  const hasUnread = s.bitacora_tiene_comentarios_nuevos;
+  return (
+    <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="font-sora font-semibold text-gray-800 text-sm">{s.tema}</h3>
+          <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
+          {hasUnread && (
+            <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 rounded-full px-2 py-0.5 text-xs font-medium">
+              <ChatBubbleLeftIcon className="w-3 h-3" />
+              Nuevo comentario
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          {formatearFechaLocal(s.fecha, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+          {' • '}{s.hora_inicio}
+          {s.beneficiario && ` • ${s.beneficiario.nombre_completo || ''}`}
+        </p>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {s.bitacora && (
+          <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
+            {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
+          </Badge>
+        )}
+        <Button size="sm" variant="ghost" onClick={() => openModal(s)}>
+          <ExclamationCircleIcon className="w-4 h-4" />
+          Incidencia
+        </Button>
+        <Link to={`/tutor/sesiones/${s.id}/bitacora`}>
+          <Button size="sm" variant={s.bitacora ? 'secondary' : 'primary'}>
+            {s.bitacora ? 'Ver bitácora' : 'Registrar bitácora'}
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function MisSesionesTutor() {
   const [sesiones, setSesiones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,6 +145,7 @@ export default function MisSesionesTutor() {
   const [busqueda, setBusqueda] = useState('');
   const [filtroSesion, setFiltroSesion] = useState('todas');
   const [filtroBitacora, setFiltroBitacora] = useState('todas');
+  const [mostrarTodos, setMostrarTodos] = useState(false);
 
   const navigate = useNavigate();
 
@@ -147,6 +190,11 @@ export default function MisSesionesTutor() {
   const filtered = useMemo(() => {
     let result = [...sesiones].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
+    // 0. Período: solo activo por defecto
+    if (!mostrarTodos) {
+      result = result.filter((s) => s.periodo?.activo === true);
+    }
+
     // 1. Búsqueda por texto
     if (busqueda.trim()) {
       const q = busqueda.trim().toLowerCase();
@@ -172,7 +220,30 @@ export default function MisSesionesTutor() {
     }
 
     return result;
-  }, [sesiones, busqueda, filtroSesion, filtroBitacora]);
+  }, [sesiones, busqueda, filtroSesion, filtroBitacora, mostrarTodos]);
+
+  // ── Agrupación por período (solo en vista "todos") ───────────────────────
+  const grupos = useMemo(() => {
+    if (!mostrarTodos) return null;
+    const map = {};
+    filtered.forEach((s) => {
+      const key = s.id_periodo ?? 0;
+      if (!map[key]) {
+        map[key] = {
+          id: key,
+          nombre: s.periodo?.nombre ?? `Período ${key}`,
+          activo: s.periodo?.activo ?? false,
+          sesiones: [],
+        };
+      }
+      map[key].sesiones.push(s);
+    });
+    // Período activo primero, luego descendente por id
+    return Object.values(map).sort((a, b) => {
+      if (a.activo !== b.activo) return b.activo - a.activo;
+      return b.id - a.id;
+    });
+  }, [filtered, mostrarTodos]);
 
   const hayFiltrosActivos =
     busqueda.trim() !== '' || filtroSesion !== 'todas' || filtroBitacora !== 'todas';
@@ -183,6 +254,12 @@ export default function MisSesionesTutor() {
     setFiltroBitacora('todas');
   }
 
+  // Cuenta de sesiones históricas (períodos inactivos) para mostrar en el botón
+  const sesionesHistoricas = useMemo(
+    () => sesiones.filter((s) => s.periodo?.activo === false).length,
+    [sesiones]
+  );
+
   if (loading) {
     return <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>;
   }
@@ -191,12 +268,27 @@ export default function MisSesionesTutor() {
     <div>
       <PageHeader
         title="Mis Sesiones"
-        subtitle="Administra tus sesiones de tutoría"
+        subtitle={mostrarTodos ? 'Todos los períodos' : 'Período activo'}
         right={
-          <Button onClick={() => navigate('/tutor/sesiones/nueva')}>
-            <PlusIcon className="w-4 h-4" />
-            Nueva sesión
-          </Button>
+          <div className="flex items-center gap-2">
+            {sesionesHistoricas > 0 && (
+              <button
+                onClick={() => setMostrarTodos((v) => !v)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                  mostrarTodos
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-orange-300 hover:text-orange-600'
+                }`}
+              >
+                <CalendarDaysIcon className="w-3.5 h-3.5" />
+                {mostrarTodos ? 'Solo período activo' : `Ver historial (${sesionesHistoricas})`}
+              </button>
+            )}
+            <Button onClick={() => navigate('/tutor/sesiones/nueva')}>
+              <PlusIcon className="w-4 h-4" />
+              Nueva sesión
+            </Button>
+          </div>
         }
       />
 
@@ -286,48 +378,36 @@ export default function MisSesionesTutor() {
           action={limpiarFiltros}
           actionLabel="Limpiar filtros"
         />
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((s) => {
-            const hasUnread = s.bitacora_tiene_comentarios_nuevos;
-            return (
-              <div key={s.id} className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-sora font-semibold text-gray-800 text-sm">{s.tema}</h3>
-                    <Badge variant={estadoBadge[s.estado] || 'default'}>{s.estado}</Badge>
-                    {hasUnread && (
-                      <span className="inline-flex items-center gap-1 bg-red-100 text-red-600 rounded-full px-2 py-0.5 text-xs font-medium">
-                        <ChatBubbleLeftIcon className="w-3 h-3" />
-                        Nuevo comentario
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatearFechaLocal(s.fecha, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
-                    {' • '}{s.hora_inicio}
-                    {s.beneficiario && ` • ${s.beneficiario.nombre_completo || ''}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {s.bitacora && (
-                    <Badge variant={estadoBitacoraBadge[s.bitacora.estado] || 'default'}>
-                      {estadoBitacoraLabel[s.bitacora.estado] || s.bitacora.estado}
-                    </Badge>
-                  )}
-                  <Button size="sm" variant="ghost" onClick={() => openModal(s)}>
-                    <ExclamationCircleIcon className="w-4 h-4" />
-                    Incidencia
-                  </Button>
-                  <Link to={`/tutor/sesiones/${s.id}/bitacora`}>
-                    <Button size="sm" variant={s.bitacora ? 'secondary' : 'primary'}>
-                      {s.bitacora ? 'Ver bitácora' : 'Registrar bitácora'}
-                    </Button>
-                  </Link>
-                </div>
+      ) : mostrarTodos ? (
+        /* ── Vista agrupada por período ─────────────────────────────────── */
+        <div className="space-y-6">
+          {grupos.map((grupo) => (
+            <div key={grupo.id}>
+              {/* Encabezado de período */}
+              <div className="flex items-center gap-3 mb-3">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                  grupo.activo
+                    ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                    : 'bg-gray-100 text-gray-500 border border-gray-200'
+                }`}>
+                  <CalendarDaysIcon className="w-3.5 h-3.5" />
+                  {grupo.nombre}
+                  {grupo.activo && <span className="ml-1 text-orange-500">● activo</span>}
+                </span>
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-xs text-gray-400">{grupo.sesiones.length} {grupo.sesiones.length === 1 ? 'sesión' : 'sesiones'}</span>
               </div>
-            );
-          })}
+              {/* Cards del período */}
+              <div className="space-y-3">
+                {grupo.sesiones.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* ── Vista normal (solo período activo) ─────────────────────────── */
+        <div className="space-y-3">
+          {filtered.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} />)}
         </div>
       )}
 

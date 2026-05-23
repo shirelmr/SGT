@@ -15,20 +15,23 @@ import Spinner from '../../components/ui/Spinner';
 
 const estadoComentarioBadge = {
   pendiente: 'warning',
-  revisado: 'info',
+  no_aprobada: 'danger',
   aprobado: 'success',
+  aprobado_sin_horas: 'orange',
 };
 
 const estadoBitacoraBadge = {
   pendiente: 'warning',
-  revisado: 'info',
+  no_aprobada: 'danger',
   aprobado: 'success',
+  aprobado_sin_horas: 'orange',
 };
 
 const estadoBitacoraLabel = {
   pendiente: 'Pendiente de revisión',
-  revisado: 'En revisión',
+  no_aprobada: 'No aprobada',
   aprobado: 'Aprobada',
+  aprobado_sin_horas: 'Aprobada sin horas',
 };
 
 function getFileUrl(p) {

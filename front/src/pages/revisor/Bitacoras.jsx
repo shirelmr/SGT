@@ -14,7 +14,7 @@ const estadoBadge = {
   pendiente: 'warning',
   aprobado: 'success',
   no_aprobada: 'danger',
-  aprobado_sin_horas: 'info',
+  aprobado_sin_horas: 'orange',
 };
 
 const formatoEstado = {
