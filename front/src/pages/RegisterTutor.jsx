@@ -98,8 +98,8 @@ export default function RegisterTutor() {
             <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(248,248,236,0.7)' }}>
               Datos del tutor
             </p>
-            <Input label="Matrícula" placeholder="A01234567" labelClassName={labelCls} className={inputCls} error={errors.matricula?.message} {...register('matricula')} />
-            <Input label="Carrera" placeholder="Ingeniería en Sistemas" labelClassName={labelCls} className={inputCls} error={errors.carrera?.message} {...register('carrera')} />
+            <Input label="Matrícula" placeholder="A01234567" labelClassName={labelCls} className={inputCls} error={errors.matricula?.message} {...register('matricula', { required: 'La matrícula es obligatoria' })} />
+            <Input label="Carrera" placeholder="Ingeniería en Sistemas" labelClassName={labelCls} className={inputCls} error={errors.carrera?.message} {...register('carrera', { required: 'La carrera es obligatoria' })} />
             <Input
               label="Semestre"
               type="number"
@@ -108,6 +108,7 @@ export default function RegisterTutor() {
               className={inputCls}
               error={errors.semestre?.message}
               {...register('semestre', {
+                required: 'El semestre es obligatorio',
                 min: { value: 1, message: 'Mínimo 1' },
                 max: { value: 12, message: 'Máximo 12' },
               })}
