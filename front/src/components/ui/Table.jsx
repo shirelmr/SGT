@@ -12,7 +12,7 @@ export default function Table({ columns, data, loading, emptyMessage = 'No hay d
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-100">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="bg-gray-50 border-b border-gray-100">
             {columns.map((col) => (
               <th

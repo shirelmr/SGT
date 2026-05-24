@@ -222,7 +222,7 @@ export default function ConsultaIA() {
             {historyLoading ? 'Cargando...' : 'No hay consultas registradas aún.'}
           </p>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 overflow-y-auto max-h-80">
             {history.map((item) => (
               <div key={item.id} className="py-3">
                 <div className="flex items-start justify-between gap-3">

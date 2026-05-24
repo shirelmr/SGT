@@ -50,12 +50,24 @@ router.patch('/:id/horas-extra', auth, async (req, res) => {
   }
 
   try {
-    const record = await prisma.horasAcreditadas.findUnique({ where: { id_horas_acreditadas: id } })
+    const record = await prisma.horasAcreditadas.findUnique({
+      where: { id_horas_acreditadas: id },
+      include: { periodo: { select: { horas_esperadas: true } } },
+    })
     if (!record) return res.status(404).json({ error: 'Registro no encontrado' })
+
+    const nuevasExtra = Number(record.horas_extra) + extra
+    const esperadas = Number(record.periodo?.horas_esperadas ?? 0)
+    const impartidas = Number(record.horas_impartidas)
+
+    const dataUpdate = { horas_extra: nuevasExtra }
+    if (esperadas > 0) {
+      dataUpdate.porcentaje_acred = Math.min(((impartidas + nuevasExtra) / esperadas) * 100, 100)
+    }
 
     const updated = await prisma.horasAcreditadas.update({
       where: { id_horas_acreditadas: id },
-      data: { horas_extra: Number(record.horas_extra) + extra },
+      data: dataUpdate,
       include: {
         tutor: { include: { usuario: { select: { nombre_completo: true } } } },
         periodo: { select: { nombre: true, horas_max: true, horas_esperadas: true } },

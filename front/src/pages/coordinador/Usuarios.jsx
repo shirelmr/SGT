@@ -422,7 +422,7 @@ export default function Usuarios() {
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-6">
+      <div className="bg-white rounded-2xl shadow-sm p-6 overflow-y-auto max-h-[620px]">
         <Table
           columns={columns}
           data={filtered}
@@ -468,7 +468,7 @@ export default function Usuarios() {
                     <Field label="Matrícula" value={resumen.perfil?.matricula} />
                     <Field label="Carrera" value={resumen.perfil?.carrera} />
                     <Field label="Semestre" value={resumen.perfil?.semestre} />
-                    <Field label="Link video" value={resumen.perfil?.link_video} />
+                    <Field label="Link Zoom" value={resumen.perfil?.link_zoom} />
                   </>
                 )}
                 {resumen.rol === 'beneficiario' && (

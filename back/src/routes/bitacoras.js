@@ -188,7 +188,8 @@ router.put('/:id', auth, async (req, res) => {
               where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
             })
             const nuevasImpartidas = Number(existing?.horas_impartidas ?? 0) + Number(duracion_hrs)
-            const pct = Math.min((nuevasImpartidas / horas_esperadas) * 100, 100)
+            const horasExtra = Number(existing?.horas_extra ?? 0)
+            const pct = Math.min(((nuevasImpartidas + horasExtra) / horas_esperadas) * 100, 100)
 
             await tx.horasAcreditadas.upsert({
               where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
