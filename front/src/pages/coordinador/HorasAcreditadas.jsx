@@ -157,8 +157,9 @@ export default function HorasAcreditadas() {
         <EmptyState icon="📊" title="Sin datos" description="No hay datos de horas para este periodo" />
       ) : (
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="overflow-y-auto max-h-[680px]">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="border-b border-gray-100 bg-gray-50">
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Tutor</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Horas Impartidas</th>
@@ -190,10 +191,10 @@ export default function HorasAcreditadas() {
                     <td className="px-4 py-3 w-44">
                       <ProgressBar value={pct} />
                       {esperadas > 0 && (
-                        <p className="text-xs text-gray-400 mt-1">{impartidas} / {esperadas} hrs esperadas</p>
+                        <p className="text-xs text-gray-400 mt-1">{impartidas + extra} / {esperadas} hrs esperadas</p>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{impartidas}</td>
+                    <td className="px-4 py-3 text-gray-600">{impartidas + extra}</td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => setModalRow(h)}
@@ -207,6 +208,7 @@ export default function HorasAcreditadas() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

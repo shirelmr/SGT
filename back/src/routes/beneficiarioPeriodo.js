@@ -28,25 +28,32 @@ router.get('/mi-progreso', auth, async (req, res) => {
 router.get('/:id_periodo', auth, async (req, res) => {
   const id_periodo = Number(req.params.id_periodo)
   try {
-    const beneficiarios = await prisma.beneficiario.findMany({
-      where: { id_periodo },
-      include: {
-        usuario: { select: { nombre_completo: true, email: true } },
-        tutor: { include: { usuario: { select: { nombre_completo: true } } } },
-        sesiones: {
-          where: { id_periodo },
-          select: { estado: true },
+    const [beneficiarios, periodo] = await Promise.all([
+      prisma.beneficiario.findMany({
+        where: { id_periodo },
+        include: {
+          usuario: { select: { nombre_completo: true, email: true } },
+          tutor: { include: { usuario: { select: { nombre_completo: true } } } },
+          sesiones: {
+            where: { id_periodo },
+            select: { estado: true },
+          },
+          benefef_periodos: {
+            where: { id_periodo },
+            take: 1,
+          },
         },
-        benefef_periodos: {
-          where: { id_periodo },
-          take: 1,
-        },
-      },
-    })
+      }),
+      prisma.periodo.findUnique({
+        where: { id_periodo },
+        select: { horas_esperadas: true },
+      }),
+    ])
+
+    const sesiones_esperadas = Number(periodo?.horas_esperadas ?? 0)
 
     const result = beneficiarios.map((b) => {
       const examen = b.benefef_periodos[0] || null
-      const sesiones_total = b.sesiones.length
       const sesiones_realizadas = b.sesiones.filter((s) => s.estado === 'realizada').length
       const sesiones_programadas = b.sesiones.filter((s) => s.estado === 'programada').length
       return {
@@ -57,9 +64,9 @@ router.get('/:id_periodo', auth, async (req, res) => {
         tutor: b.tutor?.usuario?.nombre_completo ?? null,
         escuela: b.escuela,
         grado_escolar: b.grado_escolar,
-        sesiones_total,
         sesiones_realizadas,
         sesiones_programadas,
+        sesiones_esperadas,
         pct_examen_inicio: examen ? Number(examen.pct_examen_inicio) : null,
         pct_examen_termino: examen ? Number(examen.pct_examen_termino) : null,
         fecha_examen_inicio: examen?.fecha_examen_inicio ?? null,

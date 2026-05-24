@@ -166,7 +166,7 @@ export default function Periodos() {
         }
       />
 
-      <div className="bg-white rounded-2xl shadow-sm p-6">
+      <div className="bg-white rounded-2xl shadow-sm p-6 overflow-y-auto max-h-[620px]">
         <Table columns={columns} data={periodos} loading={loading} emptyMessage="No hay periodos registrados" />
       </div>
 

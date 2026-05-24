@@ -1,28 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { getPeriodos } from '../../api/periodos';
-import { getBeneficiariosPeriodo, registrarExamen } from '../../api/beneficiarioPeriodo';
+import { getBeneficiariosPeriodo } from '../../api/beneficiarioPeriodo';
 import PageHeader from '../../components/shared/PageHeader';
-import Modal from '../../components/ui/Modal';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
 import Badge from '../../components/ui/Badge';
-import ProgressBar from '../../components/ui/ProgressBar';
 import EmptyState from '../../components/ui/EmptyState';
 import Spinner from '../../components/ui/Spinner';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
-function SessionBar({ realizadas, total }) {
-  const pct = total > 0 ? Math.round((realizadas / total) * 100) : 0;
+function MiniBar({ value, total }) {
+  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 min-w-[100px]">
       <div className="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-        <div
-          className="h-full rounded-full bg-orange-400 transition-all"
-          style={{ width: `${pct}%` }}
-        />
+        <div className="h-full rounded-full bg-orange-400 transition-all" style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs text-gray-500 whitespace-nowrap">{realizadas}/{total}</span>
+      <span className="text-xs text-gray-500 whitespace-nowrap">{value}/{total}</span>
+    </div>
+  );
+}
+
+function StatCard({ label, value }) {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4">
+      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <p className="text-xs text-gray-400 mt-0.5">{label}</p>
     </div>
   );
 }
@@ -32,12 +34,7 @@ export default function ProgresosBeneficiarios() {
   const [selectedPeriodo, setSelectedPeriodo] = useState('');
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBenef, setSelectedBenef] = useState(null);
-  const [saving, setSaving] = useState(false);
   const [busqueda, setBusqueda] = useState('');
-
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   useEffect(() => {
     getPeriodos()
@@ -58,56 +55,40 @@ export default function ProgresosBeneficiarios() {
       .finally(() => setLoading(false));
   }, [selectedPeriodo]);
 
-  function openExamen(b) {
-    setSelectedBenef(b);
-    reset({});
-    setModalOpen(true);
-  }
-
-  async function onSubmit(data) {
-    setSaving(true);
-    try {
-      await registrarExamen(selectedBenef.id_benef, selectedPeriodo, data);
-      toast.success('Examen registrado');
-      setModalOpen(false);
-      const r = await getBeneficiariosPeriodo(selectedPeriodo);
-      setBeneficiarios(r.data);
-    } catch (err) {
-      toast.error(err?.response?.data?.error || 'Error al registrar');
-    } finally {
-      setSaving(false);
-    }
-  }
-
   const filtered = beneficiarios.filter((b) =>
     b.nombre_completo?.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  const hasInicio = selectedBenef?.pct_examen_inicio != null;
-  const hasTermino = selectedBenef?.pct_examen_termino != null;
+  const sesionesEsperadas = beneficiarios[0]?.sesiones_esperadas ?? 0;
+  const realizadas = beneficiarios.reduce((a, b) => a + (b.sesiones_realizadas ?? 0), 0);
+  const conTutor = beneficiarios.filter((b) => b.tutor).length;
 
   return (
-    <div>
-      <PageHeader title="Progreso de Beneficiarios" subtitle="Sesiones, avance y exámenes por beneficiario" />
+    <div className="space-y-5">
+      <PageHeader title="Progreso de Beneficiarios" subtitle="Avance en sesiones y exámenes de inglés por beneficiario" />
 
-      <div className="flex flex-wrap gap-3 mb-6">
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3">
         <select
           value={selectedPeriodo}
-          onChange={(e) => setSelectedPeriodo(e.target.value)}
-          className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400"
+          onChange={(e) => { setSelectedPeriodo(e.target.value); setBusqueda(''); }}
+          className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
         >
           <option value="">Seleccionar periodo</option>
           {periodos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
 
         {selectedPeriodo && (
-          <input
-            type="text"
-            placeholder="Buscar beneficiario..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400 w-52"
-          />
+          <div className="relative">
+            <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar beneficiario..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 w-52"
+            />
+          </div>
         )}
       </div>
 
@@ -115,146 +96,82 @@ export default function ProgresosBeneficiarios() {
         <EmptyState icon="📈" title="Selecciona un periodo" description="Elige un periodo para ver el progreso" />
       ) : loading ? (
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
-      ) : filtered.length === 0 ? (
+      ) : beneficiarios.length === 0 ? (
         <EmptyState icon="👤" title="Sin beneficiarios" description="No hay beneficiarios en este periodo" />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map((b) => {
-            const avance = b.pct_examen_inicio != null && b.pct_examen_termino != null
-              ? b.pct_examen_termino - b.pct_examen_inicio
-              : null;
+        <>
+          {/* Summary stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <StatCard label="Beneficiarios" value={beneficiarios.length} />
+            <StatCard label="Con tutor asignado" value={conTutor} />
+            <StatCard label="Sesiones realizadas" value={realizadas} />
+            <StatCard label="Sesiones esperadas por benef." value={sesionesEsperadas || '—'} />
+          </div>
 
-            return (
-              <div key={b.id_benef} className="bg-white rounded-2xl shadow-sm p-5 flex flex-col gap-4">
-                {/* Header */}
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-gray-900 text-sm">{b.nombre_completo}</p>
-                    <p className="text-xs text-gray-400">{b.email}</p>
-                    {b.escuela && <p className="text-xs text-gray-400 mt-0.5">{b.escuela}{b.grado_escolar ? ` · ${b.grado_escolar}` : ''}</p>}
-                  </div>
-                  {avance != null && (
-                    <Badge variant={avance > 0 ? 'success' : 'warning'}>
-                      {avance > 0 ? `+${avance.toFixed(1)}%` : `${avance.toFixed(1)}%`}
-                    </Badge>
-                  )}
-                </div>
+          {/* Table */}
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="overflow-y-auto max-h-[520px]">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-gray-50 z-10">
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Beneficiario</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Tutor</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Sesiones realizadas / total</th>
+                    <th className="text-center px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Examen inicio</th>
+                    <th className="text-center px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Examen término</th>
+                    <th className="text-center px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">Avance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtered.map((b) => {
+                    const avance = b.pct_examen_inicio != null && b.pct_examen_termino != null
+                      ? b.pct_examen_termino - b.pct_examen_inicio
+                      : null;
 
-                {/* Tutor */}
-                <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <span className="text-gray-400">Tutor:</span>
-                  <span className="font-medium text-gray-700">{b.tutor || '—'}</span>
-                </div>
-
-                {/* Sessions */}
-                <div>
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>Sesiones realizadas</span>
-                    <span className="font-medium text-gray-700">{b.sesiones_realizadas} de {b.sesiones_total}</span>
-                  </div>
-                  <SessionBar realizadas={b.sesiones_realizadas} total={b.sesiones_total} />
-                  {b.sesiones_programadas > 0 && (
-                    <p className="text-xs text-gray-400 mt-1">{b.sesiones_programadas} programada{b.sesiones_programadas !== 1 ? 's' : ''}</p>
-                  )}
-                </div>
-
-                {/* Exam scores */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-gray-50 rounded-xl p-2 text-center">
-                    <p className="text-xs text-gray-400 mb-1">Examen inicio</p>
-                    {b.pct_examen_inicio != null
-                      ? <p className="text-lg font-bold text-blue-600">{b.pct_examen_inicio}%</p>
-                      : <p className="text-xs text-gray-400">Pendiente</p>}
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-2 text-center">
-                    <p className="text-xs text-gray-400 mb-1">Examen término</p>
-                    {b.pct_examen_termino != null
-                      ? <p className="text-lg font-bold text-green-600">{b.pct_examen_termino}%</p>
-                      : <p className="text-xs text-gray-400">Pendiente</p>}
-                  </div>
-                </div>
-
-                {/* Avance bar */}
-                {avance != null && (
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1">Avance general</p>
-                    <ProgressBar value={Math.max(0, avance)} />
-                  </div>
-                )}
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => openExamen(b)}
-                  disabled={b.pct_examen_inicio != null && b.pct_examen_termino != null}
-                  className="w-full mt-auto"
-                >
-                  {b.pct_examen_inicio == null
-                    ? 'Registrar examen inicio'
-                    : b.pct_examen_termino == null
-                    ? 'Registrar examen término'
-                    : 'Exámenes completos'}
-                </Button>
-              </div>
-            );
-          })}
-        </div>
+                    return (
+                      <tr key={b.id_benef} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-gray-800">{b.nombre_completo}</p>
+                          {b.escuela && <p className="text-xs text-gray-400 mt-0.5">{b.escuela}</p>}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-gray-700">{b.tutor || <span className="text-gray-400 italic">Sin asignar</span>}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <MiniBar value={b.sesiones_realizadas} total={b.sesiones_esperadas} />
+                          {b.sesiones_programadas > 0 && (
+                            <p className="text-xs text-gray-400 mt-1">{b.sesiones_programadas} programada{b.sesiones_programadas !== 1 ? 's' : ''}</p>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {b.pct_examen_inicio != null
+                            ? <span className="text-blue-600 font-semibold">{b.pct_examen_inicio}%</span>
+                            : <span className="text-gray-300 text-xs">—</span>}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {b.pct_examen_termino != null
+                            ? <span className="text-green-600 font-semibold">{b.pct_examen_termino}%</span>
+                            : <span className="text-gray-300 text-xs">—</span>}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {avance != null
+                            ? <Badge variant={avance > 0 ? 'success' : avance < 0 ? 'danger' : 'default'}>
+                                {avance > 0 ? '+' : ''}{avance.toFixed(1)}%
+                              </Badge>
+                            : <span className="text-gray-300 text-xs">—</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="border-t border-gray-100 px-4 py-2.5 bg-gray-50">
+              <p className="text-xs text-gray-400">{filtered.length} beneficiario{filtered.length !== 1 ? 's' : ''}{busqueda ? ` · filtro: "${busqueda}"` : ''}</p>
+            </div>
+          </div>
+        </>
       )}
-
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Registrar examen"
-        size="sm"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
-            <Button type="submit" form="examen-form" loading={saving}>Guardar</Button>
-          </>
-        }
-      >
-        <div className="mb-4 p-3 bg-orange-50 rounded-xl">
-          <p className="text-sm font-medium text-orange-800">{selectedBenef?.nombre_completo}</p>
-          {selectedBenef?.pct_examen_inicio != null && (
-            <p className="text-xs text-orange-600 mt-1">Examen inicio: {selectedBenef.pct_examen_inicio}%</p>
-          )}
-        </div>
-        <form id="examen-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {selectedBenef?.pct_examen_inicio == null ? (
-            <>
-              <Input
-                label="Porcentaje examen inicio"
-                type="number" min="0" max="100"
-                error={errors.pct_examen_inicio?.message}
-                {...register('pct_examen_inicio', { required: 'Obligatorio', min: 0, max: 100 })}
-              />
-              <Input
-                label="Fecha examen inicio"
-                type="date"
-                error={errors.fecha_examen_inicio?.message}
-                {...register('fecha_examen_inicio', { required: 'Obligatorio' })}
-              />
-            </>
-          ) : selectedBenef?.pct_examen_termino == null ? (
-            <>
-              <Input
-                label="Porcentaje examen término"
-                type="number" min="0" max="100"
-                error={errors.pct_examen_termino?.message}
-                {...register('pct_examen_termino', { required: 'Obligatorio', min: 0, max: 100 })}
-              />
-              <Input
-                label="Fecha examen término"
-                type="date"
-                error={errors.fecha_examen_termino?.message}
-                {...register('fecha_examen_termino', { required: 'Obligatorio' })}
-              />
-            </>
-          ) : (
-            <p className="text-sm text-gray-500">Ambos exámenes ya han sido registrados.</p>
-          )}
-        </form>
-      </Modal>
     </div>
   );
 }
