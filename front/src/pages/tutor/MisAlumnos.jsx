@@ -54,7 +54,11 @@ function AlumnoRow({ alumno }) {
   const color = colorPorNombre(alumno.nombre_completo);
   const ini = iniciales(alumno.nombre_completo);
 
-  const tieneExamenes = alumno.examen_inicio !== null || alumno.examen_termino !== null;
+  // Defensivo: el backend viejo no incluía el campo sesiones
+  const ses = alumno.sesiones ?? { total: 0, realizadas: 0, proxima: null, ultima: null };
+
+  // Usar != null para capturar tanto null como undefined
+  const tieneExamenes = alumno.examen_inicio != null || alumno.examen_termino != null;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden transition-shadow hover:shadow-md">
@@ -82,15 +86,15 @@ function AlumnoRow({ alumno }) {
         <div className="hidden sm:flex items-center gap-4 text-xs text-gray-500 flex-shrink-0">
           <span className="flex items-center gap-1">
             <CalendarDaysIcon className="w-3.5 h-3.5" />
-            <span><strong className="text-gray-700">{alumno.sesiones.realizadas}</strong>/{alumno.sesiones.total} sesiones</span>
+            <span><strong className="text-gray-700">{ses.realizadas}</strong>/{ses.total} sesiones</span>
           </span>
           {tieneExamenes && (
             <span className="flex items-center gap-1">
               <AcademicCapIcon className="w-3.5 h-3.5" />
               <span>
-                {alumno.examen_inicio !== null ? `${Number(alumno.examen_inicio)}%` : '—'}
+                {alumno.examen_inicio != null ? `${Number(alumno.examen_inicio)}%` : '—'}
                 {' → '}
-                {alumno.examen_termino !== null ? `${Number(alumno.examen_termino)}%` : '—'}
+                {alumno.examen_termino != null ? `${Number(alumno.examen_termino)}%` : '—'}
               </span>
             </span>
           )}
@@ -111,9 +115,9 @@ function AlumnoRow({ alumno }) {
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sesiones</p>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'Total', value: alumno.sesiones.total },
-                { label: 'Realizadas', value: alumno.sesiones.realizadas },
-                { label: 'Pendientes', value: alumno.sesiones.total - alumno.sesiones.realizadas },
+                { label: 'Total', value: ses.total },
+                { label: 'Realizadas', value: ses.realizadas },
+                { label: 'Pendientes', value: ses.total - ses.realizadas },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-gray-50 rounded-xl p-2.5 text-center">
                   <p className="font-sora font-bold text-gray-800 text-lg">{value}</p>
@@ -122,13 +126,13 @@ function AlumnoRow({ alumno }) {
               ))}
             </div>
             <div className="space-y-1 text-xs text-gray-500">
-              {alumno.sesiones.ultima && (
-                <p>📅 Última sesión: <span className="font-medium text-gray-700">{fmtFecha(alumno.sesiones.ultima)}</span></p>
+              {ses.ultima && (
+                <p>📅 Última sesión: <span className="font-medium text-gray-700">{fmtFecha(ses.ultima)}</span></p>
               )}
-              {alumno.sesiones.proxima && (
-                <p>🔜 Próxima sesión: <span className="font-medium text-orange-600">{fmtFecha(alumno.sesiones.proxima)}</span></p>
+              {ses.proxima && (
+                <p>🔜 Próxima sesión: <span className="font-medium text-orange-600">{fmtFecha(ses.proxima)}</span></p>
               )}
-              {!alumno.sesiones.ultima && !alumno.sesiones.proxima && (
+              {!ses.ultima && !ses.proxima && (
                 <p className="text-gray-400">Sin sesiones registradas aún.</p>
               )}
             </div>
@@ -146,16 +150,16 @@ function AlumnoRow({ alumno }) {
                       <span>Examen inicio</span>
                       {alumno.fecha_examen_inicio && <span className="text-gray-400">{fmtFecha(alumno.fecha_examen_inicio)}</span>}
                     </div>
-                    <ProgressBar value={alumno.examen_inicio !== null ? Number(alumno.examen_inicio) : 0} showLabel={alumno.examen_inicio !== null} />
-                    {alumno.examen_inicio === null && <p className="text-xs text-gray-400 mt-0.5">Sin calificación</p>}
+                    <ProgressBar value={alumno.examen_inicio != null ? Number(alumno.examen_inicio) : 0} showLabel={alumno.examen_inicio != null} />
+                    {alumno.examen_inicio == null && <p className="text-xs text-gray-400 mt-0.5">Sin calificación</p>}
                   </div>
                   <div>
                     <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>Examen término</span>
                       {alumno.fecha_examen_termino && <span className="text-gray-400">{fmtFecha(alumno.fecha_examen_termino)}</span>}
                     </div>
-                    <ProgressBar value={alumno.examen_termino !== null ? Number(alumno.examen_termino) : 0} showLabel={alumno.examen_termino !== null} />
-                    {alumno.examen_termino === null && <p className="text-xs text-gray-400 mt-0.5">Sin calificación</p>}
+                    <ProgressBar value={alumno.examen_termino != null ? Number(alumno.examen_termino) : 0} showLabel={alumno.examen_termino != null} />
+                    {alumno.examen_termino == null && <p className="text-xs text-gray-400 mt-0.5">Sin calificación</p>}
                   </div>
                 </div>
               ) : (
