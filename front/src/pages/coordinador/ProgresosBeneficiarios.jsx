@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { getPeriodos } from '../../api/periodos';
-import { getBeneficiariosPeriodo } from '../../api/beneficiarioPeriodo';
+import { getBeneficiariosPeriodo, getBeneficiariosAnteriores } from '../../api/beneficiarioPeriodo';
 import PageHeader from '../../components/shared/PageHeader';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
@@ -30,8 +30,8 @@ function StatCard({ label, value }) {
 }
 
 export default function ProgresosBeneficiarios() {
-  const [periodos, setPeriodos] = useState([]);
-  const [selectedPeriodo, setSelectedPeriodo] = useState('');
+  const [activePeriodoId, setActivePeriodoId] = useState(null);
+  const [filtro, setFiltro] = useState('activo');
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [busqueda, setBusqueda] = useState('');
@@ -39,21 +39,28 @@ export default function ProgresosBeneficiarios() {
   useEffect(() => {
     getPeriodos()
       .then((r) => {
-        setPeriodos(r.data);
         const active = r.data.find((p) => p.activo);
-        if (active) setSelectedPeriodo(String(active.id));
+        setActivePeriodoId(active?.id ?? null);
       })
       .catch(() => toast.error('Error al cargar periodos'));
   }, []);
 
   useEffect(() => {
-    if (!selectedPeriodo) return;
     setLoading(true);
-    getBeneficiariosPeriodo(selectedPeriodo)
+    setBusqueda('');
+    const req = filtro === 'activo' && activePeriodoId
+      ? getBeneficiariosPeriodo(activePeriodoId)
+      : filtro === 'anteriores'
+        ? getBeneficiariosAnteriores()
+        : null;
+
+    if (!req) { setLoading(false); return; }
+
+    req
       .then((r) => setBeneficiarios(r.data))
       .catch(() => setBeneficiarios([]))
       .finally(() => setLoading(false));
-  }, [selectedPeriodo]);
+  }, [filtro, activePeriodoId]);
 
   const filtered = beneficiarios.filter((b) =>
     b.nombre_completo?.toLowerCase().includes(busqueda.toLowerCase())
@@ -68,36 +75,42 @@ export default function ProgresosBeneficiarios() {
       <PageHeader title="Progreso de Beneficiarios" subtitle="Avance en sesiones y exámenes de inglés por beneficiario" />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <select
-          value={selectedPeriodo}
-          onChange={(e) => { setSelectedPeriodo(e.target.value); setBusqueda(''); }}
-          className="border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-        >
-          <option value="">Seleccionar periodo</option>
-          {periodos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-        </select>
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex rounded-xl border-2 border-gray-200 overflow-hidden text-sm">
+          {[
+            { key: 'activo', label: 'Periodo activo' },
+            { key: 'anteriores', label: 'Periodos anteriores' },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setFiltro(key)}
+              className={`px-4 py-2 transition-colors ${
+                filtro === key
+                  ? 'bg-orange-500 text-white font-medium'
+                  : 'bg-white text-gray-600 hover:bg-orange-50'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-        {selectedPeriodo && (
-          <div className="relative">
-            <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Buscar beneficiario..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 w-52"
-            />
-          </div>
-        )}
+        <div className="relative">
+          <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Buscar beneficiario..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 w-52"
+          />
+        </div>
       </div>
 
-      {!selectedPeriodo ? (
-        <EmptyState icon="📈" title="Selecciona un periodo" description="Elige un periodo para ver el progreso" />
-      ) : loading ? (
+      {loading ? (
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
       ) : beneficiarios.length === 0 ? (
-        <EmptyState icon="👤" title="Sin beneficiarios" description="No hay beneficiarios en este periodo" />
+        <EmptyState icon="👤" title="Sin beneficiarios" description={filtro === 'activo' ? 'No hay beneficiarios en el periodo activo' : 'No hay beneficiarios en periodos anteriores'} />
       ) : (
         <>
           {/* Summary stats */}

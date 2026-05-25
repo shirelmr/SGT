@@ -4,9 +4,9 @@ import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import {
   PlusIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon,
-  ArrowDownTrayIcon, EyeIcon, ChevronDownIcon, UserMinusIcon,
+  ArrowDownTrayIcon, EyeIcon, ChevronDownIcon, UserMinusIcon, UserPlusIcon,
 } from '@heroicons/react/24/outline';
-import { getUsuarios, createUsuario, updateUsuario, deleteUsuario, getUsuarioResumen } from '../../api/usuarios';
+import { getUsuarios, createUsuario, updateUsuario, deleteUsuario, darDeBajaBeneficiario, activarBeneficiario, getUsuarioResumen } from '../../api/usuarios';
 import { getHoras } from '../../api/horas';
 import { getPeriodos } from '../../api/periodos';
 import PageHeader from '../../components/shared/PageHeader';
@@ -73,6 +73,11 @@ export default function Usuarios() {
   const [bajaOpen, setBajaOpen] = useState(false);
   const [bajaTarget, setBajaTarget] = useState(null);
   const [bajaLoading, setBajaLoading] = useState(false);
+
+  // dar de alta
+  const [altaOpen, setAltaOpen] = useState(false);
+  const [altaTarget, setAltaTarget] = useState(null);
+  const [altaLoading, setAltaLoading] = useState(false);
 
   // resumen modal
   const [resumenOpen, setResumenOpen] = useState(false);
@@ -173,11 +178,25 @@ export default function Usuarios() {
     }
   }
 
+  async function handleAlta() {
+    setAltaLoading(true);
+    try {
+      await activarBeneficiario(altaTarget.id);
+      toast.success(`${altaTarget.nombre_completo} fue agregado al periodo activo`);
+      setAltaOpen(false);
+      loadData();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Error al dar de alta');
+    } finally {
+      setAltaLoading(false);
+    }
+  }
+
   async function handleBaja() {
     setBajaLoading(true);
     try {
-      await updateUsuario(bajaTarget.id, { id_periodo: null, id_tutor: null });
-      toast.success(`${bajaTarget.nombre_completo} fue dado de baja del periodo`);
+      await darDeBajaBeneficiario(bajaTarget.id);
+      toast.success(`${bajaTarget.nombre_completo} fue removido del periodo actual`);
       setBajaOpen(false);
       loadData();
     } catch (err) {
@@ -291,6 +310,8 @@ export default function Usuarios() {
     u.nombre_completo.toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  const periodoActivoId = periodos.find((p) => p.activo)?.id;
+
   const columns = [
     { key: 'nombre_completo', label: 'Nombre' },
     { key: 'email', label: 'Email' },
@@ -302,40 +323,53 @@ export default function Usuarios() {
     {
       key: 'acciones',
       label: 'Acciones',
-      render: (_, row) => (
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => openResumen(row)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
-            title="Ver resumen"
-          >
-            <EyeIcon className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => openEdit(row)}
-            className="p-1.5 rounded-lg hover:bg-orange-50 text-orange-500 transition-colors"
-            title="Editar"
-          >
-            <PencilIcon className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => openDelete(row)}
-            className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
-            title="Eliminar"
-          >
-            <TrashIcon className="w-4 h-4" />
-          </button>
-          {row.rol === 'beneficiario' && (
+      render: (_, row) => {
+        const isInActivePeriod = row.rol === 'beneficiario' && row.id_periodo === periodoActivoId;
+        const isOutOfActivePeriod = row.rol === 'beneficiario' && row.id_periodo !== periodoActivoId;
+        return (
+          <div className="flex items-center gap-1.5">
             <button
-              onClick={() => { setBajaTarget(row); setBajaOpen(true); }}
-              className="p-1.5 rounded-lg hover:bg-yellow-50 text-yellow-600 transition-colors"
-              title="Dar de baja"
+              onClick={() => openResumen(row)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+              title="Ver resumen"
             >
-              <UserMinusIcon className="w-4 h-4" />
+              <EyeIcon className="w-4 h-4" />
             </button>
-          )}
-        </div>
-      ),
+            <button
+              onClick={() => openEdit(row)}
+              className="p-1.5 rounded-lg hover:bg-orange-50 text-orange-500 transition-colors"
+              title="Editar"
+            >
+              <PencilIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => openDelete(row)}
+              className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
+              title="Eliminar"
+            >
+              <TrashIcon className="w-4 h-4" />
+            </button>
+            {isInActivePeriod && (
+              <button
+                onClick={() => { setBajaTarget(row); setBajaOpen(true); }}
+                className="p-1.5 rounded-lg hover:bg-yellow-50 text-yellow-600 transition-colors"
+                title="Dar de baja"
+              >
+                <UserMinusIcon className="w-4 h-4" />
+              </button>
+            )}
+            {isOutOfActivePeriod && (
+              <button
+                onClick={() => { setAltaTarget(row); setAltaOpen(true); }}
+                className="p-1.5 rounded-lg hover:bg-green-50 text-green-600 transition-colors"
+                title="Dar de alta"
+              >
+                <UserPlusIcon className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
@@ -418,7 +452,7 @@ export default function Usuarios() {
           {periodos.map((p) => (
             <option key={p.id} value={String(p.id)}>{p.nombre}</option>
           ))}
-          <option value="todos">Todos / inactivos</option>
+          <option value="todos">Todos los periodos</option>
         </select>
       </div>
 
@@ -647,9 +681,19 @@ export default function Usuarios() {
         onClose={() => setBajaOpen(false)}
         onConfirm={handleBaja}
         title="Dar de baja"
-        message={`¿Estás seguro de que deseas dar de baja a "${bajaTarget?.nombre_completo}"? Se eliminará su asignación al periodo y tutor actual.`}
+        message={`¿Estás seguro de que deseas remover a "${bajaTarget?.nombre_completo}" del periodo actual? Se moverá al periodo anterior para conservar su historial.`}
         confirmLabel="Dar de baja"
         loading={bajaLoading}
+      />
+
+      <ConfirmDialog
+        isOpen={altaOpen}
+        onClose={() => setAltaOpen(false)}
+        onConfirm={handleAlta}
+        title="Dar de alta"
+        message={`¿Deseas agregar a "${altaTarget?.nombre_completo}" al periodo activo?`}
+        confirmLabel="Dar de alta"
+        loading={altaLoading}
       />
     </div>
   );
