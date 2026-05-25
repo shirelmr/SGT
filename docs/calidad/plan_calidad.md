@@ -4,18 +4,69 @@
 > **Equipo:** AIAS · Shirel Marino Ramírez · Arístides Nieto Guzmán · Ana Paola Oviedo Salgado · Itzel Covarrubias Basurto  
 > **Curso:** TC3004B Planeación de Sistemas de Software · Semestre Enero–Junio 2026  
 > **Responsable QA:** Shirel Marino Ramirez
-> **Última actualización:** 15 de mayo de 2026 · Semana 11
+> **Última actualización:** 25 de mayo de 2026 · Semana 11
 
 ---
 
 ## Índice
 
+0. [Objetivos y Criterios de Calidad Generales](#0-objetivos-y-criterios-de-calidad-generales)
+0. [Roles y Responsabilidades Formales](#0-roles-y-responsabilidades-formales)
 1. [Gestión de Riesgos](#1-gestión-de-riesgos)
 2. [Casos de Pruebas Funcionales](#2-casos-de-pruebas-funcionales)
 3. [Evaluación Heurística — Nielsen](#3-evaluación-heurística--nielsen)
 4. [Sesiones de Prueba con Usuarios](#4-sesiones-de-prueba-con-usuarios)
 
 ---
+
+## 0. Objetivos y Criterios de Calidad Generales
+
+Esta sección define qué significa calidad para SGT y cómo se evaluará de forma transversal en todo el proyecto.
+
+### 0.1 Objetivo General
+
+Garantizar que SGT sea usable, seguro y confiable para la operación del programa Talk!, permitiendo ejecutar los flujos críticos por rol (beneficiario, tutor, revisor y coordinador) sin errores bloqueantes.
+
+### 0.2 Atributos Prioritarios y Métricas Globales
+
+| Atributo | Criterio de calidad | Métrica global | Meta |
+|----------|----------------------|----------------|------|
+| Usabilidad | Los usuarios completan tareas clave sin asistencia | % de tareas completadas en sesiones con usuarios + ICH Nielsen | ICH >= 80% y >= 80% de tareas completadas |
+| Funcionalidad | Los flujos de negocio funcionan según lo esperado | % de casos funcionales en estado `✅ Pasa` | >= 80% de casos funcionales en `✅ Pasa` |
+| Seguridad (acceso) | Solo usuarios autorizados acceden a módulos por rol | Casos de autenticación/autorización aprobados | 100% de pruebas críticas de auth y rutas privadas aprobadas |
+| Confiabilidad | El sistema responde correctamente ante errores comunes | Cobertura de casos negativos (validaciones y errores API) | Casos negativos críticos cubiertos y sin defectos bloqueantes abiertos |
+| Rendimiento operativo | El sistema mantiene respuesta aceptable en uso esperado | Tiempo de respuesta percibido y pruebas de carga planificadas | Cumplir objetivo de prueba de carga definida para S11-S12 |
+
+### 0.3 Criterio de Liberación de Calidad
+
+El MVP se considera apto para liberación únicamente si:
+
+1. Se cumple el umbral global de pruebas funcionales (`>= 80%` en `✅ Pasa`).
+2. No existen defectos críticos abiertos en autenticación, autorización o flujos principales.
+3. La evaluación heurística cumple la meta mínima definida (`ICH >= 80%`).
+
+## 0. Roles y Responsabilidades Formales
+
+### 0.1 Responsables por Proceso de Calidad
+
+| Proceso de calidad | Responsable |
+|--------------------|-------------|
+| Gestión de riesgos | Arístides Nieto Guzmán |
+| Casos de pruebas funcionales | Shirel Marino Ramírez |
+| Evaluación heurística | Ana Paola Oviedo Salgado |
+| Sesiones de prueba con usuarios | Itzel Covarrubias Basurto |
+
+### 0.2 Matriz RACI (resumen)
+
+| Actividad | Arístides | Shirel | Ana Paola | Itzel |
+|-----------|:---------:|:------:|:---------:|:-----:|
+| Gestión de riesgos | A/R | C | C | I |
+| Casos de pruebas funcionales | C | A/R | I | I |
+| Evaluación heurística | I | C | A/R | C |
+| Sesiones de prueba con usuarios | I | C | C | A/R |
+
+> R = Responsible, A = Accountable, C = Consulted, I = Informed.
+
 
 ## 1. Gestión de Riesgos
 
