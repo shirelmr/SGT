@@ -403,6 +403,76 @@ router.put('/:id', async (req, res) => {
   }
 })
 
+// POST /api/usuarios/:id/alta  — move beneficiario into the current active period
+router.post('/:id/alta', auth, async (req, res) => {
+  if (req.user.rol !== 'coordinador') {
+    return res.status(403).json({ error: 'Acceso denegado' })
+  }
+  const id = Number(req.params.id)
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id_usuario: id },
+      include: { beneficiario: true },
+    })
+    if (!usuario?.beneficiario) {
+      return res.status(404).json({ error: 'Beneficiario no encontrado' })
+    }
+
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+    if (!periodoActivo) {
+      return res.status(400).json({ error: 'No hay periodo activo' })
+    }
+
+    await prisma.beneficiario.update({
+      where: { id_usuario: id },
+      data: { id_periodo: periodoActivo.id_periodo },
+    })
+
+    res.json({ ok: true, id_periodo: periodoActivo.id_periodo })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
+// POST /api/usuarios/:id/baja  — remove beneficiario from current period, move to previous one
+router.post('/:id/baja', auth, async (req, res) => {
+  if (req.user.rol !== 'coordinador') {
+    return res.status(403).json({ error: 'Acceso denegado' })
+  }
+  const id = Number(req.params.id)
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id_usuario: id },
+      include: { beneficiario: true },
+    })
+    if (!usuario?.beneficiario) {
+      return res.status(404).json({ error: 'Beneficiario no encontrado' })
+    }
+
+    const currentPeriodoId = usuario.beneficiario.id_periodo
+    let previousPeriodoId = null
+
+    if (currentPeriodoId) {
+      const prev = await prisma.periodo.findFirst({
+        where: { id_periodo: { lt: currentPeriodoId } },
+        orderBy: { id_periodo: 'desc' },
+      })
+      previousPeriodoId = prev?.id_periodo ?? null
+    }
+
+    await prisma.beneficiario.update({
+      where: { id_usuario: id },
+      data: { id_periodo: previousPeriodoId, id_tutor: null },
+    })
+
+    res.json({ ok: true, id_periodo: previousPeriodoId })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
 // DELETE /api/usuarios/:id
 router.delete('/:id', async (req, res) => {
   const id = Number(req.params.id)

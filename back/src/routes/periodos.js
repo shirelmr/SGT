@@ -35,17 +35,25 @@ router.post('/', auth, async (req, res) => {
     return res.status(400).json({ error: 'nombre, fecha_inicio, fecha_fin, horas_max y horas_esperadas son requeridos' })
   }
   try {
-    await prisma.postulacion.deleteMany({})
+    const periodo = await prisma.$transaction(async (tx) => {
+      await tx.postulacion.deleteMany({})
 
-    const periodo = await prisma.periodo.create({
-      data: {
-        nombre,
-        fecha_inicio: new Date(fecha_inicio),
-        fecha_fin: new Date(fecha_fin),
-        activo: activo ?? false,
-        horas_max: Number(horas_max),
-        horas_esperadas: Number(horas_esperadas),
-      },
+      const p = await tx.periodo.create({
+        data: {
+          nombre,
+          fecha_inicio: new Date(fecha_inicio),
+          fecha_fin: new Date(fecha_fin),
+          activo: activo ?? false,
+          horas_max: Number(horas_max),
+          horas_esperadas: Number(horas_esperadas),
+        },
+      })
+
+      await tx.beneficiario.updateMany({
+        data: { id_periodo: p.id_periodo },
+      })
+
+      return p
     })
     res.status(201).json(fmt(periodo))
   } catch (err) {
