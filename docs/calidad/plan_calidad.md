@@ -88,12 +88,18 @@
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-AUTH-18 | Mostrar correctamente la vista de registro de tutor | Usuario no autenticado, navegación a /register/tutor | Abrir la pantalla de registro de tutor y verificar nombre, correo, matrícula, carrera, semestre, contraseña y confirmación | Todos los elementos del formulario se muestran visibles | ✅ Pasa |
-| CP-AUTH-19 | Validaciones obligatorias en registro de tutor | Pantalla de registro de tutor abierta | Enviar el formulario sin capturar datos | Se muestran mensajes de campos obligatorios | ✅ Pasa |
-| CP-AUTH-20 | Validación de coincidencia de contraseña en tutor | Pantalla de registro de tutor abierta | Llenar campos obligatorios y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | ✅ Pasa |
-| CP-AUTH-21 | Validación de longitud mínima de contraseña en tutor | Pantalla de registro de tutor abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | ✅ Pasa |
-| CP-AUTH-22 | Registro de tutor exitoso y redirección a dashboard | Intercept de register configurado con respuesta 201 y rol tutor | Llenar el formulario con datos válidos y enviar | Se guarda la sesión y la URL redirige a /tutor/dashboard | ✅ Pasa |
-| CP-AUTH-23 | Manejo de error de backend al registrar tutor | Intercept de register configurado con respuesta 409 o 500 | Llenar el formulario con correo duplicado o forzar error del servidor y enviar | Se muestra mensaje de error al registrarse | ✅ Pasa |
+| CP-AUTH-18 | Mostrar correctamente la vista de registro de tutor | Usuario no autenticado, navegación a /register/tutor | Abrir la pantalla de registro de tutor y verificar nombre, correo, matrícula, carrera, semestre, contraseña y confirmación | Todos los elementos del formulario se muestran visibles | Pendiente |
+| CP-AUTH-19 | Validaciones obligatorias en registro de tutor | Pantalla de registro de tutor abierta | Enviar el formulario sin capturar datos | Se muestran mensajes de campos obligatorios | Pendiente |
+| CP-AUTH-20 | Validación de coincidencia de contraseña en tutor | Pantalla de registro de tutor abierta | Llenar campos obligatorios y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | Pendiente |
+| CP-AUTH-21 | Validación de longitud mínima de contraseña en tutor | Pantalla de registro de tutor abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | Pendiente |
+| CP-AUTH-22 | Registro de tutor exitoso y redirección a dashboard | Intercept de register configurado con respuesta 201 y rol tutor | Llenar el formulario con datos válidos y enviar | Se guarda la sesión y la URL redirige a /tutor/dashboard | Pendiente |
+| CP-AUTH-23 | Manejo de error de backend al registrar tutor | Intercept de register configurado con respuesta 409 o 500 | Llenar el formulario con correo duplicado o forzar error del servidor y enviar | Se muestra mensaje de error al registrarse | Pendiente |
+
+#### 2.1.4 Postulaciones
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-AUTH-24 |  |  |  |  |  |
 
 ### 2.2 Módulo de Bitácora - Tutor
 
