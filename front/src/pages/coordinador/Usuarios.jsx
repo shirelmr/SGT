@@ -452,7 +452,7 @@ export default function Usuarios() {
           {periodos.map((p) => (
             <option key={p.id} value={String(p.id)}>{p.nombre}</option>
           ))}
-          <option value="todos">Todos / inactivos</option>
+          <option value="todos">Todos los periodos</option>
         </select>
       </div>
 

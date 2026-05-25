@@ -24,6 +24,59 @@ router.get('/mi-progreso', auth, async (req, res) => {
   }
 })
 
+// GET /api/beneficiario-periodo/anteriores  (must be declared before /:id_periodo)
+router.get('/anteriores', auth, async (req, res) => {
+  try {
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const activeId = periodoActivo?.id_periodo
+
+    const whereClause = {
+      id_periodo: { not: null },
+      ...(activeId ? { NOT: { id_periodo: activeId } } : {}),
+    }
+
+    const beneficiarios = await prisma.beneficiario.findMany({
+      where: whereClause,
+      include: {
+        usuario: { select: { nombre_completo: true, email: true } },
+        tutor: { include: { usuario: { select: { nombre_completo: true } } } },
+        periodo: { select: { horas_esperadas: true } },
+        sesiones: { select: { estado: true, id_periodo: true } },
+        benefef_periodos: {
+          orderBy: { id_benef_periodo: 'desc' },
+          take: 1,
+        },
+      },
+    })
+
+    const result = beneficiarios.map((b) => {
+      const examen = b.benefef_periodos[0] || null
+      const sesionesDelPeriodo = b.sesiones.filter((s) => s.id_periodo === b.id_periodo)
+      return {
+        id: examen?.id_benef_periodo ?? null,
+        id_benef: b.id_benef,
+        nombre_completo: b.usuario.nombre_completo,
+        email: b.usuario.email,
+        tutor: b.tutor?.usuario?.nombre_completo ?? null,
+        escuela: b.escuela,
+        grado_escolar: b.grado_escolar,
+        sesiones_realizadas: sesionesDelPeriodo.filter((s) => s.estado === 'realizada').length,
+        sesiones_programadas: sesionesDelPeriodo.filter((s) => s.estado === 'programada').length,
+        sesiones_esperadas: Number(b.periodo?.horas_esperadas ?? 0),
+        pct_examen_inicio: examen ? Number(examen.pct_examen_inicio) : null,
+        pct_examen_termino: examen ? Number(examen.pct_examen_termino) : null,
+        fecha_examen_inicio: examen?.fecha_examen_inicio ?? null,
+        fecha_examen_termino: examen?.fecha_examen_termino ?? null,
+      }
+    })
+
+    res.json(result)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
 // GET /api/beneficiario-periodo/:id_periodo
 router.get('/:id_periodo', auth, async (req, res) => {
   const id_periodo = Number(req.params.id_periodo)

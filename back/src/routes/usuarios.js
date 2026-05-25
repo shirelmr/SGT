@@ -36,11 +36,12 @@ router.get('/', auth, async (req, res) => {
         { rol: 'revisor', revisor: { id_periodo: pid } },
         { rol: 'beneficiario', beneficiario: { id_periodo: pid } },
       ]
-    } else if (todos === 'true' && activeId) {
+    } else if (todos === 'true') {
       allRoleConditions = [
-        { rol: 'tutor', tutor: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
-        { rol: 'revisor', revisor: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
-        { rol: 'beneficiario', beneficiario: { OR: [{ id_periodo: { not: activeId } }, { id_periodo: null }] } },
+        { rol: 'coordinador' },
+        { rol: 'tutor' },
+        { rol: 'revisor' },
+        { rol: 'beneficiario' },
       ]
     } else {
       allRoleConditions = [
