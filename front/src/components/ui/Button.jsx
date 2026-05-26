@@ -5,6 +5,7 @@ const variants = {
   secondary: 'bg-[#fff3e8] text-[#4a1f06] hover:bg-[#ffe8d0]',
   danger: 'bg-red-600 text-white hover:bg-red-700',
   outline: 'border-2 border-[#4a1f06] text-[#4a1f06] hover:bg-[#fff3e8]',
+  ghost: 'bg-transparent text-gray-500 hover:bg-gray-100',
 };
 
 const sizes = {
