@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, PaperClipIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PaperClipIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { getBitacora, updateBitacora, createRevisionSinBitacora } from '../../api/bitacoras';
 import { getComentarios, createComentario } from '../../api/comentarios';
 import { getIncidenciasSesion } from '../../api/incidencias';
@@ -44,8 +44,11 @@ export default function DetalleBitacora() {
   const [loading, setLoading] = useState(true);
   const [sendingComment, setSendingComment] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
-
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState(null);
+  const [motivo, setMotivo] = useState('');
+  const [motivoError, setMotivoError] = useState(false);
 
 
   useEffect(() => {
@@ -99,27 +102,60 @@ export default function DetalleBitacora() {
     }
   }
 
-  async function handleStatusChange(nuevoEstado) {
+  function handleStatusChange(nuevoEstado) {
+    if (['no_aprobada', 'aprobado_sin_horas'].includes(nuevoEstado)) {
+      setPendingStatus(nuevoEstado);
+      setMotivo('');
+      setMotivoError(false);
+      setModalOpen(true);
+      return;
+    }
+    executeStatusChange(nuevoEstado, '');
+  }
+
+  async function executeStatusChange(nuevoEstado, comentarioText) {
     setUpdatingStatus(true);
     try {
+      let bitacoraId;
+      
       if (bitacora) {
         await updateBitacora(bitacora.id, { estado: nuevoEstado });
         setBitacora({ ...bitacora, estado: nuevoEstado });
+        bitacoraId = bitacora.id;
       } else {
         const res = await createRevisionSinBitacora({ id_sesion: Number(id), estado: nuevoEstado });
         setBitacora(res.data);
+        bitacoraId = res.data.id;
+      }
+
+      if (comentarioText) {
+        await createComentario({ texto: comentarioText, id_bitacora: bitacoraId });
+        const cRes = await getComentarios(bitacoraId);
+        setComentarios(cRes.data || []);
       }
 
       if (nuevoEstado === 'aprobado') toast.success('Bitácora aprobada y horas acreditadas');
-      else if (nuevoEstado === 'aprobado_sin_horas') toast.success('Sesión aprobada sin acreditar horas');
-      else toast.success(`Estado actualizado a ${estadoLabel[nuevoEstado] ?? nuevoEstado}`);
+      else if (nuevoEstado === 'aprobado_sin_horas') toast.success('Sesión aprobada sin horas. Comentario guardado.');
+      else toast.success(`Estado actualizado y motivo enviado al tutor.`);
+      
+      setModalOpen(false);
     } catch (err) {
       console.error('Error del backend:', err);
-      toast.error('Error al actualizar el estado');
+      toast.error('Error al actualizar el estado o guardar el comentario');
     } finally {
       setUpdatingStatus(false);
+      setPendingStatus(null);
     }
   }
+
+  // 3. Valida el modal antes de enviar
+  const handleModalSubmit = () => {
+    if (!motivo || motivo.trim() === '') {
+      setMotivoError(true);
+      return;
+    }
+    executeStatusChange(pendingStatus, motivo);
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>;
@@ -138,7 +174,6 @@ export default function DetalleBitacora() {
 
   const sesion = bitacora?.sesion || sesionData || {};
   const currentEstado = bitacora?.estado || 'pendiente';
-  //const isLocked = ['aprobado', 'aprobado_sin_horas'].includes(currentEstado);
 
   const tipoLabel = {
     retardo: 'Retardo',
@@ -314,8 +349,70 @@ export default function DetalleBitacora() {
               </Card>
             </>
           )}
+          <div className="pt-2">
+            <Button 
+              onClick={() => navigate(-1)}
+              className="w-full flex items-center justify-center gap-2 py-3 text-base shadow-sm"
+            >
+              <CheckCircleIcon className="w-6 h-6" />
+              Finalizar revisión y regresar
+            </Button>
+          </div>
         </div>
       </div>
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 transition-all">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-red-100 animate-fade-in-up">
+            {/* Header del modal */}
+            <div className="bg-red-50 p-4 border-b border-red-100 flex items-center gap-2">
+              <ExclamationCircleIcon className="w-5 h-5 text-red-600" />
+              <h3 className="text-red-800 font-semibold">Comentario Obligatorio</h3>
+            </div>
+            
+            {/* Cuerpo del modal */}
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-gray-600">
+                Por favor, explica el motivo por el cual la bitácora <span className="font-semibold text-red-600">{pendingStatus === 'no_aprobada' ? 'no se aprueba' : 'no acredita horas'}</span>. Esto se le notificará al tutor:
+              </p>
+              
+              <div>
+                <textarea
+                  rows={3}
+                  className={`w-full border-2 rounded-xl px-3 py-2 text-sm outline-none resize-none transition-colors ${
+                    motivoError 
+                    ? 'border-red-400 focus:border-red-500 bg-red-50/50' 
+                    : 'border-gray-200 focus:border-red-300'
+                  }`}
+                  placeholder="Escribe el motivo aquí..."
+                  value={motivo}
+                  onChange={(e) => { setMotivo(e.target.value); setMotivoError(false); }}
+                  disabled={updatingStatus}
+                />
+                {motivoError && <p className="text-xs text-red-500 mt-1">Debes ingresar un motivo para continuar.</p>}
+              </div>
+
+              {/* Botones */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  onClick={() => { setModalOpen(false); setPendingStatus(null); setMotivo(''); }}
+                  disabled={updatingStatus}
+                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleModalSubmit}
+                  disabled={updatingStatus}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2 shadow-sm shadow-red-200"
+                >
+                  {updatingStatus && <Spinner size="sm" />}
+                  {updatingStatus ? 'Guardando...' : 'Confirmar y Guardar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
