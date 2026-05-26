@@ -138,7 +138,7 @@ export default function DetalleBitacora() {
 
   const sesion = bitacora?.sesion || sesionData || {};
   const currentEstado = bitacora?.estado || 'pendiente';
-  const isLocked = ['aprobado', 'aprobado_sin_horas'].includes(currentEstado);
+  //const isLocked = ['aprobado', 'aprobado_sin_horas'].includes(currentEstado);
 
   const tipoLabel = {
     retardo: 'Retardo',
@@ -258,7 +258,7 @@ export default function DetalleBitacora() {
                   className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-orange-400"
                   value={currentEstado}
                   onChange={(e) => handleStatusChange(e.target.value)}
-                  disabled={updatingStatus || isLocked}
+                  disabled={updatingStatus}
                 >
                   <option value="pendiente">Pendiente</option>
                   <option value="aprobado">Aprobado</option>
@@ -267,12 +267,10 @@ export default function DetalleBitacora() {
                 </select>
                 {updatingStatus && <Spinner size="sm" />}
               </div>
-              {!isLocked && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-sm text-yellow-800 space-y-1">
                   <p>• <span className="font-semibold">Aprobado</span>: acredita <span className="font-semibold">{Number(sesion.duracion_hrs ?? 0)} horas</span> al tutor.</p>
                   <p>• <span className="font-semibold">Aprobado sin horas</span>: para sesiones no impartidas; no acredita horas.</p>
                 </div>
-              )}
             </div>
           </Card>
           
