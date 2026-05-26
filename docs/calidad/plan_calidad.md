@@ -144,12 +144,12 @@ El MVP se considera apto para liberación únicamente si:
 | CP-AUTH-25 | Validar payload de coordinador y persistencia de sesión | Intercept de register inspecciona body para rol coordinador | Llenar formulario de coordinador, enviar y validar localStorage | El payload contiene departamento, no incluye confirmPassword y se guarda sesión | ✅ Pasa |
 | CP-AUTH-26 | Persistir token, rol y usuario tras registro exitoso | Intercept de register 201 con token y usuario | Completar registro válido y enviar formulario | Se redirige a dashboard y quedan guardados token, rol y user en localStorage | ✅ Pasa |
 
-### 2.1.3 Postulación
+#### 2.1.3 Postulación
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
 
-### 2.1.3 Registro Tutor
+#### 2.1.3 Registro Tutor
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
