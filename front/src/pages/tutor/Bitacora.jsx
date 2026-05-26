@@ -13,13 +13,6 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 
-const estadoComentarioBadge = {
-  pendiente: 'warning',
-  no_aprobada: 'danger',
-  aprobado: 'success',
-  aprobado_sin_horas: 'orange',
-};
-
 const estadoBitacoraBadge = {
   pendiente: 'warning',
   no_aprobada: 'danger',
@@ -324,10 +317,7 @@ export default function Bitacora() {
               <li key={c.id} className="p-3 rounded-xl bg-gray-50">
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-sm font-medium text-gray-800">{c.revisor?.nombre_completo || 'Revisor'}</p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={estadoComentarioBadge[c.estado] || 'default'}>{c.estado}</Badge>
-                    <span className="text-xs text-gray-400">{new Date(c.fecha_creacion).toLocaleDateString('es-MX')}</span>
-                  </div>
+                  <span className="text-xs text-gray-400">{new Date(c.fecha_creacion).toLocaleDateString('es-MX')}</span>
                 </div>
                 <p className="text-sm text-gray-600">{c.texto}</p>
               </li>
