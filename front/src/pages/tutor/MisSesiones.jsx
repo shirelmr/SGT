@@ -1,14 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, CalendarDaysIcon, ChevronDownIcon, ChevronUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { getSesiones } from '../../api/sesiones';
+import { PlusIcon, ChatBubbleLeftIcon, ExclamationCircleIcon, XMarkIcon, MagnifyingGlassIcon, CalendarDaysIcon, ChevronDownIcon, ChevronUpIcon, CheckCircleIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { getSesiones, updateSesion } from '../../api/sesiones';
 import { getIncidenciasSesion, createIncidencia } from '../../api/incidencias';
 import PageHeader from '../../components/shared/PageHeader';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
+import Modal from '../../components/ui/Modal';
 
 const estadoBadge = {
   programada: 'info',
@@ -47,8 +48,116 @@ const formatearFechaLocal = (fechaStr, opciones = {}) => {
   return new Date(year, month - 1, day).toLocaleDateString('es-MX', opciones);
 };
 
+// ─── Modal de edición de sesión ───────────────────────────────────────────
+function ModalEditarSesion({ sesion, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    fecha:        sesion.fecha ? sesion.fecha.split('T')[0] : '',
+    hora_inicio:  sesion.hora_inicio ?? '',
+    duracion_hrs: sesion.duracion_hrs != null ? String(Number(sesion.duracion_hrs)) : '',
+    tema:         sesion.tema ?? '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  function handleChange(e) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!form.fecha || !form.hora_inicio || !form.duracion_hrs || !form.tema.trim()) {
+      return toast.error('Todos los campos son obligatorios');
+    }
+    if (Number(form.duracion_hrs) <= 0) {
+      return toast.error('La duración debe ser mayor a 0');
+    }
+    setSaving(true);
+    try {
+      const res = await updateSesion(sesion.id, {
+        fecha:        form.fecha,
+        hora_inicio:  form.hora_inicio,
+        duracion_hrs: Number(form.duracion_hrs),
+        tema:         form.tema.trim(),
+      });
+      toast.success('Sesión actualizada');
+      onSaved(res.data);
+      onClose();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Error al actualizar la sesión');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal
+      isOpen
+      onClose={onClose}
+      title="Editar sesión"
+      size="sm"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>Cancelar</Button>
+          <Button onClick={handleSubmit} loading={saving}>Guardar cambios</Button>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Tema</label>
+          <input
+            type="text"
+            name="tema"
+            value={form.tema}
+            onChange={handleChange}
+            placeholder="Tema de la sesión"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Fecha</label>
+            <input
+              type="date"
+              name="fecha"
+              value={form.fecha}
+              onChange={handleChange}
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Hora de inicio</label>
+            <input
+              type="time"
+              name="hora_inicio"
+              value={form.hora_inicio}
+              onChange={handleChange}
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Duración (horas)</label>
+          <input
+            type="number"
+            name="duracion_hrs"
+            value={form.duracion_hrs}
+            onChange={handleChange}
+            min="0.5"
+            max="8"
+            step="0.5"
+            placeholder="Ej. 1.5"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 // ─── Card reutilizable de sesión (expandible) ─────────────────────────────
-function SesionCard({ s, openModal }) {
+function SesionCard({ s, openModal, onEdit }) {
   const [open, setOpen] = useState(false);
   const hasUnread = s.bitacora_tiene_comentarios_nuevos;
 
@@ -142,6 +251,12 @@ function SesionCard({ s, openModal }) {
 
           {/* Acciones */}
           <div className="flex items-center gap-2 flex-wrap pt-1">
+            {s.estado === 'programada' && (
+              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onEdit(s); }}>
+                <PencilSquareIcon className="w-4 h-4" />
+                Editar sesión
+              </Button>
+            )}
             <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openModal(s); }}>
               <ExclamationCircleIcon className="w-4 h-4" />
               Incidencia
@@ -161,7 +276,8 @@ function SesionCard({ s, openModal }) {
 export default function MisSesionesTutor() {
   const [sesiones, setSesiones] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null); // { sesionId, tema }
+  const [modal, setModal] = useState(null);       // modal de incidencias { sesionId, tema }
+  const [editModal, setEditModal] = useState(null); // sesión a editar
   const [incidencias, setIncidencias] = useState([]);
   const [loadingInc, setLoadingInc] = useState(false);
   const [savingInc, setSavingInc] = useState(false);
@@ -171,6 +287,7 @@ export default function MisSesionesTutor() {
   const [busqueda, setBusqueda] = useState('');
   const [filtroSesion, setFiltroSesion] = useState('todas');
   const [filtroBitacora, setFiltroBitacora] = useState('todas');
+  const [filtroIncidencias, setFiltroIncidencias] = useState('todas');
   const [mostrarTodos, setMostrarTodos] = useState(false);
 
   const navigate = useNavigate();
@@ -195,6 +312,12 @@ export default function MisSesionesTutor() {
   function closeModal() {
     setModal(null);
     setIncidencias([]);
+  }
+
+  function handleEditSaved(updatedSesion) {
+    setSesiones((prev) =>
+      prev.map((s) => (s.id === updatedSesion.id ? { ...s, ...updatedSesion } : s))
+    );
   }
 
   async function handleSubmitIncidencia(e) {
@@ -245,8 +368,13 @@ export default function MisSesionesTutor() {
       }
     }
 
+    // 4. Incidencias
+    if (filtroIncidencias === 'con_incidencias') {
+      result = result.filter((s) => s.tiene_incidencias);
+    }
+
     return result;
-  }, [sesiones, busqueda, filtroSesion, filtroBitacora, mostrarTodos]);
+  }, [sesiones, busqueda, filtroSesion, filtroBitacora, filtroIncidencias, mostrarTodos]);
 
   // ── Agrupación por período (solo en vista "todos") ───────────────────────
   const grupos = useMemo(() => {
@@ -272,12 +400,13 @@ export default function MisSesionesTutor() {
   }, [filtered, mostrarTodos]);
 
   const hayFiltrosActivos =
-    busqueda.trim() !== '' || filtroSesion !== 'todas' || filtroBitacora !== 'todas';
+    busqueda.trim() !== '' || filtroSesion !== 'todas' || filtroBitacora !== 'todas' || filtroIncidencias !== 'todas';
 
   function limpiarFiltros() {
     setBusqueda('');
     setFiltroSesion('todas');
     setFiltroBitacora('todas');
+    setFiltroIncidencias('todas');
   }
 
   // Cuenta de sesiones históricas (períodos inactivos) para mostrar en el botón
@@ -340,7 +469,6 @@ export default function MisSesionesTutor() {
           <option value="todas">Todas las sesiones</option>
           <option value="programada">Programada</option>
           <option value="realizada">Realizada</option>
-          <option value="cancelada">Cancelada</option>
         </select>
 
         <select value={filtroBitacora} onChange={(e) => setFiltroBitacora(e.target.value)} className={SELECT_CLS}>
@@ -350,6 +478,11 @@ export default function MisSesionesTutor() {
           <option value="no_aprobada">No aprobada</option>
           <option value="aprobado">Aprobada</option>
           <option value="aprobado_sin_horas">Sin horas</option>
+        </select>
+
+        <select value={filtroIncidencias} onChange={(e) => setFiltroIncidencias(e.target.value)} className={SELECT_CLS}>
+          <option value="todas">Todas</option>
+          <option value="con_incidencias">Con incidencias</option>
         </select>
 
         {hayFiltrosActivos && (
@@ -396,7 +529,7 @@ export default function MisSesionesTutor() {
               </div>
               {/* Cards del período */}
               <div className="space-y-3">
-                {grupo.sesiones.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} />)}
+                {grupo.sesiones.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} onEdit={setEditModal} />)}
               </div>
             </div>
           ))}
@@ -404,8 +537,17 @@ export default function MisSesionesTutor() {
       ) : (
         /* ── Vista normal (solo período activo) ─────────────────────────── */
         <div className="space-y-3">
-          {filtered.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} />)}
+          {filtered.map((s) => <SesionCard key={s.id} s={s} openModal={openModal} onEdit={setEditModal} />)}
         </div>
+      )}
+
+      {/* Modal de edición de sesión */}
+      {editModal && (
+        <ModalEditarSesion
+          sesion={editModal}
+          onClose={() => setEditModal(null)}
+          onSaved={handleEditSaved}
+        />
       )}
 
       {/* Modal de incidencias */}

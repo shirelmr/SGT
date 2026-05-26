@@ -89,6 +89,7 @@ router.get('/:id/resumen', auth, async (req, res) => {
 
     let stats = {}
     let tutorAsignado = null
+    let examenes = null
 
     if (usuario.rol === 'tutor' && usuario.tutor) {
       const tutorId = usuario.tutor.id_tutor
@@ -121,13 +122,34 @@ router.get('/:id/resumen', auth, async (req, res) => {
       }
     } else if (usuario.rol === 'beneficiario' && usuario.beneficiario) {
       const benefId = usuario.beneficiario.id_benef
-      const sesiones = await prisma.sesion.findMany({
-        where: { id_beneficiario: benefId, ...(pid ? { id_periodo: pid } : {}) },
-      })
+      const [sesiones, examenConPid] = await Promise.all([
+        prisma.sesion.findMany({
+          where: { id_beneficiario: benefId, ...(pid ? { id_periodo: pid } : {}) },
+        }),
+        pid
+          ? prisma.beneficiarioPeriodo.findFirst({
+              where: { id_benef: benefId, id_periodo: pid },
+              orderBy: { id_benef_periodo: 'desc' },
+            })
+          : Promise.resolve(null),
+      ])
+
+      // Si no hay registro para el pid exacto, tomar el más reciente disponible
+      const examen = examenConPid
+        ?? await prisma.beneficiarioPeriodo.findFirst({
+            where: { id_benef: benefId },
+            orderBy: { id_benef_periodo: 'desc' },
+          })
       stats = {
         sesiones_total: sesiones.length,
         sesiones_realizadas: sesiones.filter((s) => s.estado === 'realizada').length,
         sesiones_programadas: sesiones.filter((s) => s.estado === 'programada').length,
+      }
+      examenes = {
+        pct_examen_inicio:   examen?.pct_examen_inicio   != null ? Number(examen.pct_examen_inicio)   : null,
+        fecha_examen_inicio: examen?.fecha_examen_inicio  ?? null,
+        pct_examen_termino:  examen?.pct_examen_termino  != null ? Number(examen.pct_examen_termino)  : null,
+        fecha_examen_termino: examen?.fecha_examen_termino ?? null,
       }
 
       if (usuario.beneficiario.id_tutor) {
@@ -162,6 +184,7 @@ router.get('/:id/resumen', auth, async (req, res) => {
       perfil,
       tutor_asignado: tutorAsignado,
       stats,
+      examenes,
     })
   } catch (err) {
     console.error('[resumen error]', err)

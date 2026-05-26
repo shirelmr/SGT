@@ -100,6 +100,7 @@ router.get('/mis-beneficiarios', auth, async (req, res) => {
         grado_escolar: b.grado_escolar,
         nombre_tutor_legal: b.nombre_tutor_legal,
         tel_tutor: b.tel_tutor,
+        id_periodo_activo: periodoActivo?.id_periodo ?? null,
         sesiones: {
           total: sesiones.length,
           realizadas,
