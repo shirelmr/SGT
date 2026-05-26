@@ -9,6 +9,7 @@ const include = {
   beneficiario: { include: { usuario: { select: { nombre_completo: true } } } },
   periodo: { select: { nombre: true, activo: true } },
   bitacora: { select: { id_bitacora: true, estado: true } },
+  _count: { select: { incidencias: true } },
 }
 
 function fmtHora(h) {
@@ -33,6 +34,7 @@ const fmt = (s) => ({
   beneficiario: s.beneficiario ? { nombre_completo: s.beneficiario.usuario?.nombre_completo } : null,
   periodo: s.periodo ?? null,
   bitacora: s.bitacora ?? null,
+  tiene_incidencias: (s._count?.incidencias ?? 0) > 0,
 })
 
 // GET /api/sesiones

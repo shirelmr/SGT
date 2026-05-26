@@ -56,13 +56,42 @@ router.post('/sin-bitacora', auth, async (req, res) => {
     return res.status(400).json({ error: 'id_sesion y estado son requeridos' })
   }
   try {
-    const sesion = await prisma.sesion.findUnique({ where: { id_sesion: Number(id_sesion) } })
+    const sesion = await prisma.sesion.findUnique({
+      where: { id_sesion: Number(id_sesion) },
+      include: { periodo: { select: { horas_esperadas: true } } },
+    })
     if (!sesion) return res.status(404).json({ error: 'Sesión no encontrada' })
 
-    const bitacora = await prisma.bitacora.create({
-      data: { id_sesion: Number(id_sesion), id_tutor: sesion.id_tutor, estado },
-      include: baseInclude,
+    const bitacora = await prisma.$transaction(async (tx) => {
+      const b = await tx.bitacora.create({
+        data: { id_sesion: Number(id_sesion), id_tutor: sesion.id_tutor, estado },
+        include: baseInclude,
+      })
+
+      // Si se crea directamente como aprobado, acreditar horas igual que en el PUT
+      if (estado === 'aprobado') {
+        const { duracion_hrs, id_tutor, id_periodo } = sesion
+        const horas_esperadas = Number(sesion.periodo?.horas_esperadas ?? 0)
+
+        if (horas_esperadas > 0) {
+          const existing = await tx.horasAcreditadas.findUnique({
+            where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
+          })
+          const nuevasImpartidas = Number(existing?.horas_impartidas ?? 0) + Number(duracion_hrs)
+          const horasExtra = Number(existing?.horas_extra ?? 0)
+          const pct = Math.min(((nuevasImpartidas + horasExtra) / horas_esperadas) * 100, 100)
+
+          await tx.horasAcreditadas.upsert({
+            where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
+            create: { id_tutor, id_periodo, horas_impartidas: nuevasImpartidas, porcentaje_acred: pct, horas_extra: 0 },
+            update: { horas_impartidas: nuevasImpartidas, porcentaje_acred: pct },
+          })
+        }
+      }
+
+      return b
     })
+
     res.status(201).json(fmt(bitacora))
   } catch (err) {
     console.error(err)
@@ -171,7 +200,9 @@ router.put('/:id', auth, async (req, res) => {
   const { actividades, logros, dificultades, plan_siguiente, evidencia, estado } = req.body
   try {
     const result = await prisma.$transaction(async (tx) => {
-      if (estado === 'aprobado') {
+      // Solo tocar horas si el estado cambia (y el nuevo estado afecta horas)
+      const estadoCambia = estado !== undefined
+      if (estadoCambia) {
         const current = await tx.bitacora.findUnique({
           where: { id_bitacora: id },
           include: {
@@ -179,7 +210,7 @@ router.put('/:id', auth, async (req, res) => {
           },
         })
 
-        if (current && current.estado !== 'aprobado' && current.sesion) {
+        if (current && current.sesion && current.estado !== estado) {
           const { duracion_hrs, id_tutor, id_periodo } = current.sesion
           const horas_esperadas = Number(current.sesion.periodo?.horas_esperadas ?? 0)
 
@@ -187,15 +218,27 @@ router.put('/:id', auth, async (req, res) => {
             const existing = await tx.horasAcreditadas.findUnique({
               where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
             })
-            const nuevasImpartidas = Number(existing?.horas_impartidas ?? 0) + Number(duracion_hrs)
+            const actuales = Number(existing?.horas_impartidas ?? 0)
             const horasExtra = Number(existing?.horas_extra ?? 0)
-            const pct = Math.min(((nuevasImpartidas + horasExtra) / horas_esperadas) * 100, 100)
+            let nuevasImpartidas = actuales
 
-            await tx.horasAcreditadas.upsert({
-              where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
-              create: { id_tutor, id_periodo, horas_impartidas: nuevasImpartidas, porcentaje_acred: pct, horas_extra: 0 },
-              update: { horas_impartidas: nuevasImpartidas, porcentaje_acred: pct },
-            })
+            // aprobado → otro: descontar horas
+            if (current.estado === 'aprobado' && estado !== 'aprobado') {
+              nuevasImpartidas = Math.max(0, actuales - Number(duracion_hrs))
+            }
+            // otro → aprobado: sumar horas
+            if (current.estado !== 'aprobado' && estado === 'aprobado') {
+              nuevasImpartidas = actuales + Number(duracion_hrs)
+            }
+
+            if (nuevasImpartidas !== actuales) {
+              const pct = Math.min(((nuevasImpartidas + horasExtra) / horas_esperadas) * 100, 100)
+              await tx.horasAcreditadas.upsert({
+                where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
+                create: { id_tutor, id_periodo, horas_impartidas: nuevasImpartidas, porcentaje_acred: pct, horas_extra: 0 },
+                update: { horas_impartidas: nuevasImpartidas, porcentaje_acred: pct },
+              })
+            }
           }
         }
       }

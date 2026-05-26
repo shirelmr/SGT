@@ -17,6 +17,7 @@ import Input from '../../components/ui/Input';
 import Badge from '../../components/ui/Badge';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import Spinner from '../../components/ui/Spinner';
+import ProgressBar from '../../components/ui/ProgressBar';
 
 const roleBadge = {
   coordinador: 'info',
@@ -49,6 +50,14 @@ function Field({ label, value }) {
       <p className="text-sm font-medium text-gray-800">{value || '—'}</p>
     </div>
   );
+}
+
+function fmtFecha(fechaStr) {
+  if (!fechaStr) return null;
+  const [y, m, d] = String(fechaStr).split('T')[0].split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('es-MX', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
 }
 
 export default function Usuarios() {
@@ -126,7 +135,9 @@ export default function Usuarios() {
     setLoadingResumen(true);
     try {
       const params = {};
-      if (filtroPeriodo && filtroPeriodo !== 'activo' && filtroPeriodo !== 'todos') {
+      if (filtroPeriodo === 'activo' && periodoActivoId) {
+        params.id_periodo = periodoActivoId;
+      } else if (filtroPeriodo && filtroPeriodo !== 'activo' && filtroPeriodo !== 'todos') {
         params.id_periodo = filtroPeriodo;
       }
       const r = await getUsuarioResumen(user.id, params);
@@ -555,6 +566,47 @@ export default function Usuarios() {
                     </>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Exámenes — solo beneficiario */}
+            {resumen.rol === 'beneficiario' && (
+              <div className="border-t border-gray-100 pt-4">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Calificaciones de examen</p>
+                {resumen.examenes && (resumen.examenes.pct_examen_inicio != null || resumen.examenes.pct_examen_termino != null) ? (
+                  <div className="space-y-3">
+                    {/* Examen inicio */}
+                    <div>
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span className="font-medium">Examen de inicio</span>
+                        {resumen.examenes.fecha_examen_inicio && (
+                          <span className="text-gray-400">{fmtFecha(resumen.examenes.fecha_examen_inicio)}</span>
+                        )}
+                      </div>
+                      {resumen.examenes.pct_examen_inicio != null ? (
+                        <ProgressBar value={resumen.examenes.pct_examen_inicio} showLabel />
+                      ) : (
+                        <p className="text-xs text-gray-400">Sin calificación</p>
+                      )}
+                    </div>
+                    {/* Examen término */}
+                    <div>
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span className="font-medium">Examen de término</span>
+                        {resumen.examenes.fecha_examen_termino && (
+                          <span className="text-gray-400">{fmtFecha(resumen.examenes.fecha_examen_termino)}</span>
+                        )}
+                      </div>
+                      {resumen.examenes.pct_examen_termino != null ? (
+                        <ProgressBar value={resumen.examenes.pct_examen_termino} showLabel />
+                      ) : (
+                        <p className="text-xs text-gray-400">Sin calificación</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400">Aún no hay calificaciones registradas para este periodo.</p>
+                )}
               </div>
             )}
           </div>
