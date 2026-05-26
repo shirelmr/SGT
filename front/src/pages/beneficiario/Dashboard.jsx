@@ -21,6 +21,16 @@ const estadoBadge = {
   cancelada: 'danger',
 };
 
+const frases = [
+  '¡Hoy es un gran día para aprender inglés! 🌟',
+  '¡Cada sesión te acerca más a tu meta! 💪',
+  '¡El inglés abre puertas, sigue adelante! 🚀',
+  '¡Tú puedes lograrlo, un paso a la vez! ✨',
+  '¡Aprender un idioma es un superpoder! 🦸',
+  '¡Hoy practicas, mañana brillas! 🌈',
+  '¡La constancia es la clave del éxito! 🔑',
+];
+
 function greeting() {
   const h = new Date().getHours();
   if (h < 12) return 'Buenos días';
@@ -153,6 +163,7 @@ export default function Tablero() {
   const porcentaje = totalSesiones > 0 ? Math.round((sesionesRealizadas / totalSesiones) * 100) : 0;
   const sesionesPorMes = getSesionesPorMes(sesiones);
   const firstName = user?.nombre_completo?.split(' ')[0] ?? 'Estudiante';
+  const fraseDelDia = frases[new Date().getDay() % frases.length];
 
   const statCards = [
     { label: 'Sesiones Realizadas', value: sesionesRealizadas, icon: TrophyIcon, color: '#22c55e', bg: '#f0fdf4' },
@@ -171,7 +182,7 @@ export default function Tablero() {
           <h1 className="font-sora text-2xl font-bold text-gray-900 mt-0.5">
             {greeting()}, {firstName} &#128075;
           </h1>
-          <p className="text-gray-400 text-sm mt-0.5">Aquí está tu resumen del programa Talk!</p>
+          <p className="text-orange-500 text-sm font-medium mt-1">{fraseDelDia}</p>
         </div>
         <div className="hidden sm:flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-xl">
           <StarIcon className="w-5 h-5 text-orange-400" />
