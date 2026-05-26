@@ -4,6 +4,8 @@ import { getSesiones } from '../api/sesiones';
 import { getHoras } from '../api/horas';
 import { getAsistencia, confirmarAsistencia } from '../api/asistencias';
 
+const MONTHS_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
 const getLocalDate = (fechaStr) => {
   if (!fechaStr) return new Date(0);
   const [year, month, day] = fechaStr.split('T')[0].split('-').map(Number);
@@ -24,6 +26,31 @@ export function getUltimasSesiones(sesiones, cantidad = 3) {
     .filter((s) => s.estado !== 'programada')
     .sort((a, b) => getLocalDate(b.fecha) - getLocalDate(a.fecha))
     .slice(0, cantidad);
+}
+
+export function getSesionesporMes(sesiones) {
+  const now = new Date();
+  const result = [];
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const count = sesiones.filter((s) => {
+      const [y, m] = s.fecha.split('T')[0].split('-').map(Number);
+      return (m - 1) === date.getMonth() && y === date.getFullYear();
+    }).length;
+    result.push({ mes: MONTHS_ES[date.getMonth()], sesiones: count });
+  }
+  return result;
+}
+
+export function getBitacorasPorEstado(sesiones) {
+  const bitacoras = sesiones.filter((s) => s.bitacora).map((s) => s.bitacora);
+  const data = [
+    { name: 'Pendiente',   value: bitacoras.filter((b) => b.estado === 'pendiente').length,          color: '#f59e0b' },
+    { name: 'Aprobada',    value: bitacoras.filter((b) => b.estado === 'aprobado').length,            color: '#22c55e' },
+    { name: 'No aprobada', value: bitacoras.filter((b) => b.estado === 'no_aprobada').length,         color: '#ef4444' },
+    { name: 'Sin horas',   value: bitacoras.filter((b) => b.estado === 'aprobado_sin_horas').length,  color: '#f97316' },
+  ];
+  return data.filter((d) => d.value > 0);
 }
 
 export function getBitacorasPendientes(sesiones) {
@@ -98,6 +125,8 @@ export function useTutorDashboard() {
     }
   }, [proxima?.id]);
 
+  const sesionesPeriodoActivo = sesiones.filter((s) => s.periodo?.activo === true);
+
   return {
     loading,
     horas,
@@ -108,5 +137,9 @@ export function useTutorDashboard() {
     asistencia,
     confirmando,
     confirmar,
+    sesionesporMes: getSesionesporMes(sesiones),
+    bitacorasPorEstado: getBitacorasPorEstado(sesionesPeriodoActivo),
+    sesionesRealizadas: sesionesPeriodoActivo.filter((s) => s.estado === 'realizada').length,
+    totalBitacoras: sesionesPeriodoActivo.filter((s) => s.bitacora).length,
   };
 }
