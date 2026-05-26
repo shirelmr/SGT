@@ -117,4 +117,43 @@ describe('Login', () => {
     cy.wait('@loginRevisor')
     cy.url().should('include', '/revisor/dashboard')
   })
+
+//CP-AUTH-09
+it('login empty does not do request', () => {
+  cy.intercept('POST', /\/api\/auth\/login/).as('loginAttempt')
+  cy.get('button[type="submit"]').click()
+  cy.contains('obligatorio').should('be.visible')
+  cy.get('@loginAttempt.all').should('have.length', 0)
+})
+
+//CP-AUTH-10
+it('login with invalid mail does not do request', () => {
+  cy.intercept('POST', /\/api\/auth\/login/).as('loginAttempt')
+  cy.get('input[type="email"]').type('invalidemail')
+  cy.get('input[type="password"]').type('anypassword')
+  cy.get('button[type="submit"]').click()
+  cy.contains('Correo inválido').should('be.visible')
+  cy.get('@loginAttempt.all').should('have.length', 0)
+})
+
+//CP-AUTH-11
+it('successful login and store token and role in localStorage', () => {
+  cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
+  cy.intercept('POST', /\/api\/auth\/login/, {
+    statusCode: 200,
+    body: {
+      token: 'fake-token',
+      user: { id_usuario: 1, nombre_completo: 'Test User', email: 'testuser@test.com', rol: 'tutor' },
+    },
+  }).as('loginSuccess')
+  cy.get('input[type="email"]').type('testuser@test.com')
+  cy.get('input[type="password"]').type('anypassword')
+  cy.get('button[type="submit"]').click()
+  cy.wait('@loginSuccess')
+  cy.url().should('include', '/tutor/dashboard')
+  cy.window().then((win) => {
+    expect(win.localStorage.getItem('token')).to.equal('fake-token')
+    expect(win.localStorage.getItem('rol')).to.equal('tutor')
+  })
+  })
 })
