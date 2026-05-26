@@ -27,12 +27,24 @@ export function getUltimasSesiones(sesiones, cantidad = 3) {
 }
 
 export function getBitacorasPendientes(sesiones) {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0); 
-  
+  const ahora = new Date(); // Fecha y hora exacta de este momento
+
   return sesiones
-    .filter((s) => getLocalDate(s.fecha) < hoy && !s.bitacora)
-    .sort((a, b) => getLocalDate(b.fecha) - getLocalDate(a.fecha));
+    .filter((s) => {
+      // 1. Si ya tiene bitácora, no la mostramos
+      if (s.bitacora) return false;
+
+      // 2. Combinamos fecha y hora para saber si la sesión ya ocurrió
+      // s.fecha viene como '2026-05-25T...' y s.hora_inicio como '17:00'
+      const [y, m, d] = s.fecha.split('T')[0].split('-').map(Number);
+      const [hr, min] = (s.hora_inicio || '00:00').split(':').map(Number);
+      
+      const fechaSesion = new Date(y, m - 1, d, hr, min);
+
+      // 3. Solo mostramos si la sesión ya pasó
+      return fechaSesion < ahora;
+    })
+    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 }
 
 export function useTutorDashboard() {
