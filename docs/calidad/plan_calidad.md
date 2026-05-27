@@ -244,50 +244,145 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-COORD-01 | Restringir acceso al tablero sin sesión | Usuario no autenticado | Navegar a /coordinador/dashboard | La app redirige a /login | ⬜ Pendiente |
+| CP-COORD-02 | Permitir acceso al tablero con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/dashboard | Se renderiza el tablero de coordinador | ⬜ Pendiente |
+| CP-COORD-03 | Mostrar estado de carga inicial | Sesión activa de coordinador y requests pendientes | Abrir tablero con latencia simulada | Se muestra spinner mientras cargan los datos | ⬜ Pendiente |
+| CP-COORD-04 | Consumir endpoints requeridos del tablero | Intercepts activos para /usuarios, /sesiones y /bitacoras | Abrir tablero | Se ejecutan las 3 llamadas GET esperadas | ⬜ Pendiente |
+| CP-COORD-05 | Enviar token en requests del tablero | Sesión activa con token en localStorage | Abrir tablero con intercept de headers | Cada request incluye Authorization Bearer | ⬜ Pendiente |
+| CP-COORD-06 | Bloquear llamadas indebidas desde tablero | Intercepts activos para auth/register/postulaciones | Abrir tablero | No se disparan endpoints no relacionados | ⬜ Pendiente |
+| CP-COORD-07 | Calcular tarjeta Tutores Activos | Endpoint /usuarios con mezcla de roles | Abrir tablero | La métrica coincide con cantidad de rol tutor | ⬜ Pendiente |
+| CP-COORD-08 | Calcular tarjeta Beneficiarios | Endpoint /usuarios con mezcla de roles | Abrir tablero | La métrica coincide con cantidad de rol beneficiario | ⬜ Pendiente |
+| CP-COORD-09 | Calcular tarjeta Sesiones del mes | Endpoint /sesiones con fechas de distintos meses | Abrir tablero | La métrica cuenta solo sesiones del mes actual | ⬜ Pendiente |
+| CP-COORD-10 | Calcular tarjeta Bitácoras pendientes | Endpoint /bitacoras con estados mixtos | Abrir tablero | La métrica cuenta solo bitácoras en estado pendiente | ⬜ Pendiente |
+| CP-COORD-11 | Renderizar gráfica de sesiones por mes | Endpoint /sesiones con datos históricos | Abrir tablero | Se muestran barras para los últimos 6 meses | ⬜ Pendiente |
+| CP-COORD-12 | Renderizar donut de estado de bitácoras | Endpoint /bitacoras con pendientes/aprobadas/rechazadas | Abrir tablero | El donut y leyenda muestran distribución correcta | ⬜ Pendiente |
+| CP-COORD-13 | Mostrar estado vacío de bitácoras cuando total es 0 | Endpoint /bitacoras responde vacío | Abrir tablero | Se muestra mensaje Sin bitácoras registradas | ⬜ Pendiente |
+| CP-COORD-14 | Mostrar actividad reciente ordenada y limitada | Endpoint /sesiones con múltiples registros | Abrir tablero | Se listan máximo 5 sesiones ordenadas por fecha descendente | ⬜ Pendiente |
+| CP-COORD-15 | Tolerar fallas parciales de endpoints | Falla de uno de los endpoints y otros exitosos | Abrir tablero | El tablero se renderiza con datos parciales sin crash | ⬜ Pendiente |
+| CP-COORD-16 | Manejar 401 global en tablero | Endpoint protegido responde 401 | Abrir tablero con sesión expirada | Se limpia localStorage y redirige a /login | ⬜ Pendiente |
 
 #### 2.5.2 Postulaciones
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-COORD-POST-01 | Restringir acceso a postulaciones sin sesión | Usuario no autenticado | Navegar a /coordinador/postulaciones | La app redirige a /login | ⬜ Pendiente |
+| CP-COORD-POST-02 | Permitir acceso a postulaciones con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/postulaciones | Se renderiza la pantalla de postulaciones | ⬜ Pendiente |
+| CP-COORD-POST-03 | Mostrar carga inicial de postulaciones | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en la tabla | ⬜ Pendiente |
+| CP-COORD-POST-04 | Consumir endpoint base de listado | Intercept GET /postulaciones activo | Abrir pantalla | Se dispara GET /postulaciones una vez | ⬜ Pendiente |
+| CP-COORD-POST-05 | Enviar token en request de listado | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
+| CP-COORD-POST-06 | Renderizar columnas principales de tabla | GET /postulaciones responde datos válidos | Abrir pantalla y revisar encabezados/filas | Se muestran nombre, correo, matrícula, carrera, semestre, fecha y estado | ⬜ Pendiente |
+| CP-COORD-POST-07 | Mostrar badge correcto por estado de postulación | GET /postulaciones con estados pendiente/aceptado/rechazado | Abrir pantalla | Cada registro muestra su badge y etiqueta correcta | ⬜ Pendiente |
+| CP-COORD-POST-08 | Mostrar estado vacío sin postulaciones | GET /postulaciones responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay postulaciones para este periodo | ⬜ Pendiente |
+| CP-COORD-POST-09 | Filtrar por estado pendiente | Intercepts GET con params activos | Click en filtro Pendiente | Se consulta con estado=pendiente y lista filtrada | ⬜ Pendiente |
+| CP-COORD-POST-10 | Filtrar por estado aceptado | Intercepts GET con params activos | Click en filtro Aceptado | Se consulta con estado=aceptado y lista filtrada | ⬜ Pendiente |
+| CP-COORD-POST-11 | Filtrar por estado rechazado | Intercepts GET con params activos | Click en filtro Rechazado | Se consulta con estado=rechazado y lista filtrada | ⬜ Pendiente |
+| CP-COORD-POST-12 | Quitar filtro al seleccionar Todos | Filtro previo aplicado | Click en filtro Todos | Se consulta sin parámetro de estado y se restablece listado | ⬜ Pendiente |
+| CP-COORD-POST-13 | Abrir modal de detalle desde acción ver | GET /postulaciones con al menos un registro | Click en ícono de ojo | Se abre modal con datos completos de la postulación | ⬜ Pendiente |
+| CP-COORD-POST-14 | Cerrar modal sin acciones | Modal abierto | Click en Cerrar o cerrar modal | El modal se cierra sin cambios de estado | ⬜ Pendiente |
+| CP-COORD-POST-15 | Mostrar acciones de pendiente en modal | Modal de registro en estado pendiente | Abrir detalle de pendiente | Se muestran botones Rechazar y Aceptar | ⬜ Pendiente |
+| CP-COORD-POST-16 | Mostrar acción de aceptado/rechazado según estado | Modal de registro no pendiente | Abrir detalle de aceptado o rechazado | Se muestra solo acción permitida por estado | ⬜ Pendiente |
+| CP-COORD-POST-17 | Aceptar postulación exitosamente | PATCH /postulaciones/:id/aceptar responde 200 | Abrir modal pendiente y aceptar | Se muestra toast de éxito, cierra modal y recarga listado | ⬜ Pendiente |
+| CP-COORD-POST-18 | Rechazar postulación exitosamente | PATCH /postulaciones/:id/rechazar responde 200 | Abrir modal pendiente y rechazar | Se muestra toast de éxito, cierra modal y recarga listado | ⬜ Pendiente |
+| CP-COORD-POST-19 | Manejar error al aceptar/rechazar | PATCH responde 4xx/5xx | Ejecutar acción de cambio de estado | Se muestra toast de error y se mantiene contexto del usuario | ⬜ Pendiente |
+| CP-COORD-POST-20 | Bloquear llamadas indebidas desde módulo | Intercepts para endpoints no relacionados activos | Abrir pantalla y ejecutar acciones básicas | No se disparan auth/login, auth/register ni endpoints ajenos | ⬜ Pendiente |
 
 #### 2.5.3 Usuarios
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-USR-01 | Mostrar la tabla de usuarios | Coordinador autenticado y endpoint de usuarios con datos mock | Abrir la pantalla de usuarios | Se muestran los registros de usuarios esperados | ✅ Pasa |
-| CP-USR-02 | Mostrar badges de rol | Lista con usuarios de distintos roles | Abrir la pantalla de usuarios | Se ven etiquetas de Tutor, Beneficiario y Revisor | ✅ Pasa |
-| CP-USR-03 | Abrir modal de nuevo usuario | Pantalla de usuarios cargada | Click en Nuevo usuario | Se abre el modal con campos de creación | ✅ Pasa |
-| CP-USR-04 | Cerrar modal con cancelar | Modal de creación abierto | Click en Cancelar | El modal se cierra | ✅ Pasa |
-| CP-USR-05 | Mostrar campos específicos al elegir rol tutor | Modal de creación abierto | Seleccionar rol tutor | Se muestran Matrícula, Carrera y Semestre | ✅ Pasa |
-| CP-USR-06 | Filtrar usuarios por nombre | Lista con múltiples usuarios | Escribir Ana en el buscador | Solo se muestra el usuario que coincide | ✅ Pasa |
-| CP-USR-07 | Filtrar usuarios por rol | Endpoint de usuarios preparado para el filtro | Seleccionar tutor en el filtro de rol | Solo aparecen usuarios con rol tutor | ✅ Pasa |
-| CP-USR-08 | Validación de formulario vacío al crear | Modal de creación abierto | Click en Crear usuario sin capturar datos | Se muestran mensajes de obligatorio | ✅ Pasa |
-| CP-USR-09 | Mostrar estado vacío cuando no hay usuarios | Endpoint de usuarios responde lista vacía | Recargar el módulo de usuarios | Se muestra el mensaje No hay usuarios registrados | ✅ Pasa |
+| CP-COORD-USR-01 | Restringir acceso a usuarios sin sesión | Usuario no autenticado | Navegar a /coordinador/usuarios | La app redirige a /login | ⬜ Pendiente |
+| CP-COORD-USR-02 | Permitir acceso a usuarios con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/usuarios | Se renderiza la pantalla de usuarios | ⬜ Pendiente |
+| CP-COORD-USR-03 | Consumir endpoint base de listado de usuarios | Intercept GET /usuarios activo | Abrir pantalla | Se dispara GET /usuarios al menos una vez | ⬜ Pendiente |
+| CP-COORD-USR-04 | Enviar token en request de listado de usuarios | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
+| CP-COORD-USR-05 | Renderizar tabla con columnas y datos principales | GET /usuarios responde datos válidos | Abrir pantalla y revisar encabezados/filas | Se muestran nombre, correo y rol de cada usuario | ⬜ Pendiente |
+| CP-COORD-USR-06 | Mostrar badges correctos por rol | GET /usuarios con roles mixtos | Abrir pantalla | Cada fila muestra badge correcto para tutor/beneficiario/revisor/coordinador | ⬜ Pendiente |
+| CP-COORD-USR-07 | Filtrar usuarios por nombre | Lista con múltiples usuarios | Escribir texto en buscador por nombre | Solo se muestran usuarios que coinciden con la búsqueda | ⬜ Pendiente |
+| CP-COORD-USR-08 | Filtrar usuarios por rol | Lista con roles mixtos y filtro activo | Seleccionar rol en filtro | La tabla muestra solo usuarios del rol seleccionado | ⬜ Pendiente |
+| CP-COORD-USR-09 | Mostrar estado vacío cuando no hay usuarios | GET /usuarios responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay usuarios registrados | ⬜ Pendiente |
 
 #### 2.5.4 Periodos
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-COORD-PER-01 | Restringir acceso a periodos sin sesión | Usuario no autenticado | Navegar a /coordinador/periodos | La app redirige a /login | ⬜ Pendiente |
+| CP-COORD-PER-02 | Permitir acceso a periodos con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/periodos | Se renderiza la pantalla de periodos | ⬜ Pendiente |
+| CP-COORD-PER-03 | Mostrar carga inicial de periodos | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en tabla/listado | ⬜ Pendiente |
+| CP-COORD-PER-04 | Consumir endpoint base de listado de periodos | Intercept GET /periodos activo | Abrir pantalla | Se dispara GET /periodos al menos una vez | ⬜ Pendiente |
+| CP-COORD-PER-05 | Enviar token en requests de periodos | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
+| CP-COORD-PER-06 | Renderizar tabla con datos principales de periodos | GET /periodos responde datos válidos | Abrir pantalla y revisar filas | Se muestran nombre, fechas y estado de cada periodo | ⬜ Pendiente |
+| CP-COORD-PER-07 | Mostrar badge correcto por estado de periodo | GET /periodos con periodos activos/inactivos | Abrir pantalla | Cada fila muestra badge y etiqueta correcta de estado | ⬜ Pendiente |
+| CP-COORD-PER-08 | Abrir modal de creación de periodo | Pantalla de periodos cargada | Click en Nuevo periodo | Se abre modal con formulario de creación | ⬜ Pendiente |
+| CP-COORD-PER-09 | Validar campos obligatorios al crear periodo | Modal de creación abierto | Enviar formulario vacío | Se muestran mensajes de validación obligatoria | ⬜ Pendiente |
+| CP-COORD-PER-10 | Crear periodo exitosamente | POST /periodos responde 201 | Completar formulario y guardar | Se muestra feedback de éxito y se actualiza listado | ⬜ Pendiente |
+| CP-COORD-PER-11 | Manejar error de duplicidad al crear periodo | POST /periodos responde 409 | Enviar formulario con datos duplicados | Se muestra mensaje de conflicto sin cerrar contexto | ⬜ Pendiente |
+| CP-COORD-PER-12 | Abrir modal de edición con datos precargados | Lista con al menos un periodo existente | Click en editar periodo | Modal abre con datos actuales del periodo seleccionado | ⬜ Pendiente |
+| CP-COORD-PER-13 | Actualizar periodo exitosamente | PATCH /periodos/:id responde 200 | Editar datos y guardar cambios | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
+| CP-COORD-PER-14 | Manejar error en creación/edición de periodo | POST/PATCH responde 4xx/5xx | Intentar guardar cambios | Se muestra mensaje de error y se conserva el formulario | ⬜ Pendiente |
+| CP-COORD-PER-15 | Mostrar estado vacío cuando no hay periodos | GET /periodos responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay periodos registrados | ⬜ Pendiente |
+| CP-COORD-PER-16 | Bloquear llamadas indebidas desde módulo periodos | Intercepts para endpoints no relacionados activos | Abrir pantalla y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
 
 #### 2.5.5 Asignaciones
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-COORD-ASG-01 | Restringir acceso a asignaciones sin sesión | Usuario no autenticado | Navegar a /coordinador/asignaciones | La app redirige a /login | ⬜ Pendiente |
+| CP-COORD-ASG-02 | Permitir acceso a asignaciones con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/asignaciones | Se renderiza la pantalla de asignaciones | ⬜ Pendiente |
+| CP-COORD-ASG-03 | Mostrar carga inicial de asignaciones | Sesión activa y requests GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en el módulo | ⬜ Pendiente |
+| CP-COORD-ASG-04 | Consumir endpoints requeridos del módulo | Intercepts activos para /asignaciones, /tutores y /beneficiarios | Abrir pantalla | Se disparan llamadas GET requeridas al cargar | ⬜ Pendiente |
+| CP-COORD-ASG-05 | Enviar token en requests de asignaciones | Sesión activa con token | Abrir pantalla con validación de headers | Requests incluyen Authorization Bearer | ⬜ Pendiente |
+| CP-COORD-ASG-06 | Renderizar tabla/listado de asignaciones existentes | GET /asignaciones responde datos válidos | Abrir pantalla y revisar filas | Se muestran tutor, beneficiario, periodo y estado por asignación | ⬜ Pendiente |
+| CP-COORD-ASG-07 | Mostrar estado vacío cuando no hay asignaciones | GET /asignaciones responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay asignaciones registradas | ⬜ Pendiente |
+| CP-COORD-ASG-08 | Abrir modal de nueva asignación | Pantalla de asignaciones cargada | Click en Nueva asignación | Se abre modal con formulario de creación | ⬜ Pendiente |
+| CP-COORD-ASG-09 | Validar campos obligatorios en creación | Modal de creación abierto | Enviar formulario vacío | Se muestran mensajes de validación obligatoria | ⬜ Pendiente |
+| CP-COORD-ASG-10 | Crear asignación exitosamente | POST /asignaciones responde 201 | Seleccionar tutor/beneficiario/periodo y guardar | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
+| CP-COORD-ASG-11 | Manejar conflicto por asignación duplicada | POST /asignaciones responde 409 | Intentar crear combinación ya existente | Se muestra mensaje de conflicto sin cerrar contexto | ⬜ Pendiente |
+| CP-COORD-ASG-12 | Abrir modal de edición con datos precargados | Existe al menos una asignación en tabla | Click en editar una asignación | Modal abre con datos actuales precargados | ⬜ Pendiente |
+| CP-COORD-ASG-13 | Actualizar asignación exitosamente | PATCH /asignaciones/:id responde 200 | Modificar datos y guardar | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
+| CP-COORD-ASG-14 | Manejar error al crear o editar asignación | POST/PATCH responde 4xx/5xx | Intentar guardar cambios | Se muestra mensaje de error y formulario permanece abierto | ⬜ Pendiente |
+| CP-COORD-ASG-15 | Filtrar asignaciones por criterio visible | Lista con datos mixtos y filtro activo | Aplicar filtro de búsqueda/estado | Se muestran solo asignaciones que cumplen el criterio | ⬜ Pendiente |
+| CP-COORD-ASG-16 | Bloquear llamadas indebidas desde módulo asignaciones | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
 
 #### 2.5.6 Horas Acreditadas
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-COORD-HRS-01 | Restringir acceso a horas acreditadas sin sesión | Usuario no autenticado | Navegar a /coordinador/horas | La app redirige a /login | ⬜ Pendiente |
+| CP-COORD-HRS-02 | Permitir acceso a horas acreditadas con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/horas | Se renderiza la pantalla de horas acreditadas | ⬜ Pendiente |
+| CP-COORD-HRS-03 | Mostrar carga inicial del módulo de horas | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en tabla/listado | ⬜ Pendiente |
+| CP-COORD-HRS-04 | Consumir endpoint base de horas acreditadas | Intercept GET de horas activo | Abrir pantalla | Se dispara GET de horas acreditadas al menos una vez | ⬜ Pendiente |
+| CP-COORD-HRS-05 | Enviar token en requests del módulo | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
+| CP-COORD-HRS-06 | Renderizar tabla con datos de horas por beneficiario | GET responde datos válidos | Abrir pantalla y revisar filas | Se muestran beneficiario, tutor, horas acumuladas y periodo | ⬜ Pendiente |
+| CP-COORD-HRS-07 | Mostrar badge/estado de cumplimiento de horas | GET con registros en estado completo/en progreso | Abrir pantalla | Cada registro muestra estado correcto según horas acumuladas | ⬜ Pendiente |
+| CP-COORD-HRS-08 | Filtrar horas por búsqueda de beneficiario | Lista con múltiples beneficiarios | Escribir criterio en buscador | Solo se muestran registros coincidentes | ⬜ Pendiente |
+| CP-COORD-HRS-09 | Filtrar horas por periodo | Lista con más de un periodo | Seleccionar periodo en filtro | Se muestran solo registros del periodo seleccionado | ⬜ Pendiente |
+| CP-COORD-HRS-10 | Abrir detalle de acreditación de horas | Existe al menos un registro en listado | Click en ver detalle | Se abre vista/modal con desglose de horas | ⬜ Pendiente |
+| CP-COORD-HRS-11 | Acreditar horas exitosamente | POST/PATCH de acreditación responde 200/201 | Capturar horas válidas y guardar | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
+| CP-COORD-HRS-12 | Validar límites de horas en formulario | Formulario de acreditación abierto | Ingresar horas inválidas (vacío/negativas/excedidas) | Se muestran mensajes de validación y no se envía request | ⬜ Pendiente |
+| CP-COORD-HRS-13 | Manejar conflicto o reglas de negocio en acreditación | Endpoint responde 409/422 | Intentar acreditar fuera de regla | Se muestra mensaje de conflicto y se conserva contexto | ⬜ Pendiente |
+| CP-COORD-HRS-14 | Manejar error del servidor al acreditar horas | Endpoint responde 500 | Enviar acreditación | Se muestra mensaje de error y no se rompe la pantalla | ⬜ Pendiente |
+| CP-COORD-HRS-15 | Mostrar estado vacío cuando no hay registros | GET responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay horas acreditadas registradas | ⬜ Pendiente |
+| CP-COORD-HRS-16 | Bloquear llamadas indebidas desde módulo de horas | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
 
 #### 2.5.7 Progreso Beneficiario
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-
-#### 2.5.8 Consulta IA
-
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
-|----|--------------|--------------|-------|--------------------|--------|
+| CP-COORD-PRG-01 | Restringir acceso a progreso sin sesión | Usuario no autenticado | Navegar a /coordinador/progreso | La app redirige a /login | ⬜ Pendiente |
+| CP-COORD-PRG-02 | Permitir acceso a progreso con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/progreso | Se renderiza la pantalla de progreso beneficiario | ⬜ Pendiente |
+| CP-COORD-PRG-03 | Mostrar carga inicial de progreso | Sesión activa y requests GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en el módulo | ⬜ Pendiente |
+| CP-COORD-PRG-04 | Consumir endpoints requeridos de progreso | Intercepts activos para endpoints de progreso/sesiones/horas | Abrir pantalla | Se disparan llamadas GET requeridas al cargar | ⬜ Pendiente |
+| CP-COORD-PRG-05 | Enviar token en requests del módulo de progreso | Sesión activa con token | Abrir pantalla con validación de headers | Requests incluyen Authorization Bearer | ⬜ Pendiente |
+| CP-COORD-PRG-06 | Renderizar listado de beneficiarios con métricas | GET responde datos válidos | Abrir pantalla y revisar filas | Se muestran beneficiario, tutor asignado, horas acumuladas y avance | ⬜ Pendiente |
+| CP-COORD-PRG-07 | Mostrar barra o indicador de progreso correcto | Datos con porcentajes diferentes | Abrir pantalla | Cada beneficiario muestra porcentaje/estado acorde a sus horas | ⬜ Pendiente |
+| CP-COORD-PRG-08 | Filtrar progreso por búsqueda de beneficiario | Lista con múltiples beneficiarios | Escribir criterio en buscador | Se muestran solo beneficiarios coincidentes | ⬜ Pendiente |
+| CP-COORD-PRG-09 | Filtrar progreso por periodo | Lista con más de un periodo | Seleccionar periodo en filtro | Se muestran solo registros del periodo seleccionado | ⬜ Pendiente |
+| CP-COORD-PRG-10 | Abrir detalle de progreso de un beneficiario | Existe al menos un registro en listado | Click en ver detalle | Se abre vista/modal con desglose de sesiones y horas | ⬜ Pendiente |
+| CP-COORD-PRG-11 | Mostrar alertas para beneficiarios en riesgo | Datos con beneficiarios bajo umbral | Abrir pantalla | Se muestran badges o alertas de riesgo académico/avance | ⬜ Pendiente |
+| CP-COORD-PRG-12 | Ordenar listado por porcentaje de avance | Lista con porcentajes variados | Aplicar orden ascendente/descendente | El orden del listado respeta el criterio seleccionado | ⬜ Pendiente |
+| CP-COORD-PRG-13 | Mostrar estado vacío cuando no hay progreso disponible | GET responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay datos de progreso disponibles | ⬜ Pendiente |
+| CP-COORD-PRG-14 | Manejar error de carga del módulo de progreso | Endpoint principal responde 4xx/5xx | Abrir pantalla | Se muestra mensaje de error y la app no crashea | ⬜ Pendiente |
+| CP-COORD-PRG-15 | Mantener contexto al fallar un endpoint secundario | Un endpoint falla y otros responden | Abrir pantalla | Se renderiza información parcial con feedback controlado | ⬜ Pendiente |
+| CP-COORD-PRG-16 | Bloquear llamadas indebidas desde módulo progreso | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
 
 ### 2.6 Módulo de integración entre roles
 
@@ -302,9 +397,9 @@ El MVP se considera apto para liberación únicamente si:
 | Bitácora - Tutor | 4 | Documentado |
 | Sesiones - Tutor | 6 | Documentado |
 | Revisión - Revisor | 4 | Documentado |
-| Usuarios - Coordinador | 9 | Documentado |
+| Coordinador | 109 | Planificado |
 | Módulo integración entre roles | 0 | NO Documentado |
-| **TOTAL** | **85** | **Documentado** |
+| **TOTAL** | **185** | **Documentado** |
 
 ## 3. Evaluación Heurística — Nielsen
 
