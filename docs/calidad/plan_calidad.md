@@ -123,36 +123,73 @@ El MVP se considera apto para liberación únicamente si:
 | CP-AUTH-09 | No enviar request con login vacío | Intercept de login activo para observación | Dar click en Entrar sin capturar datos | Se muestran validaciones y no se dispara POST /auth/login | ✅ Pasa |
 | CP-AUTH-10 | No enviar request con correo inválido | Intercept de login activo para observación | Capturar correo con formato inválido, contraseña y enviar | Se muestra error de correo inválido y no se dispara POST /auth/login | ✅ Pasa |
 | CP-AUTH-11 | Persistir sesión en localStorage tras login exitoso | Intercept de login 200 con token y usuario tutor | Capturar credenciales válidas y enviar formulario | Se redirige a tutor dashboard y se guardan token y rol en localStorage | ✅ Pasa |
+| CP-AUTH-12 | Cerrar sesión y bloquear acceso protegido con sesión limpia | Sesión simulada en localStorage | Ejecutar logout y luego navegar a /tutor/dashboard | localStorage queda vacío y la app redirige a /login | ✅ Pasa |
+| CP-AUTH-13 | Redirigir a login al acceder ruta protegida sin sesión | Usuario no autenticado | Navegar directo a /tutor/dashboard | La app redirige automáticamente a /login | ✅ Pasa |
+| CP-AUTH-14 | Redirección por rol desde raíz con sesión activa | Sesión activa con rol tutor en localStorage | Navegar a / | La app redirige a /tutor/dashboard según rol activo | ✅ Pasa |
+| CP-AUTH-15 | Manejo de error de red en login | Intercept de login forzado con network error | Capturar credenciales válidas y enviar formulario | Se muestra mensaje genérico de error y no hay redirección a dashboard | ✅ Pasa |
 
 #### 2.1.2 Register
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-AUTH-12 | Mostrar correctamente la vista de creación de cuenta | Usuario no autenticado, navegación a register | Abrir register y verificar campos nombre, email, rol, contraseña, confirmación y enlace a login | Todos los elementos esperados están visibles | ✅ Pasa |
-| CP-AUTH-13 | Validación de coincidencia de contraseña | Pantalla de register abierta | Llenar nombre, email, rol y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | ✅ Pasa |
-| CP-AUTH-14 | Validaciones obligatorias en registro | Pantalla de register abierta | Enviar formulario sin datos | Se muestran mensajes de campos obligatorios | ✅ Pasa |
-| CP-AUTH-15 | Navegación entre register y login | Pantalla de register abierta | Click en Inicia sesión | La URL cambia a login | ✅ Pasa |
-| CP-AUTH-16 | Validación de longitud mínima de contraseña | Pantalla de register abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | ✅ Pasa |
-| CP-AUTH-17 | Manejo de error de backend al registrar | Intercept de register configurado con 409 | Llenar formulario válido con correo existente y enviar | Se muestra mensaje de error al registrarse | ✅ Pasa |
-| CP-AUTH-18 | Registro exitoso como beneficiario | Intercept de register configurado con token y usuario beneficiario | Llenar formulario de beneficiario con datos válidos y enviar | Se guarda la sesión y se redirige a beneficiario dashboard | ✅ Pasa |
-| CP-AUTH-19 | Registro exitoso como revisor | Intercept de register configurado con token y usuario revisor | Llenar formulario de revisor con datos válidos y enviar | Se guarda la sesión y se redirige a revisor dashboard | ✅ Pasa |
-| CP-AUTH-20 | Registro exitoso como coordinador | Intercept de register configurado con token y usuario coordinador | Llenar formulario de coordinador con datos válidos y enviar | Se guarda la sesión y se redirige a coordinador dashboard | ✅ Pasa |
-| CP-AUTH-21 | No enviar request con contraseñas diferentes | Intercept de register activo para observación | Llenar formulario válido excepto confirmación distinta y enviar | No se dispara POST /auth/register | ✅ Pasa |
-| CP-AUTH-22 | No enviar request con formulario vacío | Intercept de register activo para observación | Enviar formulario sin capturar datos | Se muestran validaciones y no se dispara POST /auth/register | ✅ Pasa |
-| CP-AUTH-23 | Validar payload de beneficiario y persistencia de sesión | Intercept de register inspecciona body para rol beneficiario | Llenar formulario de beneficiario, enviar y validar localStorage | El payload contiene campos esperados, no incluye confirmPassword y se guarda sesión | ✅ Pasa |
-| CP-AUTH-24 | Validar payload de revisor y persistencia de sesión | Intercept de register inspecciona body para rol revisor | Llenar formulario de revisor, enviar y validar localStorage | El payload contiene matrícula, carrera, semestre numérico, no incluye confirmPassword y se guarda sesión | ✅ Pasa |
-| CP-AUTH-25 | Validar payload de coordinador y persistencia de sesión | Intercept de register inspecciona body para rol coordinador | Llenar formulario de coordinador, enviar y validar localStorage | El payload contiene departamento, no incluye confirmPassword y se guarda sesión | ✅ Pasa |
-| CP-AUTH-26 | Persistir token, rol y usuario tras registro exitoso | Intercept de register 201 con token y usuario | Completar registro válido y enviar formulario | Se redirige a dashboard y quedan guardados token, rol y user en localStorage | ✅ Pasa |
-
-#### 2.1.3 Postulación
-
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
-|----|--------------|--------------|-------|--------------------|--------|
+| CP-AUTH-16 | Mostrar correctamente la vista de creación de cuenta | Usuario no autenticado, navegación a register | Abrir register y verificar campos nombre, email, rol, contraseña, confirmación y enlace a login | Todos los elementos esperados están visibles | ✅ Pasa |
+| CP-AUTH-17 | Validación de coincidencia de contraseña | Pantalla de register abierta | Llenar nombre, email, rol y capturar contraseñas distintas | Se muestra mensaje de contraseñas no coinciden | ✅ Pasa |
+| CP-AUTH-18 | Validaciones obligatorias en registro | Pantalla de register abierta | Enviar formulario sin datos | Se muestran mensajes de campos obligatorios | ✅ Pasa |
+| CP-AUTH-19 | Navegación entre register y login | Pantalla de register abierta | Click en Inicia sesión | La URL cambia a login | ✅ Pasa |
+| CP-AUTH-20 | Validación de longitud mínima de contraseña | Pantalla de register abierta | Llenar formulario con contraseña corta en ambos campos y enviar | Se muestra mensaje de mínimo 6 caracteres | ✅ Pasa |
+| CP-AUTH-21 | Manejo de error de backend al registrar | Intercept de register configurado con 409 | Llenar formulario válido con correo existente y enviar | Se muestra mensaje de error al registrarse | ✅ Pasa |
+| CP-AUTH-22 | Registro exitoso como beneficiario | Intercept de register configurado con token y usuario beneficiario | Llenar formulario de beneficiario con datos válidos y enviar | Se guarda la sesión y se redirige a beneficiario dashboard | ✅ Pasa |
+| CP-AUTH-23 | Registro exitoso como revisor | Intercept de register configurado con token y usuario revisor | Llenar formulario de revisor con datos válidos y enviar | Se guarda la sesión y se redirige a revisor dashboard | ✅ Pasa |
+| CP-AUTH-24 | Registro exitoso como coordinador | Intercept de register configurado con token y usuario coordinador | Llenar formulario de coordinador con datos válidos y enviar | Se guarda la sesión y se redirige a coordinador dashboard | ✅ Pasa |
+| CP-AUTH-25 | No enviar request con contraseñas diferentes | Intercept de register activo para observación | Llenar formulario válido excepto confirmación distinta y enviar | No se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-26 | No enviar request con formulario vacío | Intercept de register activo para observación | Enviar formulario sin capturar datos | Se muestran validaciones y no se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-27 | Validar payload de beneficiario y persistencia de sesión | Intercept de register inspecciona body para rol beneficiario | Llenar formulario de beneficiario, enviar y validar localStorage | El payload contiene campos esperados, no incluye confirmPassword y se guarda sesión | ✅ Pasa |
+| CP-AUTH-28 | Validar payload de revisor y persistencia de sesión | Intercept de register inspecciona body para rol revisor | Llenar formulario de revisor, enviar y validar localStorage | El payload contiene matrícula, carrera, semestre numérico, no incluye confirmPassword y se guarda sesión | ✅ Pasa |
+| CP-AUTH-29 | Validar payload de coordinador y persistencia de sesión | Intercept de register inspecciona body para rol coordinador | Llenar formulario de coordinador, enviar y validar localStorage | El payload contiene departamento, no incluye confirmPassword y se guarda sesión | ✅ Pasa |
+| CP-AUTH-30 | Persistir token, rol y usuario tras registro exitoso | Intercept de register 201 con token y usuario | Completar registro válido y enviar formulario | Se redirige a dashboard y quedan guardados token, rol y user en localStorage | ✅ Pasa |
 
 #### 2.1.3 Registro Tutor
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-AUTH-31 | Renderizar correctamente la vista de registro de tutor | Usuario no autenticado, navegación a /register/tutor | Abrir la pantalla y validar nombre, correo, matrícula, carrera, semestre, contraseñas y botón | Todos los elementos del formulario están visibles | ✅ Pasa |
+| CP-AUTH-32 | Navegar a login desde registro de tutor | Pantalla de registro de tutor abierta | Click en Inicia sesión | La URL redirige a /login | ✅ Pasa |
+| CP-AUTH-33 | Mostrar validaciones de requeridos en registro tutor | Formulario de registro tutor abierto | Enviar formulario sin capturar datos | Se muestran mensajes obligatorios por campo | ✅ Pasa |
+| CP-AUTH-34 | Validar formato de correo en registro tutor | Formulario con intercept POST /auth/register | Capturar correo inválido, completar resto de campos y enviar | Se muestra mensaje Correo inválido y no se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-35 | Validar coincidencia de contraseñas en registro tutor | Formulario con intercept POST /auth/register | Capturar confirmación distinta a password y enviar | Se muestra mensaje Las contraseñas no coinciden y no se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-36 | Validar longitud mínima de contraseña en registro tutor | Formulario con intercept POST /auth/register | Capturar contraseña corta y enviar | Se muestra mensaje Mínimo 6 caracteres y no se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-37 | Validar semestre inválido en registro tutor | Formulario con intercept POST /auth/register | Capturar semestre 0 y enviar | Se muestra mensaje Mínimo 1 y no se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-38 | Validar matrícula obligatoria en registro tutor | Formulario con intercept POST /auth/register | Limpiar matrícula y enviar | Se muestra mensaje de matrícula obligatoria y no se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-39 | Registrar tutor exitosamente | Intercepts de GET /api y POST /auth/register configurados con 200/201 | Completar formulario válido y enviar | Se guarda sesión y redirige a /tutor/dashboard | ✅ Pasa |
+| CP-AUTH-40 | Persistir sesión tras registro y recarga | Intercepts de registro exitoso configurados | Completar registro válido, enviar y recargar página | token y rol permanecen en localStorage tras reload | ✅ Pasa |
+| CP-AUTH-41 | Manejar correo duplicado en registro tutor | Intercept POST /auth/register configurado con 409 | Completar formulario con correo existente y enviar | Se muestra mensaje El email ya está registrado y no hay redirección a dashboard | ✅ Pasa |
+| CP-AUTH-42 | Validar payload de tutor | Intercept POST /auth/register inspecciona body | Completar formulario de tutor válido y enviar | Payload incluye rol tutor, matrícula, carrera, semestre numérico y password | ✅ Pasa |
+| CP-AUTH-43 | Validar payload limpio en registro tutor | Intercept POST /auth/register inspecciona body | Completar formulario de tutor válido y enviar | Payload no incluye confirmPassword ni campos de otros roles | ✅ Pasa |
+| CP-AUTH-44 | Verificar ausencia de llamadas indebidas con formulario inválido | Intercept POST /auth/register activo | Provocar error de validación (contraseñas distintas) y enviar | No se dispara POST /auth/register | ✅ Pasa |
+| CP-AUTH-45 | Persistir token, rol y user en localStorage | Intercepts de registro exitoso configurados | Completar registro válido y enviar | Se guardan token, rol y user en localStorage con valores esperados | ✅ Pasa |
+
+#### 2.1.4 Postulación
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-AUTH-46 | Renderizar correctamente la vista de postulación | Usuario no autenticado, navegación a /postulacion | Abrir la pantalla y validar campos, textareas, input de archivo, link de video y botón de envío | Todos los elementos esperados del formulario están presentes | ✅ Pasa |
+| CP-AUTH-47 | Navegar a login desde postulación | Pantalla de postulación abierta | Click en Inicia sesión | La URL redirige a /login | ✅ Pasa |
+| CP-AUTH-48 | Mostrar validaciones de requeridos y bloquear envío vacío | Pantalla de postulación abierta con intercept POST /postulaciones | Enviar formulario sin capturar datos | Se muestran mensajes de obligatorio y no se dispara POST /postulaciones | ✅ Pasa |
+| CP-AUTH-49 | Validar formato de correo en postulación | Formulario de postulación con intercept POST /postulaciones | Capturar correo inválido, completar resto de campos y enviar | Se muestra mensaje Correo inválido y no se dispara POST /postulaciones | ✅ Pasa |
+| CP-AUTH-50 | Validar semestre mínimo | Formulario de postulación con intercept POST /postulaciones | Capturar semestre 0 y enviar | Se muestra mensaje Mín. 1 y no se dispara POST /postulaciones | ✅ Pasa |
+| CP-AUTH-51 | Validar semestre máximo | Formulario de postulación con intercept POST /postulaciones | Capturar semestre 13 y enviar | Se muestra mensaje Máx. 12 y no se dispara POST /postulaciones | ✅ Pasa |
+| CP-AUTH-52 | Validar longitud mínima en preguntas abiertas | Formulario de postulación con intercept POST /postulaciones | Capturar respuestas cortas (< 30 caracteres) y enviar | Se muestra mensaje Mínimo 30 caracteres y no se dispara POST /postulaciones | ✅ Pasa |
+| CP-AUTH-53 | Validar link de video de YouTube | Formulario de postulación con intercept POST /postulaciones | Capturar URL no YouTube y enviar | Se muestra mensaje de link inválido y no se dispara POST /postulaciones | ✅ Pasa |
+| CP-AUTH-54 | Permitir envío exitoso sin link de video opcional | Intercept POST /postulaciones configurado con 201 | Completar formulario válido sin link_video y enviar | Se registra postulación y se muestra pantalla de éxito | ✅ Pasa |
+| CP-AUTH-55 | Mostrar y eliminar preview de imagen | Pantalla de postulación abierta | Seleccionar archivo de imagen y luego click en Quitar imagen | Aparece preview y posteriormente desaparece al quitar imagen | ✅ Pasa |
+| CP-AUTH-56 | Cambiar a estado de confirmación tras envío exitoso | Intercept POST /postulaciones configurado con 201 | Completar formulario válido y enviar | Se muestra mensaje ¡Postulación enviada! y desaparece el botón de envío | ✅ Pasa |
+| CP-AUTH-57 | Bloquear reenvío durante estado loading | Intercept POST /postulaciones configurado con delay | Enviar formulario válido y observar botón | El botón Enviar postulación queda deshabilitado durante la petición | ✅ Pasa |
+| CP-AUTH-58 | Manejar error 409 en postulación | Intercept POST /postulaciones configurado con 409 | Enviar formulario válido | Se muestra mensaje de error y el formulario permanece disponible | ✅ Pasa |
+| CP-AUTH-59 | Manejar error 500 en postulación | Intercept POST /postulaciones configurado con 500 | Enviar formulario válido | Se muestra mensaje de error, no aparece pantalla de éxito y el formulario queda disponible | ✅ Pasa |
+| CP-AUTH-60 | Evitar reenvío manual tras primer submit | Intercept POST /postulaciones con delay | Enviar formulario válido y validar estado del botón | El botón queda deshabilitado tras el primer click y solo se procesa una petición | ✅ Pasa |
+| CP-AUTH-61 | Validar payload multipart con campos requeridos | Intercept POST /postulaciones inspecciona body | Completar formulario válido y enviar | El payload incluye nombre_completo, email, matricula, carrera, semestre, por_que_escogerte y por_que_interesa | ✅ Pasa |
+| CP-AUTH-62 | Validar campos opcionales y ausencia de endpoints indebidos | Intercepts de POST /postulaciones y endpoints auth/revisión activos | Enviar formulario con link_video y captura_duolingo | Payload incluye opcionales esperados, excluye campos indebidos y no se llaman endpoints ajenos | ✅ Pasa |
+
 
 ### 2.2 Módulo Tutor
 
@@ -165,21 +202,7 @@ El MVP se considera apto para liberación únicamente si:
 | CP-BIT-03 | Registrar bitácora sin archivo de evidencia | Formulario de bitácora abierto | Llenar los campos de texto sin adjuntar archivo y enviar | La bitácora se registra correctamente | ✅ Pasa |
 | CP-BIT-04 | Permitir registrar múltiples bitácoras | Tutor autenticado con acceso al formulario | Llenar una bitácora válida y enviarla nuevamente con otro contenido | Se permite el registro en ambos intentos | ✅ Pasa |
 
-### 2.2.2 
-
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
-|----|--------------|--------------|-------|--------------------|--------|
-
-### 2.3 Módulo de Revisión - Revisor
-
-| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
-|----|--------------|--------------|-------|--------------------|--------|
-| CP-REV-01 | Cargar detalle de bitácora con sus datos asociados | Revisor autenticado y endpoints de bitácora, comentarios e incidencias disponibles | Abrir el detalle de la bitácora 1 | Se muestran actividades, logros, estado, tutor, beneficiario, comentarios e incidencias | ✅ Pasa |
-| CP-REV-02 | Aprobar bitácora y añadir comentario exitosamente | Detalle de bitácora cargado y endpoint de comentarios disponible | Seleccionar estado aprobado, escribir comentario y aprobar la bitácora | Se publica el comentario, se aprueba la bitácora y se acredita horas | ✅ Pasa |
-| CP-REV-03 | Mostrar validación de comentario vacío | Detalle de bitácora cargado | Intentar publicar un comentario sin texto | Se muestra mensaje de validación indicando que el comentario no puede estar vacío | ✅ Pasa |
-| CP-REV-04 | Mostrar error si falla la actualización del estado | Intercept de actualización de bitácora con error 500 | Cambiar el estado de revisión y esperar la respuesta fallida | Se muestra un mensaje de error al actualizar el estado | ✅ Pasa |
-
-### 2.4 Módulo de Sesiones - Tutor
+### 2.2.2 sesiones
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
@@ -190,7 +213,33 @@ El MVP se considera apto para liberación únicamente si:
 | CP-SES-05 | Mostrar acción principal en el estado vacío | Endpoint de sesiones responde lista vacía | Abrir la vista de sesiones | Se muestra el botón Nueva sesión | ✅ Pasa |
 | CP-SES-06 | Redirigir al login sin autenticación | Sin token en localStorage | Intentar acceder a /tutor/sesiones | La aplicación redirige a /login | ✅ Pasa |
 
-### 2.5 Módulo de Usuarios - Coordinador
+### 2.3 Módulo de Revisión - Revisor
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-REV-01 | Cargar detalle de bitácora con sus datos asociados | Revisor autenticado y endpoints de bitácora, comentarios e incidencias disponibles | Abrir el detalle de la bitácora 1 | Se muestran actividades, logros, estado, tutor, beneficiario, comentarios e incidencias | ✅ Pasa |
+| CP-REV-02 | Aprobar bitácora y añadir comentario exitosamente | Detalle de bitácora cargado y endpoint de comentarios disponible | Seleccionar estado aprobado, escribir comentario y aprobar la bitácora | Se publica el comentario, se aprueba la bitácora y se acredita horas | ✅ Pasa |
+| CP-REV-03 | Mostrar validación de comentario vacío | Detalle de bitácora cargado | Intentar publicar un comentario sin texto | Se muestra mensaje de validación indicando que el comentario no puede estar vacío | ✅ Pasa |
+| CP-REV-04 | Mostrar error si falla la actualización del estado | Intercept de actualización de bitácora con error 500 | Cambiar el estado de revisión y esperar la respuesta fallida | Se muestra un mensaje de error al actualizar el estado | ✅ Pasa |
+
+### 2.4 Módulo de rol - Beneficiario
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+### 2.5 Módulo de Rol - Coordinador
+
+#### 2.5.1 Tablero
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+#### 2.5.2 Postulaciones
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+#### 2.5.3 Usuarios
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
@@ -204,16 +253,45 @@ El MVP se considera apto para liberación únicamente si:
 | CP-USR-08 | Validación de formulario vacío al crear | Modal de creación abierto | Click en Crear usuario sin capturar datos | Se muestran mensajes de obligatorio | ✅ Pasa |
 | CP-USR-09 | Mostrar estado vacío cuando no hay usuarios | Endpoint de usuarios responde lista vacía | Recargar el módulo de usuarios | Se muestra el mensaje No hay usuarios registrados | ✅ Pasa |
 
-### 2.6 Resumen de Cobertura de Pruebas
+#### 2.5.1 Periodos
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+#### 2.5.1 Asignaciones
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+#### 2.5.1 Horas Acreditadas
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+#### 2.5.1 Progreso Beneficiario
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+#### 2.5.1 Consulta IA
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+
+
+### 2.6 Modulo de integracion entre roles
+
+### 2.7 Resumen de Cobertura de Pruebas
 
 | Módulo | Total casos | Estado |
 |--------|:-----------:|--------|
-| Autenticación | 26 | Documentado |
-| Bitácora - Tutor | 4 | Documentado |
-| Revisión - Revisor | 4 | Documentado |
-| Sesiones - Tutor | 6 | Documentado |
-| Usuarios - Coordinador | 9 | Documentado |
-| **TOTAL** | **49** | **Documentado** |
+| Autenticación | 62 | Documentado |
+| Modulo de rol - Tutor | 4 | Documentado |
+| Modulo de rol - Revisor | 4 | Documentado |
+| Modulo de rol - Tutor | 6 | Documentado |
+| Modulo de rol - Coordinador | 9 | Documentado |
+| Modulo de integracion entre roles | 0 | NO Documentado |
+| **TOTAL** | **85** | **Documentado** |
 
 ## 3. Evaluación Heurística — Nielsen
 

@@ -4,7 +4,7 @@ describe('Register', () => {
     cy.visit('/register')
   })
 
-  //CP-AUTH-12
+  //CP-AUTH-16
   it('renders the register page', () => {
     cy.contains('Crear cuenta').should('be.visible')
     cy.get('input[placeholder="Juan Pérez"]').should('be.visible')
@@ -15,7 +15,7 @@ describe('Register', () => {
     cy.contains('Inicia sesión').should('be.visible')
   })
 
-  //CP-AUTH-13
+  //CP-AUTH-17
   it('shows error when passwords do not match', () => {
     cy.get('input[placeholder="Juan Pérez"]').type('Test Persona')
     cy.get('input[type="email"]').type('nuevo@test.com')
@@ -26,19 +26,19 @@ describe('Register', () => {
     cy.contains('no coinciden').should('be.visible')
   })
 
-  //CP-AUTH-14
+  //CP-AUTH-18
   it('shows validation errors when submitting empty form', () => {
     cy.get('button[type="submit"]').click()
     cy.contains('obligatorio').should('be.visible')
   })
 
-  //CP-AUTH-15
+  //CP-AUTH-19
   it('has a working link back to login', () => {
     cy.contains('Inicia sesión').click()
     cy.url().should('include', '/login')
   })
 
-  //CP-AUTH-16
+  //CP-AUTH-20
   it('shows password min-length error', () => {
     cy.get('input[placeholder="Juan Pérez"]').type('Test Persona')
     cy.get('input[type="email"]').type('nuevo@test.com')
@@ -49,7 +49,7 @@ describe('Register', () => {
     cy.contains('Mínimo 6 caracteres').should('be.visible')
   })
 
-  //CP-AUTH-17
+  //CP-AUTH-21
   it('shows error when registering with duplicate email', () => {
     cy.intercept('POST', /\/api\/auth\/register/, {
       statusCode: 409,
@@ -70,7 +70,7 @@ describe('Register', () => {
     cy.contains('El email ya está registrado').should('be.visible')
   })
 
-//CP-AUTH-18
+//CP-AUTH-22
     it('registers a new user successfully (beneficiario)', () => {
     cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
     cy.intercept('POST', /\/api\/auth\/register/, {
@@ -100,7 +100,7 @@ describe('Register', () => {
     cy.url().should('include', '/beneficiario/dashboard')
     })
 
-    //CP-AUTH-19
+    //CP-AUTH-23
     it('registers a new user successfully (revisor)', () => {
     cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
     cy.intercept('POST', /\/api\/auth\/register/, {
@@ -129,7 +129,7 @@ describe('Register', () => {
     cy.url().should('include', '/revisor/dashboard')
     })
 
-    //CP-AUTH-20
+    //CP-AUTH-24
     it('registers a new user successfully (coordinador)', () => {
     cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
     cy.intercept('POST', /\/api\/auth\/register/, {
@@ -156,7 +156,7 @@ describe('Register', () => {
     cy.url().should('include', '/coordinador/dashboard')
     })
 
-    //CP-AUTH-21
+    //CP-AUTH-25
     it('register with different passwords does not do a request', () => {
       cy.intercept('POST', /\/api\/auth\/register/).as('registerAttempt')
       cy.get('input[placeholder="Juan Pérez"]').type('Test Persona')
@@ -169,7 +169,7 @@ describe('Register', () => {
       cy.get('@registerAttempt.all').should('have.length', 0)
     })
 
-    //CP-AUTH-22
+    //CP-AUTH-26
     it('empty register does not do a request', () => {
       cy.intercept('POST', /\/api\/auth\/register/).as('EmptyregisterAttempt')
       cy.get('button[type="submit"]').click()
@@ -177,7 +177,7 @@ describe('Register', () => {
       cy.get('@EmptyregisterAttempt.all').should('have.length', 0)
     })
 
-    //CP-AUTH-23
+    //CP-AUTH-27
     it('register beneficiario sends payload with correct fields', () => {
       cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
       cy.intercept('POST', /\/api\/auth\/register/, (req) => {
@@ -232,7 +232,7 @@ describe('Register', () => {
       })
     })
 
-    //CP-AUTH-24
+    //CP-AUTH-28
     it('register revisor sends payload with correct fields', () => {
       cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
       cy.intercept('POST', /\/api\/auth\/register/, (req) => {
@@ -285,7 +285,7 @@ describe('Register', () => {
       })
     })
 
-    //CP-AUTH-25
+    //CP-AUTH-29
     it('register coordinador sends payload with correct fields', () => {
       cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
       cy.intercept('POST', /\/api\/auth\/register/, (req) => {
@@ -334,7 +334,7 @@ describe('Register', () => {
       })
     })
 
-    //CP-AUTH-26
+    //CP-AUTH-30
     it('succesful register storage token, rol and user in localStorage', () => {
       cy.intercept('GET', /\/api\//, { statusCode: 200, body: [] })
       cy.intercept('POST', /\/api\/auth\/register/, {

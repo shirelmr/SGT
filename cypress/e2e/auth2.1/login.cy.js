@@ -156,4 +156,61 @@ it('successful login and store token and role in localStorage', () => {
     expect(win.localStorage.getItem('rol')).to.equal('tutor')
   })
   })
+
+//CP-AUTH-12
+it('logout clears session and blocks protected route access', () => {
+  cy.window().then((win) => {
+    win.localStorage.setItem('token', 'seed-token')
+    win.localStorage.setItem('rol', 'tutor')
+    win.localStorage.setItem(
+      'user',
+      JSON.stringify({ id_usuario: 200, nombre_completo: 'Tutor Seed', email: 'seed@test.com', rol: 'tutor' })
+    )
+  })
+
+  cy.logout()
+  cy.window().then((win) => {
+    expect(win.localStorage.getItem('token')).to.equal(null)
+    expect(win.localStorage.getItem('rol')).to.equal(null)
+    expect(win.localStorage.getItem('user')).to.equal(null)
+  })
+
+  cy.visit('/tutor/dashboard')
+  cy.url().should('include', '/login')
+})
+
+//CP-AUTH-13
+it('redirects to login when accessing protected route without session', () => {
+  cy.logout()
+  cy.visit('/tutor/dashboard')
+  cy.url().should('include', '/login')
+})
+
+//CP-AUTH-14
+it('redirects authenticated user from root to role dashboard', () => {
+  cy.visit('/', {
+    onBeforeLoad(win) {
+      win.localStorage.setItem('token', 'guard-token')
+      win.localStorage.setItem('rol', 'tutor')
+      win.localStorage.setItem(
+        'user',
+        JSON.stringify({ id_usuario: 201, nombre_completo: 'Tutor Guard', email: 'guard@test.com', rol: 'tutor' })
+      )
+    },
+  })
+
+  cy.url().should('include', '/tutor/dashboard')
+})
+
+//CP-AUTH-15
+it('shows generic error message on login network error', () => {
+  cy.intercept('POST', /\/api\/auth\/login/, { forceNetworkError: true }).as('loginNetworkError')
+
+  cy.get('input[type="email"]').type('network@test.com')
+  cy.get('input[type="password"]').type('password123')
+  cy.get('button[type="submit"]').click()
+
+  cy.wait('@loginNetworkError')
+  cy.contains('Credenciales incorrectas').should('be.visible')
+})
 })
