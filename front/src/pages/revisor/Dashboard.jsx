@@ -172,7 +172,7 @@ export default function RevisorDashboard() {
               )}
             </Card>
 
-            <Card title="Distribución Histórica">
+            <Card title="Distribución de Bitácoras">
               <p className="text-xs text-gray-400 -mt-3 mb-2">{stats.total} asignadas</p>
               
               {chartData.length === 0 ? (
