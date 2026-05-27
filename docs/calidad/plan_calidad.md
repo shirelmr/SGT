@@ -4,7 +4,7 @@
 > **Equipo:** AIAS · Shirel Marino Ramírez · Arístides Nieto Guzmán · Ana Paola Oviedo Salgado · Itzel Covarrubias Basurto  
 > **Curso:** TC3004B Planeación de Sistemas de Software · Semestre Enero–Junio 2026  
 > **Responsable QA:** Shirel Marino Ramirez
-> **Última actualización:** 25 de mayo de 2026 · Semana 11
+> **Última actualización:** 27 de mayo de 2026 · Semana 14
 
 ---
 
@@ -77,12 +77,16 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Semana | Descripción | Responsable | Probabilidad | Impacto | Factor de Riesgo | Estado | Plan de Prevención | Plan de Contingencia |
 |----|--------|-------------|-------------|:------------:|:-------:|:----------------:|--------|-------------------|---------------------|
-| R01 | S04 | Operabilidad insuficiente: ICH actual 70%, por debajo del umbral de 80% requerido para liberar el MVP | Arístides N. | Alta (3) | Alto (3) | 🟡 9 | Activo | Iterar sobre los 3 hallazgos de mayor severidad antes de S5. Re-evaluar heurísticamente el prototipo rediseñado. | Si ICH < 80% al cierre de S11, postergar lanzamiento y ejecutar sprint de UX con 5 correcciones prioritarias. |
+| R01 | S04 | Operabilidad insuficiente: ICH inicial 70%, por debajo del umbral de 80% requerido para liberar el MVP | Arístides N. | Alta (3) | Alto (3) | 🟢 1 | **Cerrado** | Iterar sobre los 3 hallazgos de mayor severidad antes de S5. Re-evaluar heurísticamente el prototipo rediseñado. | Si ICH < 80% al cierre de S11, postergar lanzamiento y ejecutar sprint de UX con 5 correcciones prioritarias. |
 | R02 | S04 | Disponibilidad en horarios pico: sin prueba de carga no se sabe si el sistema soporta 50+ usuarios simultáneos en bloque de tutorías | Shirel M. | Media (2) | Alto (3) | 🟡 6 | Activo | Ejecutar prueba de carga con JMeter en S11 simulando 50 usuarios concurrentes. | Si el sistema falla bajo carga, escalar a optimización de índices en PostgreSQL y revisar consultas N+1. |
-| R03 | S04 | Confidencialidad de datos de menores: si la autenticación falla, datos de beneficiarios de bachillerato quedan expuestos | Ana Paola O. | Baja (1) | Crítico (4) | 🔴 4 | Activo | Implementar JWT + HTTPS antes de S8. Activar auditoría de accesos desde el despliegue. Solo roles autorizados acceden a datos de menores. | Si se detecta vulnerabilidad en producción, desconectar inmediatamente el sistema y notificar al coordinador del programa. |
-| R04 | S04 | Capacidad de aprendizaje insuficiente: usuarios nuevos no completan el primer registro de sesión sin ayuda | Itzel C. | Alta (3) | Medio (2) | 🟡 6 | Activo | Diseñar flujo onboarding de 3 pasos. Validar en Cámara Gesell S5 que todos los participantes completen la tarea sin ayuda en ≤ 180 seg. | Si el tiempo promedio supera 300 seg., rediseñar el flujo de registro con menos pasos y agregar tooltips contextuales. |
-| R05 | S04 | Modificabilidad limitada: agregar tutorías grupales requeriría reescribir el módulo de sesiones por acoplamiento alto | Ana Paola O. | Baja (1) | Medio (2) | 🟢 2 | Vigilancia | Refactorizar el módulo de sesiones a arquitectura modular antes de la entrega final. | Documentar el modelo de datos actual para facilitar una refactorización futura sin reescritura completa. |
-| R06 | S11 | Backend no iniciado: las 3 tareas de infraestructura (SGT-14, SGT-15, SGT-16) están en TO DO a la semana 11, bloqueando la integración del frontend | Arístides N. | Alta (3) | Alto (3) | 🔴 9 | **Nuevo** | Priorizar desarrollo del backend durante las horas de clase de las semanas 11–12. Bloquear tiempo mínimo de 3 hrs/semana por integrante para backend. | Si el backend no está listo al cierre de S12, negociar reducción de alcance del piloto con el coordinador del programa. |
+| R03 | S04 | Confidencialidad de datos de menores: si la autenticación falla, datos de beneficiarios de bachillerato quedan expuestos | Ana Paola O. | Baja (1) | Crítico (4) | 🔴 4 | **Activo — materialización parcial** | Implementar JWT + HTTPS antes de S8. Activar auditoría de accesos desde el despliegue. Solo roles autorizados acceden a datos de menores. | Si se detecta vulnerabilidad en producción, desconectar inmediatamente el sistema y notificar al coordinador del programa. |
+| R04 | S04 | Capacidad de aprendizaje insuficiente: usuarios nuevos no completan el primer registro de sesión sin ayuda | Itzel C. | Alta (3) | Medio (2) | 🟡 6 | **Activo — materializado en S05** | Diseñar flujo onboarding de 3 pasos. Validar en Cámara Gesell S5 que todos los participantes completen la tarea sin ayuda en ≤ 180 seg. | Si el tiempo promedio supera 300 seg., rediseñar el flujo de registro con menos pasos y agregar tooltips contextuales. |
+| R05 | S04 | Modificabilidad limitada: agregar tutorías grupales requeriría reescribir el módulo de sesiones por acoplamiento alto | Ana Paola O. | Baja (1) | Medio (2) | 🟢 2 | Vigilancia | Refactorizar el módulo de sesiones a arquitectura modular antes de la entrega final. | Documentar el modelo de datos actual para facilitar una refactorización futura sin reescritura completa. El equipo decidió manejar sesiones con múltiples beneficiarios como registros independientes (un `Sesion` por tutor-beneficiario). |
+| R06 | S11 | Backend no iniciado: las 3 tareas de infraestructura (SGT-14, SGT-15, SGT-16) están en TO DO a la semana 11, bloqueando la integración del frontend | Arístides N. | Alta (3) | Alto (3) | 🟢 1 | **Cerrado** | Priorizar desarrollo del backend durante las horas de clase de las semanas 11–12. Bloquear tiempo mínimo de 3 hrs/semana por integrante para backend. | Si el backend no está listo al cierre de S12, negociar reducción de alcance del piloto con el coordinador del programa. |
+| R07 | S13 | Integridad del cómputo de horas acreditadas: la lógica de acreditación se introdujo en el backend después de que varias sesiones ya habían sido aprobadas, y la ruta `POST /sin-bitacora` nunca sumaba horas ni el `PUT` las descontaba al revertir un estado | Arístides N. | Alta (3) | Alto (3) | 🟢 1 | **Cerrado** | Introducir la lógica de acreditación en la misma transacción de aprobación y cubrirla con pruebas antes de que el revisor empiece a aprobar sesiones. | Si el contador queda desfasado, recalcular `horas_impartidas` desde cero sumando `duracion_hrs` de todas las bitácoras en estado `aprobado` del periodo activo. |
+| R08 | S13 | Desfase de fechas por zona horaria UTC/CST: las fechas almacenadas en UTC en PostgreSQL se mostraban con un día de diferencia en el frontend para usuarios en México (CST = UTC−6) | Ana Paola O. | Alta (3) | Medio (2) | 🟢 1 | **Cerrado** | Normalizar todo el manejo de fechas en el frontend con una función `getLocalDate()` que parse `YYYY-MM-DD` sin conversión de zona horaria. | Si el desfase afecta lógica de negocio (sesiones que no aparecen como pendientes), corregir el parseo de fechas en todos los hooks y componentes afectados. |
+| R09 | S12 | Restricciones de longitud insuficientes en campos de BD: campos definidos como `VarChar(N)` con N demasiado pequeño causan error Prisma P2000 (`LengthMismatch`) al guardar valores válidos del mundo real (p. ej. URLs de YouTube) | Arístides N. | Media (2) | Alto (3) | 🟢 1 | **Cerrado** | Revisar longitudes de todos los campos de texto antes del primer despliegue y definirlas con margen amplio (300+ para URLs, 500+ para texto libre). | Al detectar un P2000, ampliar el campo en el schema con `prisma db push` sin pérdida de datos y actualizar el valor guardado. |
+| R10 | S13 | Drift entre schema de Prisma y migraciones formales: el equipo usó `prisma db push` para aplicar cambios de schema (renombre de enum, nuevos campos) en lugar de `prisma migrate dev`, dejando 15 commits de cambios al schema pero solo 3 migraciones formales | Arístides N. | Media (2) | Medio (2) | 🟡 4 | **Activo** | Documentar en CLAUDE.md que `prisma db push` es la estrategia deliberada para este proyecto y que `migrate dev` no es viable sin reset. | Si se necesita replicar la BD en un ambiente nuevo, ejecutar `prisma db push` directamente desde el schema actual en lugar de correr las migraciones, y documentar este proceso en el README. |
 
 ### 1.2 Historial de Actualizaciones
 
@@ -90,13 +94,21 @@ El MVP se considera apto para liberación únicamente si:
 |-------|--------|-----------|------------------|-----------------|
 | 20/04/2026 | S11 | R06 | Riesgo nuevo identificado: backend sin iniciar | Arístides N. |
 | 15/05/2026 | S11 | R01, R02 | Riesgos confirmados activos al cierre S11; sin cambio en factor | Shirel M. |
+| 26/05/2026 | S14 | R06 | Riesgo cerrado. Backend funcional desde el 25 de abril (commit `0f46f7a`). Todas las rutas principales implementadas y en operación. | Arístides N. |
+| 26/05/2026 | S14 | R01 | Múltiples mejoras de UI/UX aplicadas entre S10–S14: nueva UI de autenticación (AuthLayout + branding TALK!, 23-may), rediseño de dashboards del revisor, beneficiario y tutor (25–26 may). D-01 resuelto con componente `Button` estándar. Proyecto prácticamente terminado: riesgo cerrado. | Arístides N. |
+| 26/05/2026 | S14 | R03 | JWT implementado desde el 25-abr (middleware `auth.js`). Se identificaron rutas sin protección: `POST/PUT/DELETE /api/usuarios` y `GET+POST /api/ask-db`. HTTPS no configurado. | Arístides N. |
+| 26/05/2026 | S14 | R04 | Riesgo materializado en S05: T1 promedió 221.5 seg (límite: 180 seg). Mejoras de UI aplicadas en S10–S14 sin re-medición formal. Onboarding y tooltips no implementados. | Arístides N. |
+| 27/05/2026 | S14 | R07 | Riesgo nuevo (retroactivo S13) y cerrado. La lógica de acreditación de horas se introdujo después de varias aprobaciones, causando que `horas_impartidas` mostrara 1.5 hrs en lugar de 4.5. Tres bugs identificados: (1) horas no acumuladas en aprobaciones previas a la lógica, (2) `sin-bitacora` no acreditaba horas, (3) `PUT` no descontaba horas al revertir estado. Todos corregidos: commit `40ab521` + corrección directa de BD. | Arístides N. |
+| 27/05/2026 | S14 | R08 | Riesgo nuevo (retroactivo S13) y cerrado. Fechas UTC de PostgreSQL se mostraban con 1 día de desfase en México (CST = UTC−6). Corregido con función `getLocalDate()` en commit `ae90980` (21-may) y `0e91859` (15-may). | Arístides N. |
+| 27/05/2026 | S14 | R09 | Riesgo nuevo (retroactivo S12) y cerrado. Campo `link_video VarChar(40)` causó error P2000 al guardar URLs de YouTube. Corregido a `VarChar(300)` en commit `48cc258` (7-may). | Arístides N. |
+| 27/05/2026 | S14 | R10 | Riesgo nuevo identificado. 15 commits de cambios al schema de Prisma pero solo 3 migraciones formales. El equipo usa `prisma db push` deliberadamente (migrate dev requeriría reset). Riesgo activo para ambientes nuevos. | Arístides N. |
 
 ### 1.3 Resumen de Exposición al Riesgo
 
 | Factor | Crítico 🔴 (≥8) | Medio 🟡 (4–7) | Bajo 🟢 (≤3) |
 |--------|:--------------:|:-------------:|:-----------:|
-| Cantidad de riesgos | 2 | 3 | 1 |
-| IDs | R03, R06 | R01, R02, R04 | R05 |
+| Cantidad de riesgos | 1 | 3 | 6 |
+| IDs | R03 | R02, R04, R10 | R01, R05, R06, R07, R08, R09 |
 
 ---
 
@@ -190,7 +202,6 @@ El MVP se considera apto para liberación únicamente si:
 | CP-AUTH-61 | Validar payload multipart con campos requeridos | Intercept POST /postulaciones inspecciona body | Completar formulario válido y enviar | El payload incluye nombre_completo, email, matricula, carrera, semestre, por_que_escogerte y por_que_interesa | ✅ Pasa |
 | CP-AUTH-62 | Validar campos opcionales y ausencia de endpoints indebidos | Intercepts de POST /postulaciones y endpoints auth/revisión activos | Enviar formulario con link_video y captura_duolingo | Payload incluye opcionales esperados, excluye campos indebidos y no se llaman endpoints ajenos | ✅ Pasa |
 
-
 ### 2.2 Módulo Tutor
 
 ### 2.2.1 Bitacora
@@ -202,7 +213,7 @@ El MVP se considera apto para liberación únicamente si:
 | CP-BIT-03 | Registrar bitácora sin archivo de evidencia | Formulario de bitácora abierto | Llenar los campos de texto sin adjuntar archivo y enviar | La bitácora se registra correctamente | ✅ Pasa |
 | CP-BIT-04 | Permitir registrar múltiples bitácoras | Tutor autenticado con acceso al formulario | Llenar una bitácora válida y enviarla nuevamente con otro contenido | Se permite el registro en ambos intentos | ✅ Pasa |
 
-### 2.2.2 sesiones
+### 2.2.2 Sesiones
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
@@ -253,44 +264,46 @@ El MVP se considera apto para liberación únicamente si:
 | CP-USR-08 | Validación de formulario vacío al crear | Modal de creación abierto | Click en Crear usuario sin capturar datos | Se muestran mensajes de obligatorio | ✅ Pasa |
 | CP-USR-09 | Mostrar estado vacío cuando no hay usuarios | Endpoint de usuarios responde lista vacía | Recargar el módulo de usuarios | Se muestra el mensaje No hay usuarios registrados | ✅ Pasa |
 
-#### 2.5.1 Periodos
+#### 2.5.4 Periodos
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
 
-#### 2.5.1 Asignaciones
+#### 2.5.5 Asignaciones
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
 
-#### 2.5.1 Horas Acreditadas
+#### 2.5.6 Horas Acreditadas
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
 
-#### 2.5.1 Progreso Beneficiario
+#### 2.5.7 Progreso Beneficiario
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
 
-#### 2.5.1 Consulta IA
+#### 2.5.8 Consulta IA
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
 
+### 2.6 Módulo de integración entre roles
 
-### 2.6 Modulo de integracion entre roles
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
 
 ### 2.7 Resumen de Cobertura de Pruebas
 
 | Módulo | Total casos | Estado |
 |--------|:-----------:|--------|
 | Autenticación | 62 | Documentado |
-| Modulo de rol - Tutor | 4 | Documentado |
-| Modulo de rol - Revisor | 4 | Documentado |
-| Modulo de rol - Tutor | 6 | Documentado |
-| Modulo de rol - Coordinador | 9 | Documentado |
-| Modulo de integracion entre roles | 0 | NO Documentado |
+| Bitácora - Tutor | 4 | Documentado |
+| Sesiones - Tutor | 6 | Documentado |
+| Revisión - Revisor | 4 | Documentado |
+| Usuarios - Coordinador | 9 | Documentado |
+| Módulo integración entre roles | 0 | NO Documentado |
 | **TOTAL** | **85** | **Documentado** |
 
 ## 3. Evaluación Heurística — Nielsen
@@ -339,10 +352,12 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Heurística | Descripción del hallazgo | Severidad | Estado | Responsable corrección | Fecha resolución |
 |----|-----------|--------------------------|:---------:|--------|----------------------|-----------------|
-| D-01 | H4 | Botón "Confirmar asistencia" con estilo inconsistente respecto al sistema de diseño | 3 | 🔴 Abierto | Ana Paola O. | — |
+| D-01 | H4 | Botón "Confirmar asistencia" con estilo inconsistente respecto al sistema de diseño | 3 | ✅ Resuelto | Ana Paola O. | ~23 may 2026 |
 | D-02 | H3 | Sin confirmación al abandonar formulario de bitácora con cambios sin guardar | 2 | 🔴 Abierto | Ana Paola O. | — |
 | D-03 | H6 | Tutor asignado no visible en "Asignaciones" sin hacer scroll en pantallas pequeñas | 2 | 🔴 Abierto | Ana Paola O. | — |
 | D-04 | H10 | Ausencia total de ayuda contextual, tooltips y documentación de usuario | 3 | 🔴 Abierto | Itzel C. | — |
+
+> **Nota D-01:** El commit `a02ae5b` (23-may-2026, "new UI for auth") introdujo el componente `AuthLayout` y el sistema de diseño TALK! con `Button` estándar, resolviendo la inconsistencia detectada en la evaluación de S05.
 
 ### 3.5 Resumen de Severidades
 
