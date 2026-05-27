@@ -16,7 +16,6 @@ import Periodos from '../pages/coordinador/Periodos';
 import Asignaciones from '../pages/coordinador/Asignaciones';
 import HorasAcreditadas from '../pages/coordinador/HorasAcreditadas';
 import ProgresosBeneficiarios from '../pages/coordinador/ProgresosBeneficiarios';
-import ConsultaIA from '../pages/coordinador/ConsultaIA';
 
 // Tutor
 import TutorDashboard from '../pages/tutor/Dashboard';
@@ -64,7 +63,6 @@ export default function AppRouter() {
             <Route path="/coordinador/horas" element={<HorasAcreditadas />} />
             <Route path="/coordinador/progreso" element={<ProgresosBeneficiarios />} />
             <Route path="/coordinador/postulaciones" element={<Postulaciones />} />
-            <Route path="/coordinador/consulta-ia" element={<ConsultaIA />} />
           </Route>
         </Route>
 
