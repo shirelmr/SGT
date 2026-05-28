@@ -24,6 +24,7 @@ const fmt = (s) => ({
   id_tutor: s.id_tutor,
   id_beneficiario: s.id_beneficiario,
   id_periodo: s.id_periodo,
+  id_grupo_sesion: s.id_grupo_sesion ?? null,
   fecha: s.fecha,
   hora_inicio: fmtHora(s.hora_inicio),
   duracion_hrs: s.duracion_hrs,
@@ -94,25 +95,40 @@ router.post('/', auth, async (req, res) => {
     if (!tutor) return res.status(404).json({ error: 'Perfil de tutor no encontrado' })
 
     const periodoId = id_periodo ? Number(id_periodo) : tutor.id_periodo
+    const baseData = {
+      id_tutor: tutor.id_tutor,
+      id_periodo: periodoId,
+      fecha: new Date(fecha),
+      hora_inicio: new Date(`1970-01-01T${hora_inicio}`),
+      duracion_hrs: Number(duracion_hrs),
+      tema,
+      link_sesion: tutor.link_zoom || null,
+      estado: estado || 'programada',
+    }
 
-    const sesiones = await Promise.all(
-      ids_beneficiarios.map((id_benef) =>
-        prisma.sesion.create({
-          data: {
-            id_tutor: tutor.id_tutor,
-            id_beneficiario: Number(id_benef),
-            id_periodo: periodoId,
-            fecha: new Date(fecha),
-            hora_inicio: new Date(`1970-01-01T${hora_inicio}`),
-            duracion_hrs: Number(duracion_hrs),
-            tema,
-            link_sesion: tutor.link_zoom || null,
-            estado: estado || 'programada',
-          },
-          include,
+    const sesiones = await prisma.$transaction(async (tx) => {
+      const created = []
+      for (const id_benef of ids_beneficiarios) {
+        const s = await tx.sesion.create({
+          data: { ...baseData, id_beneficiario: Number(id_benef) },
         })
-      )
-    )
+        created.push(s)
+      }
+
+      if (created.length > 1) {
+        await tx.sesion.updateMany({
+          where: { id_sesion: { in: created.map((s) => s.id_sesion) } },
+          data: { id_grupo_sesion: created[0].id_sesion },
+        })
+      }
+
+      return tx.sesion.findMany({
+        where: { id_sesion: { in: created.map((s) => s.id_sesion) } },
+        include,
+        orderBy: { id_sesion: 'asc' },
+      })
+    })
+
     res.status(201).json(sesiones.map(fmt))
   } catch (err) {
     console.error(err)

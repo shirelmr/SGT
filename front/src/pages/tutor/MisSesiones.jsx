@@ -36,7 +36,7 @@ const SELECT_CLS = 'px-3 py-1.5 text-sm border-2 border-gray-200 rounded-lg outl
 const tipoLabel = {
   retardo: 'Retardo',
   inasistencia: 'Inasistencia (Aviso previo)',
-  falta_injustificada: 'Falta Injustificada',
+  no_se_presento: 'No se presentó',
   otro: 'Otro',
 };
 
@@ -577,7 +577,7 @@ export default function MisSesionesTutor() {
                   >
                     <option value="retardo">Retardo</option>
                     <option value="inasistencia">Inasistencia (Aviso previo)</option>
-                    <option value="falta_injustificada">Falta Injustificada</option>
+                    <option value="no_se_presento">No se presentó</option>
                     <option value="otro">Otro</option>
                   </select>
                 </div>

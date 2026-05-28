@@ -154,16 +154,17 @@ model Coordinador {
 }
 
 model Sesion {
-  id_sesion      Int          @id @default(autoincrement())
-  id_tutor       Int
+  id_sesion       Int          @id @default(autoincrement())
+  id_tutor        Int
   id_beneficiario Int
-  id_periodo     Int
-  fecha          DateTime     @db.Date
-  hora_inicio    DateTime     @db.Time
-  duracion_hrs   Decimal      @db.Decimal(4, 1)
-  tema           String       @db.VarChar(200)
-  link_sesion    String?      @db.VarChar(300)
-  estado         EstadoSesion @default(programada)
+  id_periodo      Int
+  id_grupo_sesion Int?
+  fecha           DateTime     @db.Date
+  hora_inicio     DateTime     @db.Time
+  duracion_hrs    Decimal      @db.Decimal(4, 1)
+  tema            String       @db.VarChar(200)
+  link_sesion     String?      @db.VarChar(300)
+  estado          EstadoSesion @default(programada)
 
   tutor       TutorTec     @relation(fields: [id_tutor], references: [id_tutor])
   beneficiario Beneficiario @relation(fields: [id_beneficiario], references: [id_benef])
@@ -240,6 +241,14 @@ model HorasAcreditadas {
   periodo Periodo  @relation(fields: [id_periodo], references: [id_periodo])
 
   @@unique([id_tutor, id_periodo])
+}
+
+model AuditoriaConsulta {
+  id             Int      @id @default(autoincrement())
+  timestamp      DateTime @default(now())
+  pregunta       String   @db.Text
+  sqlGenerado    String   @db.Text
+  filasDevueltas Int
 }
 
 model Incidencia {
