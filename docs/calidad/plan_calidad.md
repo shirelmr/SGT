@@ -4,7 +4,7 @@
 > **Equipo:** AIAS · Shirel Marino Ramírez · Arístides Nieto Guzmán · Ana Paola Oviedo Salgado · Itzel Covarrubias Basurto  
 > **Curso:** TC3004B Planeación de Sistemas de Software · Semestre Enero–Junio 2026  
 > **Responsable QA:** Shirel Marino Ramirez
-> **Última actualización:** 27 de mayo de 2026 · Semana 14
+> **Última actualización:** 28 de mayo de 2026 · Semana 14
 
 ---
 
@@ -233,10 +233,38 @@ El MVP se considera apto para liberación únicamente si:
 | CP-REV-03 | Mostrar validación de comentario vacío | Detalle de bitácora cargado | Intentar publicar un comentario sin texto | Se muestra mensaje de validación indicando que el comentario no puede estar vacío | ✅ Pasa |
 | CP-REV-04 | Mostrar error si falla la actualización del estado | Intercept de actualización de bitácora con error 500 | Cambiar el estado de revisión y esperar la respuesta fallida | Se muestra un mensaje de error al actualizar el estado | ✅ Pasa |
 
-### 2.4 Módulo de rol - Beneficiario
+### 2.4 Módulo de Rol - Beneficiario
+
+#### 2.4.1 Tablero
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-BENEF-01 | Renderizar header con saludo dinámico y frase motivacional | Sesión activa de beneficiario y endpoint de sesiones disponible | Abrir el tablero y verificar saludo con nombre y frase motivacional | Se muestra saludo dinámico (Buenos días/tardes/noches), nombre del usuario y frase motivacional en naranja | ✅ Pasa |
+| CP-BENEF-02 | Mostrar las 4 stat cards con sus valores | Sesión activa de beneficiario y endpoint de sesiones disponible | Abrir el tablero y verificar las tarjetas de estadísticas | Se muestran las cards: Sesiones Realizadas, Sesiones Programadas, Sesiones Canceladas y Total de Sesiones | ✅ Pasa |
+| CP-BENEF-03 | Mostrar mensaje cuando no hay próxima sesión programada | Endpoint de sesiones responde lista vacía | Abrir el tablero sin sesiones registradas | Se muestra el mensaje "No tienes sesiones programadas próximamente" | ✅ Pasa |
+| CP-BENEF-04 | Mostrar próxima sesión con tema y tutor | Endpoint de sesiones con sesión programada futura | Abrir el tablero y verificar widget de próxima sesión | Se muestran el tema y el nombre del tutor de la próxima sesión | ✅ Pasa |
+| CP-BENEF-05 | Ocultar link de sesión si el beneficiario no ha confirmado asistencia | Próxima sesión con confirma_benef en false | Abrir el tablero y verificar el widget de próxima sesión | No se muestra el enlace de Zoom y aparece mensaje de aviso | ✅ Pasa |
+| CP-BENEF-06 | Mostrar link de sesión después de confirmar asistencia | Próxima sesión con confirma_benef en true | Abrir el tablero con asistencia confirmada | Se muestra el enlace "Unirse a la sesión ahora" | ✅ Pasa |
+| CP-BENEF-07 | Confirmar asistencia llama al endpoint correcto | Próxima sesión con confirma_benef en false y endpoint de asistencias disponible | Click en botón Confirmar Asistencia | Se ejecuta POST /api/asistencias/:id/confirmar y aparece toast de éxito | ✅ Pasa |
+| CP-BENEF-08 | Botón cancelar asistencia aparece después de confirmar | Próxima sesión con confirma_benef en true | Abrir el tablero con asistencia ya confirmada | Se muestran el badge "Asistencia Confirmada" y el botón Cancelar | ✅ Pasa |
+| CP-BENEF-09 | Mostrar calendario de sesiones con mes actual | Sesión activa y endpoint de sesiones disponible | Abrir el tablero y verificar el widget de calendario | Se muestra el calendario con el nombre del mes actual | ✅ Pasa |
+| CP-BENEF-10 | Mostrar historial reciente de sesiones | Endpoint de sesiones con sesiones realizadas | Abrir el tablero y verificar la sección Historial Reciente | Se muestran los temas de las sesiones del historial | ✅ Pasa |
+| CP-BENEF-11 | Redirigir a login sin autenticación | Usuario no autenticado | Intentar acceder a /beneficiario/dashboard sin token | La app redirige a /login | ✅ Pasa |
+
+#### 2.4.2 Mis Sesiones
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-BENEF-12 | Mostrar historial completo de sesiones | Sesión activa y endpoint de sesiones con datos | Abrir Mis Sesiones y verificar lista | Se muestran todas las sesiones del beneficiario con tema, fecha y tutor | ✅ Pasa |
+| CP-BENEF-13 | Mostrar badges de estado correctamente | Endpoint con sesiones en distintos estados | Abrir Mis Sesiones y revisar badges | Se muestran badges de realizada, programada y cancelada con colores correctos | ✅ Pasa |
+| CP-BENEF-14 | Filtro Programadas muestra solo sesiones programadas | Lista con sesiones de distintos estados | Click en filtro Programadas | Solo se muestran sesiones con estado programada; las demás desaparecen | ✅ Pasa |
+| CP-BENEF-15 | Filtro Realizadas muestra solo sesiones realizadas | Lista con sesiones de distintos estados | Click en filtro Realizadas | Solo se muestran sesiones con estado realizada; las demás desaparecen | ✅ Pasa |
+| CP-BENEF-16 | Filtro Canceladas muestra solo sesiones canceladas | Lista con sesiones de distintos estados | Click en filtro Canceladas | Solo se muestran sesiones con estado cancelada; las demás desaparecen | ✅ Pasa |
+| CP-BENEF-17 | Filtro Todas restablece el listado completo | Filtro previo aplicado | Click en filtro Programadas y luego en Todas | Se muestran nuevamente todas las sesiones sin importar su estado | ✅ Pasa |
+| CP-BENEF-18 | Mostrar empty state cuando no hay sesiones | Endpoint de sesiones responde lista vacía | Abrir Mis Sesiones sin sesiones registradas | Se muestra el mensaje "Sin sesiones" | ✅ Pasa |
+| CP-BENEF-19 | Mostrar empty state al filtrar por estado sin resultados | Lista sin sesiones del estado filtrado | Aplicar filtro de estado sin coincidencias | Se muestra el mensaje "Sin sesiones" para ese filtro | ✅ Pasa |
+| CP-BENEF-20 | No mostrar botón de confirmar asistencia en el historial | Sesión activa y endpoint de sesiones disponible | Abrir Mis Sesiones y revisar todas las sesiones | No aparece ningún botón de "Confirmar asistencia" en la lista | ✅ Pasa |
+| CP-BENEF-21 | Redirigir a login sin autenticación | Usuario no autenticado | Intentar acceder a /beneficiario/sesiones sin token | La app redirige a /login | ✅ Pasa |
 
 ### 2.5 Módulo de Rol - Coordinador
 
@@ -397,16 +425,19 @@ El MVP se considera apto para liberación únicamente si:
 | Bitácora - Tutor | 4 | Documentado |
 | Sesiones - Tutor | 6 | Documentado |
 | Revisión - Revisor | 4 | Documentado |
+| Beneficiario | 21 | Documentado |
 | Coordinador | 109 | Planificado |
 | Módulo integración entre roles | 0 | NO Documentado |
-| **TOTAL** | **185** | **Documentado** |
+| **TOTAL** | **206** | **Documentado** |
+
+---
 
 ## 3. Evaluación Heurística — Nielsen
 
 > **Fórmula ICH:** `ICH = (heurísticas sin violación ÷ 10) × 100`  
 > **Meta:** ICH ≥ 80% antes de liberar el MVP.  
 > **Severidad:** 1 = cosmético · 2 = menor · 3 = mayor · 4 = catastrófico · 5 = bloqueante.  
-> **Evaluador/a UX:** Itzel Covarrubias Basurto.
+> **Evaluador/a UX:** Ana Paola Oviedo Salgado.
 
 ### 3.1 Escala de Severidad
 
@@ -435,37 +466,56 @@ El MVP se considera apto para liberación únicamente si:
 | H9 | Ayuda a reconocer y recuperarse de errores | Los mensajes de error identifican el problema y sugieren solución en lenguaje claro | ✅ | — | Mensajes de error en rojo con descripción del problema en todos los formularios | — |
 | H10 | Ayuda y documentación | El sistema provee ayuda fácil de buscar orientada a la tarea del usuario | ❌ | 3 | D-04: No existe ningún texto de ayuda, tooltip ni documentación de usuario en el sistema | — |
 
-### 3.3 Resumen ICH
+### 3.3 Evaluación por Heurística — Semana 14 (Re-evaluación Final)
+
+> Flujo evaluado: flujos completos del MVP por rol (beneficiario, tutor, revisor, coordinador).  
+> Mejoras aplicadas entre S05 y S14: rediseño de dashboards, sistema de diseño TALK! con componente `Button` estándar, mejoras visuales en vista beneficiario (stat cards, calendario, gráfica de sesiones, frase motivacional), consistencia de estilos en toda la plataforma, textos de apoyo y mensajes contextuales en flujos críticos.
+
+| # | Heurística | Descripción | ¿Cumple? | Severidad | Observación |
+|---|-----------|-------------|:--------:|:---------:|-------------|
+| H1 | Visibilidad del estado del sistema | El sistema mantiene al usuario informado con retroalimentación oportuna | ✅ | — | Spinners, toasts y badges de estado presentes en todos los módulos |
+| H2 | Coincidencia con el mundo real | El sistema usa lenguaje familiar para el usuario | ✅ | — | Terminología consistente con el programa Talk! en toda la plataforma |
+| H3 | Control y libertad del usuario | El usuario puede salir de acciones no deseadas sin consecuencias | ✅ | — | D-02 resuelto: se agregó manejo de cancelación en formularios críticos |
+| H4 | Consistencia y estándares | Los elementos de interfaz son consistentes en todo el sistema | ✅ | — | D-01 resuelto: componente `Button` estándar aplicado en toda la plataforma (commit `a02ae5b`) |
+| H5 | Prevención de errores | El diseño evita errores antes de que el usuario los cometa | ✅ | — | Validaciones en todos los formularios con mensajes claros y específicos |
+| H6 | Reconocimiento antes que recuerdo | Opciones visibles sin necesidad de memorizar | ✅ | — | D-03 resuelto: navegación y elementos clave visibles sin necesidad de scroll |
+| H7 | Flexibilidad y eficiencia de uso | El sistema permite uso eficiente para usuarios con experiencia variada | ✅ | — | Flujos simplificados y acciones principales accesibles en una sola pantalla |
+| H8 | Diseño estético y minimalista | Las pantallas no contienen información irrelevante | ✅ | — | Dashboards rediseñados con información relevante y jerarquía visual clara |
+| H9 | Ayuda a reconocer y recuperarse de errores | Los mensajes de error identifican el problema y sugieren solución | ✅ | — | Mensajes de error descriptivos en todos los formularios y llamadas a la API |
+| H10 | Ayuda y documentación | El sistema provee ayuda contextual orientada a la tarea | ✅ | — | D-04 resuelto: textos de apoyo y mensajes contextuales agregados en flujos críticos |
+
+### 3.4 Resumen ICH
 
 | Evaluación | Fecha | Flujo evaluado | Heurísticas OK | ICH | ¿Cumple meta? |
 |-----------|-------|---------------|:--------------:|:---:|:-------------:|
-| Línea base (S05) | Sem. 5, 2026 | Registro sesión + confirmación | 7 / 10 | **70%** | ❌ No (meta: ≥ 80%) |
-| Re-evaluación (S11) | 15 may 2026 | Pendiente | — | — | ⬜ Pendiente |
-| Re-evaluación (S12) | _pendiente_ | — | — | — | ⬜ Pendiente |
+| Línea base (S05) | Sem. 5, 2026 | Registro sesión + confirmación asistencia | 7 / 10 | **70%** | ❌ No (meta: ≥ 80%) |
+| Re-evaluación final (S14) | 28 may 2026 | Flujos completos del MVP por rol | 10 / 10 | **100%** | ✅ Sí |
 
-### 3.4 Registro de Hallazgos
+### 3.5 Registro de Hallazgos
 
 | ID | Heurística | Descripción del hallazgo | Severidad | Estado | Responsable corrección | Fecha resolución |
 |----|-----------|--------------------------|:---------:|--------|----------------------|-----------------|
-| D-01 | H4 | Botón "Confirmar asistencia" con estilo inconsistente respecto al sistema de diseño | 3 | ✅ Resuelto | Ana Paola O. | ~23 may 2026 |
-| D-02 | H3 | Sin confirmación al abandonar formulario de bitácora con cambios sin guardar | 2 | 🔴 Abierto | Ana Paola O. | — |
-| D-03 | H6 | Tutor asignado no visible en "Asignaciones" sin hacer scroll en pantallas pequeñas | 2 | 🔴 Abierto | Ana Paola O. | — |
-| D-04 | H10 | Ausencia total de ayuda contextual, tooltips y documentación de usuario | 3 | 🔴 Abierto | Itzel C. | — |
+| D-01 | H4 | Botón "Confirmar asistencia" con estilo inconsistente respecto al sistema de diseño | 3 | ✅ Resuelto | Ana Paola O. | 23 may 2026 |
+| D-02 | H3 | Sin confirmación al abandonar formulario de bitácora con cambios sin guardar | 2 | ✅ Resuelto | Ana Paola O. | 26 may 2026 |
+| D-03 | H6 | Tutor asignado no visible en "Asignaciones" sin hacer scroll en pantallas pequeñas | 2 | ✅ Resuelto | Ana Paola O. | 26 may 2026 |
+| D-04 | H10 | Ausencia total de ayuda contextual, tooltips y documentación de usuario | 3 | ✅ Resuelto | Ana Paola O. | 26 may 2026 |
 
-> **Nota D-01:** El commit `a02ae5b` (23-may-2026, "new UI for auth") introdujo el componente `AuthLayout` y el sistema de diseño TALK! con `Button` estándar, resolviendo la inconsistencia detectada en la evaluación de S05.
+> **Nota D-01:** El commit `a02ae5b` (23-may-2026) introdujo el componente `Button` estándar resolviendo la inconsistencia detectada en S05.  
+> **Notas D-02, D-03, D-04:** Resueltos durante el rediseño y mejoras de UI/UX aplicadas en S13–S14.
 
-### 3.5 Resumen de Severidades
+### 3.6 Resumen de Severidades
 
-| Severidad | Cantidad | % del total |
-|:---------:|:--------:|:-----------:|
-| 5 — Bloqueante | 0 | 0% |
-| 4 — Catastrófico | 0 | 0% |
-| 3 — Mayor | 2 | 50% |
-| 2 — Menor | 2 | 50% |
-| 1 — Cosmético | 0 | 0% |
-| **Total** | **4** | — |
+| Severidad | S05 | S14 |
+|:---------:|:---:|:---:|
+| 5 — Bloqueante | 0 | 0 |
+| 4 — Catastrófico | 0 | 0 |
+| 3 — Mayor | 2 | 0 |
+| 2 — Menor | 2 | 0 |
+| 1 — Cosmético | 0 | 0 |
+| **Total abiertos** | **4** | **0** |
 
-> **Severidad promedio:** `(3+2+2+3) ÷ 4 = 2.5` · Meta: ≤ 2.5 ✅
+> **Severidad promedio S05:** `(3+2+2+3) ÷ 4 = 2.5` · Meta: ≤ 2.5 ✅  
+> **Severidad promedio S14:** `0` — todos los hallazgos resueltos ✅
 
 ---
 
