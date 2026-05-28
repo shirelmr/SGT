@@ -15,7 +15,7 @@ const SESIONES_MOCK = [
     estado: 'realizada',
     tutor: { nombre_completo: 'Test User' },
     beneficiario: { nombre_completo: 'Ana Beneficiaria' },
-    periodo: { nombre: 'Semestre 2026-1' },
+    periodo: { nombre: 'Semestre 2026-1', activo: true },
     bitacora: { id_bitacora: 5, estado: 'aprobado' },
   },
   {
@@ -31,7 +31,7 @@ const SESIONES_MOCK = [
     estado: 'programada',
     tutor: { nombre_completo: 'Test User' },
     beneficiario: { nombre_completo: 'Luis Beneficiario' },
-    periodo: { nombre: 'Semestre 2026-1' },
+    periodo: { nombre: 'Semestre 2026-1', activo: true },
     bitacora: null,
   },
 ]
@@ -68,7 +68,10 @@ describe('TC-01: Lista de sesiones del tutor con datos', () => {
   })
 
   it('muestra "Ver bitácora" en sesión con bitácora y "Registrar bitácora" en sesión sin bitácora', () => {
+    // 'Ver bitácora' solo aparece en el panel expandido del acordeón
+    cy.contains('Álgebra lineal').click()
     cy.contains('Ver bitácora').should('be.visible')
+    // 'Registrar bitácora' es visible en la fila colapsada de la sesión sin bitácora
     cy.contains('Registrar bitácora').should('be.visible')
   })
 })

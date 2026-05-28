@@ -1,26 +1,49 @@
+const FAKE_TOKEN = 'fake-tutor-token'
+const FAKE_USER = { id_usuario: 1, nombre_completo: 'Test User', email: 'test_sgt_001@example.com', rol: 'tutor' }
+
+const SESION_MOCK = {
+  id: 11,
+  id_tutor: 1,
+  id_beneficiario: 3,
+  id_periodo: 1,
+  fecha: '2026-05-15T00:00:00.000Z',
+  hora_inicio: '12:00',
+  duracion_hrs: 1,
+  tema: 'Cálculo diferencial',
+  estado: 'programada',
+  tutor: { nombre_completo: 'Test User' },
+  beneficiario: { nombre_completo: 'Luis Beneficiario' },
+  periodo: { nombre: 'Semestre 2026-1', activo: true },
+  bitacora: null,
+}
+
 describe('Formulario de Bitácora - Tutor', () => {
-  
+
   beforeEach(() => {
-    cy.visit('http://localhost:5173/login', {
-      failOnStatusCode: false
-    });
-    
-    cy.get('input[placeholder*="email"], input[type="email"], input[name="email"]').type('aris@test.com');
-    cy.get('input[placeholder*="contraseña"], input[type="password"], input[name="password"]').type('123456');
-    
-    cy.get('button').contains('Iniciar', { matchCase: false }).click();
-    
-    cy.url({ timeout: 10000 }).should('not.include', '/login');
-    
-    cy.visit('http://localhost:5173/tutor/sesiones', {
-      failOnStatusCode: false
-    });
-    
-    cy.get('body', { timeout: 10000 }).should('be.visible');
-    
-    cy.contains('button', 'Registrar bitácora').first().click({ force: true });
-    
-    cy.get('textarea', { timeout: 10000 }).should('exist');
+    // Intercepts: lista de sesiones, detalle de sesión, bitácora (404 → form vacío) y creación
+    cy.intercept('GET', '/api/sesiones', { statusCode: 200, body: [SESION_MOCK] }).as('getSesiones')
+    cy.intercept('GET', '/api/sesiones/11', { statusCode: 200, body: SESION_MOCK }).as('getSesion')
+    cy.intercept('GET', '/api/bitacoras/11', { statusCode: 404, body: { error: 'No encontrada' } }).as('getBitacora')
+    cy.intercept('POST', '/api/bitacoras', {
+      statusCode: 201,
+      body: { id: 99, actividades: '', logros: '', dificultades: '', plan_siguiente: '', evidencia: null, estado: 'pendiente' },
+    }).as('createBitacora')
+
+    // Autenticación sin UI: setear localStorage antes de que React monte
+    cy.visit('/tutor/sesiones', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('token', FAKE_TOKEN)
+        win.localStorage.setItem('user', JSON.stringify(FAKE_USER))
+        win.localStorage.setItem('rol', FAKE_USER.rol)
+      },
+    })
+    cy.wait('@getSesiones')
+
+    // Navegar al formulario de bitácora desde la fila colapsada
+    cy.contains('button', 'Registrar bitácora').first().click({ force: true })
+    cy.wait('@getSesion')
+    cy.wait('@getBitacora')
+    cy.get('textarea', { timeout: 10000 }).should('exist')
   });
 
   const fillBitacoraForm = (data) => {
