@@ -70,22 +70,34 @@ router.post('/sin-bitacora', auth, async (req, res) => {
 
       // Si se crea directamente como aprobado, acreditar horas igual que en el PUT
       if (estado === 'aprobado') {
-        const { duracion_hrs, id_tutor, id_periodo } = sesion
+        const { duracion_hrs, id_tutor, id_periodo, id_grupo_sesion } = sesion
         const horas_esperadas = Number(sesion.periodo?.horas_esperadas ?? 0)
 
         if (horas_esperadas > 0) {
-          const existing = await tx.horasAcreditadas.findUnique({
-            where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
-          })
-          const nuevasImpartidas = Number(existing?.horas_impartidas ?? 0) + Number(duracion_hrs)
-          const horasExtra = Number(existing?.horas_extra ?? 0)
-          const pct = Math.min(((nuevasImpartidas + horasExtra) / horas_esperadas) * 100, 100)
+          // Solo acredita si ninguna otra sesión del grupo ya tiene bitácora aprobada
+          const otrasAprobadas = id_grupo_sesion
+            ? await tx.bitacora.count({
+                where: {
+                  sesion: { id_grupo_sesion },
+                  estado: 'aprobado',
+                },
+              })
+            : 0
 
-          await tx.horasAcreditadas.upsert({
-            where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
-            create: { id_tutor, id_periodo, horas_impartidas: nuevasImpartidas, porcentaje_acred: pct, horas_extra: 0 },
-            update: { horas_impartidas: nuevasImpartidas, porcentaje_acred: pct },
-          })
+          if (otrasAprobadas === 0) {
+            const existing = await tx.horasAcreditadas.findUnique({
+              where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
+            })
+            const nuevasImpartidas = Number(existing?.horas_impartidas ?? 0) + Number(duracion_hrs)
+            const horasExtra = Number(existing?.horas_extra ?? 0)
+            const pct = Math.min(((nuevasImpartidas + horasExtra) / horas_esperadas) * 100, 100)
+
+            await tx.horasAcreditadas.upsert({
+              where: { id_tutor_id_periodo: { id_tutor, id_periodo } },
+              create: { id_tutor, id_periodo, horas_impartidas: nuevasImpartidas, porcentaje_acred: pct, horas_extra: 0 },
+              update: { horas_impartidas: nuevasImpartidas, porcentaje_acred: pct },
+            })
+          }
         }
       }
 
@@ -222,13 +234,28 @@ router.put('/:id', auth, async (req, res) => {
             const horasExtra = Number(existing?.horas_extra ?? 0)
             let nuevasImpartidas = actuales
 
-            // aprobado → otro: descontar horas
+            // Verifica si otra sesión del mismo grupo ya tiene bitácora aprobada
+            const otrasAprobadas = current.sesion.id_grupo_sesion
+              ? await tx.bitacora.count({
+                  where: {
+                    id_bitacora: { not: id },
+                    sesion: { id_grupo_sesion: current.sesion.id_grupo_sesion },
+                    estado: 'aprobado',
+                  },
+                })
+              : 0
+
+            // aprobado → otro: descontar horas solo si no quedan otras aprobadas en el grupo
             if (current.estado === 'aprobado' && estado !== 'aprobado') {
-              nuevasImpartidas = Math.max(0, actuales - Number(duracion_hrs))
+              if (otrasAprobadas === 0) {
+                nuevasImpartidas = Math.max(0, actuales - Number(duracion_hrs))
+              }
             }
-            // otro → aprobado: sumar horas
+            // otro → aprobado: sumar horas solo si es la primera aprobada en el grupo
             if (current.estado !== 'aprobado' && estado === 'aprobado') {
-              nuevasImpartidas = actuales + Number(duracion_hrs)
+              if (otrasAprobadas === 0) {
+                nuevasImpartidas = actuales + Number(duracion_hrs)
+              }
             }
 
             if (nuevasImpartidas !== actuales) {
