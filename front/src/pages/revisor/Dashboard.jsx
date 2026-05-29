@@ -145,15 +145,15 @@ export default function RevisorDashboard() {
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-gray-800 truncate">
-                              {b.sesion?.tema || `Sesión ID: ${b.sesion?.id_sesion || b.id}`}
+                              {b.sesion?.tema || 'Tema no registrado'}
                             </p>
                             <p className="text-xs text-gray-400 truncate">
-                              Tutor: {b.sesion?.tutor?.nombre_completo || 'Sin nombre'}
+                              Tutor: {b.sesion?.tutor?.nombre_completo || '—'} • Alumno: {b.sesion?.beneficiario?.nombre_completo || '—'}
                             </p>
                           </div>
                         </div>
                         <Link
-                          to={`/revisor/bitacoras/${b.id}`}
+                          to={`/revisor/bitacoras/${b.sesion?.id_sesion || b.id_sesion}`}
                           className="px-4 py-1.5 bg-orange-50 text-[#ee7e4c] hover:bg-orange-100 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap"
                         >
                           Revisar
