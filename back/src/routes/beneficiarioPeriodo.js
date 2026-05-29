@@ -27,7 +27,7 @@ router.get('/mi-progreso', auth, async (req, res) => {
 // GET /api/beneficiario-periodo/anteriores  (must be declared before /:id_periodo)
 router.get('/anteriores', auth, async (req, res) => {
   try {
-    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
     const activeId = periodoActivo?.id_periodo
 
     const whereClause = {

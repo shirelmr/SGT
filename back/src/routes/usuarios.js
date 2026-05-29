@@ -23,7 +23,7 @@ router.get('/', auth, async (req, res) => {
   const { rol, todos, id_periodo } = req.query
 
   try {
-    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
     const activeId = periodoActivo?.id_periodo
 
     let allRoleConditions
@@ -207,7 +207,7 @@ router.post('/', async (req, res) => {
     const password_hash = await bcrypt.hash(password, 10)
 
     const user = await prisma.$transaction(async (tx) => {
-      const periodoActivo = await tx.periodo.findFirst({ where: { activo: true } })
+      const periodoActivo = await tx.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
       const finalPeriodoId = id_periodo ? Number(id_periodo) : (periodoActivo?.id_periodo || null)
       const u = await tx.usuario.create({ data: { nombre_completo, email, password_hash, rol } })
 
@@ -275,7 +275,7 @@ router.post('/asignar-automatico', auth, async (req, res) => {
   }
 
   try {
-    const periodo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const periodo = await prisma.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
     if (!periodo) return res.status(400).json({ error: 'No hay periodo activo' })
 
     const tutores = await prisma.tutorTec.findMany({ where: { id_periodo: periodo.id_periodo } })
@@ -317,7 +317,7 @@ router.post('/asignar-revisores-automatico', auth, async (req, res) => {
   }
 
   try {
-    const periodo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const periodo = await prisma.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
     if (!periodo) return res.status(400).json({ error: 'No hay periodo activo' })
 
     const revisores = await prisma.revisor.findMany({ where: { id_periodo: periodo.id_periodo } })
@@ -442,7 +442,7 @@ router.post('/:id/alta', auth, async (req, res) => {
       return res.status(404).json({ error: 'Beneficiario no encontrado' })
     }
 
-    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
     if (!periodoActivo) {
       return res.status(400).json({ error: 'No hay periodo activo' })
     }

@@ -36,6 +36,12 @@ router.post('/', auth, async (req, res) => {
   }
   try {
     const periodo = await prisma.$transaction(async (tx) => {
+      const isActivo = activo ?? false
+
+      if (isActivo) {
+        await tx.periodo.updateMany({ data: { activo: false } })
+      }
+
       await tx.postulacion.deleteMany({})
 
       const p = await tx.periodo.create({
@@ -43,15 +49,17 @@ router.post('/', auth, async (req, res) => {
           nombre,
           fecha_inicio: new Date(fecha_inicio),
           fecha_fin: new Date(fecha_fin),
-          activo: activo ?? false,
+          activo: isActivo,
           horas_max: Number(horas_max),
           horas_esperadas: Number(horas_esperadas),
         },
       })
 
-      await tx.beneficiario.updateMany({
-        data: { id_periodo: p.id_periodo },
-      })
+      if (isActivo) {
+        await tx.beneficiario.updateMany({
+          data: { id_periodo: p.id_periodo },
+        })
+      }
 
       return p
     })
@@ -70,16 +78,21 @@ router.put('/:id', auth, async (req, res) => {
   const id = Number(req.params.id)
   const { nombre, fecha_inicio, fecha_fin, activo, horas_max, horas_esperadas } = req.body
   try {
-    const periodo = await prisma.periodo.update({
-      where: { id_periodo: id },
-      data: {
-        ...(nombre !== undefined && { nombre }),
-        ...(fecha_inicio !== undefined && { fecha_inicio: new Date(fecha_inicio) }),
-        ...(fecha_fin !== undefined && { fecha_fin: new Date(fecha_fin) }),
-        ...(activo !== undefined && { activo }),
-        ...(horas_max !== undefined && { horas_max: Number(horas_max) }),
-        ...(horas_esperadas !== undefined && { horas_esperadas: Number(horas_esperadas) }),
-      },
+    const periodo = await prisma.$transaction(async (tx) => {
+      if (activo === true) {
+        await tx.periodo.updateMany({ where: { id_periodo: { not: id } }, data: { activo: false } })
+      }
+      return tx.periodo.update({
+        where: { id_periodo: id },
+        data: {
+          ...(nombre !== undefined && { nombre }),
+          ...(fecha_inicio !== undefined && { fecha_inicio: new Date(fecha_inicio) }),
+          ...(fecha_fin !== undefined && { fecha_fin: new Date(fecha_fin) }),
+          ...(activo !== undefined && { activo }),
+          ...(horas_max !== undefined && { horas_max: Number(horas_max) }),
+          ...(horas_esperadas !== undefined && { horas_esperadas: Number(horas_esperadas) }),
+        },
+      })
     })
     res.json(fmt(periodo))
   } catch (err) {

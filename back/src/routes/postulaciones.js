@@ -33,7 +33,7 @@ const upload = multer({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 async function getPeriodoActivo() {
-  return prisma.periodo.findFirst({ where: { activo: true } })
+  return prisma.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
 }
 
 // ── POST /api/postulaciones  (public) ─────────────────────────────────────────

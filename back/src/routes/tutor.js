@@ -56,7 +56,7 @@ router.get('/mis-beneficiarios', auth, async (req, res) => {
     })
     if (!tutor) return res.json([])
 
-    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true } })
+    const periodoActivo = await prisma.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
 
     const beneficiarios = await prisma.beneficiario.findMany({
       where: { id_tutor: tutor.id_tutor },

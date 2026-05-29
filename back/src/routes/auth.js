@@ -61,7 +61,7 @@ router.post('/register', async (req, res) => {
           data: { id_usuario: u.id_usuario, departamento: departamento || null },
         })
       } else if (rol === 'tutor') {
-        const periodoActivo = await tx.periodo.findFirst({ where: { activo: true } })
+        const periodoActivo = await tx.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
         const tutor = await tx.tutorTec.create({
           data: {
             id_usuario: u.id_usuario,
@@ -79,7 +79,7 @@ router.post('/register', async (req, res) => {
           })
         }
       } else if (rol === 'beneficiario') {
-        const periodoActivoBenef = await tx.periodo.findFirst({ where: { activo: true } })
+        const periodoActivoBenef = await tx.periodo.findFirst({ where: { activo: true }, orderBy: { id_periodo: 'desc' } })
         await tx.beneficiario.create({
           data: {
             id_usuario: u.id_usuario,
