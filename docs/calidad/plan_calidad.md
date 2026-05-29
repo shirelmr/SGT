@@ -293,26 +293,26 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-COORD-POST-01 | Restringir acceso a postulaciones sin sesión | Usuario no autenticado | Navegar a /coordinador/postulaciones | La app redirige a /login | ⬜ Pendiente |
-| CP-COORD-POST-02 | Permitir acceso a postulaciones con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/postulaciones | Se renderiza la pantalla de postulaciones | ⬜ Pendiente |
-| CP-COORD-POST-03 | Mostrar carga inicial de postulaciones | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en la tabla | ⬜ Pendiente |
-| CP-COORD-POST-04 | Consumir endpoint base de listado | Intercept GET /postulaciones activo | Abrir pantalla | Se dispara GET /postulaciones una vez | ⬜ Pendiente |
-| CP-COORD-POST-05 | Enviar token en request de listado | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
-| CP-COORD-POST-06 | Renderizar columnas principales de tabla | GET /postulaciones responde datos válidos | Abrir pantalla y revisar encabezados/filas | Se muestran nombre, correo, matrícula, carrera, semestre, fecha y estado | ⬜ Pendiente |
-| CP-COORD-POST-07 | Mostrar badge correcto por estado de postulación | GET /postulaciones con estados pendiente/aceptado/rechazado | Abrir pantalla | Cada registro muestra su badge y etiqueta correcta | ⬜ Pendiente |
-| CP-COORD-POST-08 | Mostrar estado vacío sin postulaciones | GET /postulaciones responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay postulaciones para este periodo | ⬜ Pendiente |
-| CP-COORD-POST-09 | Filtrar por estado pendiente | Intercepts GET con params activos | Click en filtro Pendiente | Se consulta con estado=pendiente y lista filtrada | ⬜ Pendiente |
-| CP-COORD-POST-10 | Filtrar por estado aceptado | Intercepts GET con params activos | Click en filtro Aceptado | Se consulta con estado=aceptado y lista filtrada | ⬜ Pendiente |
-| CP-COORD-POST-11 | Filtrar por estado rechazado | Intercepts GET con params activos | Click en filtro Rechazado | Se consulta con estado=rechazado y lista filtrada | ⬜ Pendiente |
-| CP-COORD-POST-12 | Quitar filtro al seleccionar Todos | Filtro previo aplicado | Click en filtro Todos | Se consulta sin parámetro de estado y se restablece listado | ⬜ Pendiente |
-| CP-COORD-POST-13 | Abrir modal de detalle desde acción ver | GET /postulaciones con al menos un registro | Click en ícono de ojo | Se abre modal con datos completos de la postulación | ⬜ Pendiente |
-| CP-COORD-POST-14 | Cerrar modal sin acciones | Modal abierto | Click en Cerrar o cerrar modal | El modal se cierra sin cambios de estado | ⬜ Pendiente |
-| CP-COORD-POST-15 | Mostrar acciones de pendiente en modal | Modal de registro en estado pendiente | Abrir detalle de pendiente | Se muestran botones Rechazar y Aceptar | ⬜ Pendiente |
-| CP-COORD-POST-16 | Mostrar acción de aceptado/rechazado según estado | Modal de registro no pendiente | Abrir detalle de aceptado o rechazado | Se muestra solo acción permitida por estado | ⬜ Pendiente |
-| CP-COORD-POST-17 | Aceptar postulación exitosamente | PATCH /postulaciones/:id/aceptar responde 200 | Abrir modal pendiente y aceptar | Se muestra toast de éxito, cierra modal y recarga listado | ⬜ Pendiente |
-| CP-COORD-POST-18 | Rechazar postulación exitosamente | PATCH /postulaciones/:id/rechazar responde 200 | Abrir modal pendiente y rechazar | Se muestra toast de éxito, cierra modal y recarga listado | ⬜ Pendiente |
-| CP-COORD-POST-19 | Manejar error al aceptar/rechazar | PATCH responde 4xx/5xx | Ejecutar acción de cambio de estado | Se muestra toast de error y se mantiene contexto del usuario | ⬜ Pendiente |
-| CP-COORD-POST-20 | Bloquear llamadas indebidas desde módulo | Intercepts para endpoints no relacionados activos | Abrir pantalla y ejecutar acciones básicas | No se disparan auth/login, auth/register ni endpoints ajenos | ⬜ Pendiente |
+| CP-COORD-POST-01 | Restringir acceso a postulaciones sin sesión | Usuario no autenticado | Navegar a /coordinador/postulaciones | La app redirige a /login | ✅ Pasa |
+| CP-COORD-POST-02 | Permitir acceso a postulaciones con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/postulaciones | Se renderiza la pantalla de postulaciones | ✅ Pasa |
+| CP-COORD-POST-03 | Mostrar carga inicial de postulaciones | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en la tabla | ✅ Pasa |
+| CP-COORD-POST-04 | Consumir endpoint base de listado | Intercept GET /postulaciones activo | Abrir pantalla | Se dispara GET /postulaciones una vez | ✅ Pasa |
+| CP-COORD-POST-05 | Enviar token en request de listado | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ✅ Pasa |
+| CP-COORD-POST-06 | Renderizar columnas principales de tabla | GET /postulaciones responde datos válidos | Abrir pantalla y revisar encabezados/filas | Se muestran nombre, correo, matrícula, carrera, semestre, fecha y estado | ✅ Pasa |
+| CP-COORD-POST-07 | Mostrar badge correcto por estado de postulación | GET /postulaciones con estados pendiente/aceptado/rechazado | Abrir pantalla | Cada registro muestra su badge y etiqueta correcta | ✅ Pasa |
+| CP-COORD-POST-08 | Mostrar estado vacío sin postulaciones | GET /postulaciones responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay postulaciones para este periodo | ✅ Pasa |
+| CP-COORD-POST-09 | Filtrar por estado pendiente | Intercepts GET con params activos | Click en filtro Pendiente | Se consulta con estado=pendiente y lista filtrada | ✅ Pasa |
+| CP-COORD-POST-10 | Filtrar por estado aceptado | Intercepts GET con params activos | Click en filtro Aceptado | Se consulta con estado=aceptado y lista filtrada | ✅ Pasa |
+| CP-COORD-POST-11 | Filtrar por estado rechazado | Intercepts GET con params activos | Click en filtro Rechazado | Se consulta con estado=rechazado y lista filtrada | ✅ Pasa |
+| CP-COORD-POST-12 | Quitar filtro al seleccionar Todos | Filtro previo aplicado | Click en filtro Todos | Se consulta sin parámetro de estado y se restablece listado | ✅ Pasa |
+| CP-COORD-POST-13 | Abrir modal de detalle desde acción ver | GET /postulaciones con al menos un registro | Click en ícono de ojo | Se abre modal con datos completos de la postulación | ✅ Pasa |
+| CP-COORD-POST-14 | Cerrar modal sin acciones | Modal abierto | Click en Cerrar o cerrar modal | El modal se cierra sin cambios de estado | ✅ Pasa |
+| CP-COORD-POST-15 | Mostrar acciones de pendiente en modal | Modal de registro en estado pendiente | Abrir detalle de pendiente | Se muestran botones Rechazar y Aceptar | ✅ Pasa |
+| CP-COORD-POST-16 | Mostrar acción de aceptado/rechazado según estado | Modal de registro no pendiente | Abrir detalle de aceptado o rechazado | Se muestra solo acción permitida por estado | ✅ Pasa |
+| CP-COORD-POST-17 | Aceptar postulación exitosamente | PATCH /postulaciones/:id/aceptar responde 200 | Abrir modal pendiente y aceptar | Se muestra toast de éxito, cierra modal y recarga listado | ✅ Pasa |
+| CP-COORD-POST-18 | Rechazar postulación exitosamente | PATCH /postulaciones/:id/rechazar responde 200 | Abrir modal pendiente y rechazar | Se muestra toast de éxito, cierra modal y recarga listado | ✅ Pasa |
+| CP-COORD-POST-19 | Manejar error al aceptar/rechazar | PATCH responde 4xx/5xx | Ejecutar acción de cambio de estado | Se muestra toast de error y se mantiene contexto del usuario | ✅ Pasa |
+| CP-COORD-POST-20 | Bloquear llamadas indebidas desde módulo | Intercepts para endpoints no relacionados activos | Abrir pantalla y ejecutar acciones básicas | No se disparan auth/login, auth/register ni endpoints ajenos | ✅ Pasa |
 
 #### 2.5.3 Usuarios
 
@@ -426,7 +426,7 @@ El MVP se considera apto para liberación únicamente si:
 | Sesiones - Tutor | 6 | Documentado |
 | Revisión - Revisor | 4 | Documentado |
 | Beneficiario | 21 | Documentado |
-| Coordinador | 109 | Planificado |
+| Coordinador | 109 | Documentado |
 | Módulo integración entre roles | 0 | NO Documentado |
 | **TOTAL** | **206** | **Documentado** |
 
