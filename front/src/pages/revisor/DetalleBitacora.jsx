@@ -237,10 +237,11 @@ export default function DetalleBitacora() {
                     <p className="text-gray-800 whitespace-pre-wrap">{bitacora[field] || '—'}</p>
                   </div>
                 ))}
-                {bitacora.evidencia && (
-                  <div>
-                    <p className="text-xs text-gray-500 mb-2">Evidencia</p>
-                    {/\.(jpg|jpeg|png|webp)$/i.test(bitacora.evidencia) ? (
+                {/* Ahora el bloque de Evidencia SIEMPRE se renderiza */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Evidencia</p>
+                  {bitacora.evidencia ? (
+                    /\.(jpg|jpeg|png|webp)$/i.test(bitacora.evidencia) ? (
                       <a href={getFileUrl(bitacora.evidencia)} target="_blank" rel="noopener noreferrer">
                         <img src={getFileUrl(bitacora.evidencia)} alt="Evidencia" className="max-h-48 rounded-xl object-cover border border-gray-100" />
                       </a>
@@ -249,9 +250,14 @@ export default function DetalleBitacora() {
                         <PaperClipIcon className="w-4 h-4" />
                         {/\.pdf$/i.test(bitacora.evidencia) ? 'Ver PDF' : 'Ver archivo'}
                       </a>
-                    )}
-                  </div>
-                )}
+                    )
+                  ) : (
+                    /* Si no hay evidencia, mostramos un mensaje claro */
+                    <span className="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-xs rounded-lg italic">
+                      Sin evidencia adjunta
+                    </span>
+                  )}
+                </div>
               </div>
             </Card>
           ) : (
