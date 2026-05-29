@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, PaperClipIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PaperClipIcon, ExclamationCircleIcon, CheckCircleIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { getBitacora, updateBitacora, createRevisionSinBitacora } from '../../api/bitacoras';
-import { getComentarios, createComentario } from '../../api/comentarios';
+import { getComentarios, createComentario, deleteComentario, updateComentario } from '../../api/comentarios';
 import { getIncidenciasSesion } from '../../api/incidencias';
 import { getSesion } from '../../api/sesiones';
 import PageHeader from '../../components/shared/PageHeader';
@@ -42,14 +42,21 @@ export default function DetalleBitacora() {
   const [comentarios, setComentarios] = useState([]);
   const [incidencias, setIncidencias] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Estados para comentarios y status
   const [sendingComment, setSendingComment] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [modalOpen, setModalOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
   const [motivo, setMotivo] = useState('');
   const [motivoError, setMotivoError] = useState(false);
 
+  // Estados para edición inline de comentarios
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editCommentText, setEditCommentText] = useState('');
+
+  // Agregamos getValues y setValue para manipular el borrador del comentario
+  const { register, handleSubmit, reset, getValues, setValue, formState: { errors } } = useForm();
 
   useEffect(() => {
     async function load() {
@@ -86,13 +93,14 @@ export default function DetalleBitacora() {
     load();
   }, [id]);
 
+  // ─── Funciones CRUD de Comentarios ────────────────────────────────────────
 
   async function onCommentSubmit(data) {
     setSendingComment(true);
     try {
       await createComentario({ texto: data.texto, id_bitacora: bitacora.id });
       toast.success('Comentario enviado');
-      reset();
+      setValue('texto', ''); // Limpiamos el form
       const cRes = await getComentarios(bitacora.id);
       setComentarios(cRes.data || []);
     } catch (err) {
@@ -102,16 +110,57 @@ export default function DetalleBitacora() {
     }
   }
 
+  async function handleDeleteComment(commentId) {
+    if (!window.confirm('¿Seguro que deseas eliminar este comentario?')) return;
+    try {
+      await deleteComentario(commentId);
+      setComentarios((prev) => prev.filter(c => c.id !== commentId));
+      toast.success('Comentario eliminado');
+    } catch (err) {
+      toast.error('Error al eliminar el comentario');
+    }
+  }
+
+  async function handleEditCommentSubmit(commentId) {
+    if (!editCommentText.trim()) return;
+    try {
+      await updateComentario(commentId, { texto: editCommentText });
+      setComentarios((prev) => prev.map(c => c.id === commentId ? { ...c, texto: editCommentText } : c));
+      setEditingCommentId(null);
+      toast.success('Comentario actualizado');
+    } catch (err) {
+      toast.error('Error al actualizar comentario');
+    }
+  }
+
+  // ─── Flujo Inteligente de Cambio de Estado ────────────────────────────────
+
   function handleStatusChange(nuevoEstado) {
     if (['no_aprobada', 'aprobado_sin_horas'].includes(nuevoEstado)) {
       setPendingStatus(nuevoEstado);
-      setMotivo('');
+      
+      const draft = getValues('texto');
+      if (draft && draft.trim() !== '') {
+        setMotivo(draft);
+        setValue('texto', ''); 
+      } else {
+        setMotivo('');
+      }
+      
       setMotivoError(false);
       setModalOpen(true);
       return;
     }
     executeStatusChange(nuevoEstado, '');
   }
+
+  const handleModalSubmit = () => {
+    if ((!motivo || motivo.trim() === '') && comentarios.length === 0) {
+      setMotivoError(true);
+      return;
+    }
+    executeStatusChange(pendingStatus, motivo);
+  };
 
   async function executeStatusChange(nuevoEstado, comentarioText) {
     setUpdatingStatus(true);
@@ -128,34 +177,25 @@ export default function DetalleBitacora() {
         bitacoraId = res.data.id;
       }
 
-      if (comentarioText) {
+      if (comentarioText && comentarioText.trim() !== '') {
         await createComentario({ texto: comentarioText, id_bitacora: bitacoraId });
         const cRes = await getComentarios(bitacoraId);
         setComentarios(cRes.data || []);
       }
 
       if (nuevoEstado === 'aprobado') toast.success('Bitácora aprobada y horas acreditadas');
-      else if (nuevoEstado === 'aprobado_sin_horas') toast.success('Sesión aprobada sin horas. Comentario guardado.');
-      else toast.success(`Estado actualizado y motivo enviado al tutor.`);
+      else if (nuevoEstado === 'aprobado_sin_horas') toast.success('Sesión aprobada sin horas.');
+      else toast.success(`Estado actualizado.`);
       
       setModalOpen(false);
     } catch (err) {
       console.error('Error del backend:', err);
-      toast.error('Error al actualizar el estado o guardar el comentario');
+      toast.error('Error al actualizar el estado');
     } finally {
       setUpdatingStatus(false);
       setPendingStatus(null);
     }
   }
-
-  // 3. Valida el modal antes de enviar
-  const handleModalSubmit = () => {
-    if (!motivo || motivo.trim() === '') {
-      setMotivoError(true);
-      return;
-    }
-    executeStatusChange(pendingStatus, motivo);
-  };
 
   if (loading) {
     return <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>;
@@ -237,7 +277,7 @@ export default function DetalleBitacora() {
                     <p className="text-gray-800 whitespace-pre-wrap">{bitacora[field] || '—'}</p>
                   </div>
                 ))}
-                {/* Ahora el bloque de Evidencia SIEMPRE se renderiza */}
+                
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Evidencia</p>
                   {bitacora.evidencia ? (
@@ -252,7 +292,6 @@ export default function DetalleBitacora() {
                       </a>
                     )
                   ) : (
-                    /* Si no hay evidencia, mostramos un mensaje claro */
                     <span className="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-xs rounded-lg italic">
                       Sin evidencia adjunta
                     </span>
@@ -321,16 +360,52 @@ export default function DetalleBitacora() {
                 {comentarios.length === 0 ? (
                   <p className="text-gray-400 text-sm">Sin comentarios aún.</p>
                 ) : (
-                  <ul className="space-y-3 max-h-64 overflow-y-auto">
+                  <ul className="space-y-3 max-h-64 overflow-y-auto pr-2">
                     {comentarios.map((c) => (
                       <li key={c.id} className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-sm font-medium text-gray-800">{c.revisor?.nombre_completo || 'Revisor'}</p>
-                          <span className="text-xs text-gray-400">
-                            {new Date(c.fecha_creacion).toLocaleDateString('es-MX')}
-                          </span>
+                        <div className="flex items-start justify-between mb-2 gap-2">
+                          <div>
+                            <p className="text-sm font-medium text-gray-800">{c.revisor?.nombre_completo || 'Revisor'}</p>
+                            <span className="text-xs text-gray-400">
+                              {new Date(c.fecha_creacion).toLocaleDateString('es-MX')}
+                            </span>
+                          </div>
+                          {/* Botones de acción Edit/Delete - Siempre visibles */}
+                          <div className="flex items-center gap-1">
+                            <button 
+                              onClick={() => { setEditingCommentId(c.id); setEditCommentText(c.texto); }} 
+                              className="p-1 text-gray-400 hover:text-blue-500 rounded transition-colors" 
+                              title="Editar comentario"
+                            >
+                              <PencilSquareIcon className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteComment(c.id)} 
+                              className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors" 
+                              title="Eliminar comentario"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-600">{c.texto}</p>
+                        
+                        {/* Editor Inline */}
+                        {editingCommentId === c.id ? (
+                          <div className="mt-2 space-y-2">
+                            <textarea
+                              value={editCommentText}
+                              onChange={(e) => setEditCommentText(e.target.value)}
+                              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400 resize-none"
+                              rows={2}
+                            />
+                            <div className="flex gap-2 justify-end">
+                              <Button size="sm" variant="ghost" onClick={() => setEditingCommentId(null)}>Cancelar</Button>
+                              <Button size="sm" onClick={() => handleEditCommentSubmit(c.id)}>Guardar</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-600 whitespace-pre-wrap">{c.texto}</p>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -366,19 +441,26 @@ export default function DetalleBitacora() {
           </div>
         </div>
       </div>
+      
+      {/* ─── Modal de Cambio de Estado ────────────────────────────────────────── */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 transition-all">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-red-100 animate-fade-in-up">
-            {/* Header del modal */}
             <div className="bg-red-50 p-4 border-b border-red-100 flex items-center gap-2">
               <ExclamationCircleIcon className="w-5 h-5 text-red-600" />
-              <h3 className="text-red-800 font-semibold">Comentario Obligatorio</h3>
+              <h3 className="text-red-800 font-semibold">
+                {comentarios.length > 0 ? 'Notificación al Tutor' : 'Comentario Obligatorio'}
+              </h3>
             </div>
             
-            {/* Cuerpo del modal */}
             <div className="p-5 space-y-4">
               <p className="text-sm text-gray-600">
-                Por favor, explica el motivo por el cual la bitácora <span className="font-semibold text-red-600">{pendingStatus === 'no_aprobada' ? 'no se aprueba' : 'no acredita horas'}</span>. Esto se le notificará al tutor:
+                Explica el motivo por el cual la bitácora <span className="font-semibold text-red-600">{pendingStatus === 'no_aprobada' ? 'no se aprueba' : 'no acredita horas'}</span>.
+                {comentarios.length > 0 && (
+                  <span className="block mt-2 text-xs text-orange-600 font-medium">
+                    * Como ya publicaste comentarios previos, puedes dejar esto en blanco si el motivo de rechazo ya quedó claro en tu retroalimentación.
+                  </span>
+                )}
               </p>
               
               <div>
@@ -389,15 +471,14 @@ export default function DetalleBitacora() {
                     ? 'border-red-400 focus:border-red-500 bg-red-50/50' 
                     : 'border-gray-200 focus:border-red-300'
                   }`}
-                  placeholder="Escribe el motivo aquí..."
+                  placeholder={comentarios.length > 0 ? "Escribe un motivo (opcional)..." : "Escribe el motivo obligatorio aquí..."}
                   value={motivo}
                   onChange={(e) => { setMotivo(e.target.value); setMotivoError(false); }}
                   disabled={updatingStatus}
                 />
-                {motivoError && <p className="text-xs text-red-500 mt-1">Debes ingresar un motivo para continuar.</p>}
+                {motivoError && <p className="text-xs text-red-500 mt-1">Debes ingresar un motivo para poder continuar.</p>}
               </div>
 
-              {/* Botones */}
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   onClick={() => { setModalOpen(false); setPendingStatus(null); setMotivo(''); }}

@@ -74,6 +74,13 @@ export default function Bitacoras() {
     return tutorMatch && estadoMatch;
   });
 
+  // Lógica para detectar y limpiar filtros
+  const hayFiltrosActivos = filterTutor !== '' || filterEstado !== '';
+  const limpiarFiltros = () => {
+    setFilterTutor('');
+    setFilterEstado('');
+  };
+
   const columns = [
     {
       key: 'tema',
@@ -124,7 +131,7 @@ export default function Bitacoras() {
     <div>
       <PageHeader title="Bitácoras" subtitle="Revisa y comenta las bitácoras de los tutores" />
 
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <select
           value={selectedPeriodo}
           onChange={(e) => setSelectedPeriodo(e.target.value)}
@@ -154,6 +161,15 @@ export default function Bitacoras() {
           <option value="no_aprobada">No aprobada</option>
           <option value="aprobado_sin_horas">Aprobado sin horas</option>
         </select>
+
+        {hayFiltrosActivos && (
+          <button 
+            onClick={limpiarFiltros} 
+            className="text-xs text-orange-500 hover:text-orange-700 font-medium transition-colors ml-1"
+          >
+            Limpiar
+          </button>
+        )}
       </div>
 
       {!selectedPeriodo ? (
@@ -166,7 +182,7 @@ export default function Bitacoras() {
               columns={columns}
               data={filtered}
               loading={loading}
-              emptyMessage="No hay bitácoras en este periodo"
+              emptyMessage="No hay bitácoras en este periodo que coincidan con los filtros"
             />
           </div>
 
@@ -176,14 +192,11 @@ export default function Bitacoras() {
               <p className="text-sm text-gray-500 mb-4">Sesiones donde el tutor registró una incidencia pero no entregó bitácora</p>
               <Table
                 columns={[
-                  // ¡NUEVA COLUMNA DE TEMA HOMOLOGADA!
                   { 
                     key: 'tema', 
                     label: 'Tema de la clase', 
                     render: (_, row) => (
-                      <span className="font-medium text-gray-800">
-                        {row.tema || 'Sin tema'}
-                      </span>
+                      <span className="font-medium text-gray-800">{row.tema || 'Sin tema'}</span>
                     ) 
                   },
                   { key: 'tutor', label: 'Tutor', render: (_, row) => row.tutor?.nombre_completo || '—' },
