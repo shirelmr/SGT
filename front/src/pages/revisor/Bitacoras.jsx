@@ -76,13 +76,22 @@ export default function Bitacoras() {
 
   const columns = [
     {
+      key: 'tema',
+      label: 'Tema de la clase',
+      render: (_, row) => (
+        <span className="font-medium text-gray-800">
+          {row.sesion?.tema || 'Sin tema'}
+        </span>
+      ),
+    },
+    {
       key: 'tutor',
       label: 'Tutor',
       render: (_, row) => row.sesion?.tutor?.nombre_completo || '—',
     },
     {
       key: 'beneficiario',
-      label: 'Beneficiario',
+      label: 'Alumno',
       render: (_, row) => row.sesion?.beneficiario?.nombre_completo || '—',
     },
     {
@@ -92,7 +101,7 @@ export default function Bitacoras() {
     },
     {
       key: 'fecha_registro',
-      label: 'Fecha registro',
+      label: 'Fecha entrega',
       render: (_, row) => row.fecha_registro ? new Date(row.fecha_registro).toLocaleDateString('es-MX') : '—',
     },
     {
@@ -167,8 +176,18 @@ export default function Bitacoras() {
               <p className="text-sm text-gray-500 mb-4">Sesiones donde el tutor registró una incidencia pero no entregó bitácora</p>
               <Table
                 columns={[
+                  // ¡NUEVA COLUMNA DE TEMA HOMOLOGADA!
+                  { 
+                    key: 'tema', 
+                    label: 'Tema de la clase', 
+                    render: (_, row) => (
+                      <span className="font-medium text-gray-800">
+                        {row.tema || 'Sin tema'}
+                      </span>
+                    ) 
+                  },
                   { key: 'tutor', label: 'Tutor', render: (_, row) => row.tutor?.nombre_completo || '—' },
-                  { key: 'beneficiario', label: 'Beneficiario', render: (_, row) => row.beneficiario?.nombre_completo || '—' },
+                  { key: 'beneficiario', label: 'Alumno', render: (_, row) => row.beneficiario?.nombre_completo || '—' },
                   { key: 'fecha', label: 'Fecha sesión', render: (_, row) => row.fecha ? new Date(row.fecha).toLocaleDateString('es-MX') : '—' },
                   {
                     key: 'incidencias', label: 'Incidencias', render: (_, row) => (
