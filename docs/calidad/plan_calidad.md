@@ -318,78 +318,78 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-COORD-USR-01 | Restringir acceso a usuarios sin sesión | Usuario no autenticado | Navegar a /coordinador/usuarios | La app redirige a /login | ⬜ Pendiente |
-| CP-COORD-USR-02 | Permitir acceso a usuarios con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/usuarios | Se renderiza la pantalla de usuarios | ⬜ Pendiente |
-| CP-COORD-USR-03 | Consumir endpoint base de listado de usuarios | Intercept GET /usuarios activo | Abrir pantalla | Se dispara GET /usuarios al menos una vez | ⬜ Pendiente |
-| CP-COORD-USR-04 | Enviar token en request de listado de usuarios | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
-| CP-COORD-USR-05 | Renderizar tabla con columnas y datos principales | GET /usuarios responde datos válidos | Abrir pantalla y revisar encabezados/filas | Se muestran nombre, correo y rol de cada usuario | ⬜ Pendiente |
-| CP-COORD-USR-06 | Mostrar badges correctos por rol | GET /usuarios con roles mixtos | Abrir pantalla | Cada fila muestra badge correcto para tutor/beneficiario/revisor/coordinador | ⬜ Pendiente |
-| CP-COORD-USR-07 | Filtrar usuarios por nombre | Lista con múltiples usuarios | Escribir texto en buscador por nombre | Solo se muestran usuarios que coinciden con la búsqueda | ⬜ Pendiente |
-| CP-COORD-USR-08 | Filtrar usuarios por rol | Lista con roles mixtos y filtro activo | Seleccionar rol en filtro | La tabla muestra solo usuarios del rol seleccionado | ⬜ Pendiente |
-| CP-COORD-USR-09 | Mostrar estado vacío cuando no hay usuarios | GET /usuarios responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay usuarios registrados | ⬜ Pendiente |
+| CP-COORD-USR-01 | Restringir acceso a usuarios sin sesión | Usuario no autenticado | Navegar a /coordinador/usuarios | La app redirige a /login | ✅ Pasa |
+| CP-COORD-USR-02 | Permitir acceso a usuarios con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/usuarios | Se renderiza la pantalla de usuarios | ✅ Pasa |
+| CP-COORD-USR-03 | Consumir endpoint base de listado de usuarios | Intercept GET /usuarios activo | Abrir pantalla | Se dispara GET /usuarios al menos una vez | ✅ Pasa |
+| CP-COORD-USR-04 | Enviar token en request de listado de usuarios | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ✅ Pasa |
+| CP-COORD-USR-05 | Renderizar tabla con columnas y datos principales | GET /usuarios responde datos válidos | Abrir pantalla y revisar encabezados/filas | Se muestran nombre, correo y rol de cada usuario | ✅ Pasa |
+| CP-COORD-USR-06 | Mostrar badges correctos por rol | GET /usuarios con roles mixtos | Abrir pantalla | Cada fila muestra badge correcto para tutor/beneficiario/revisor/coordinador | ✅ Pasa |
+| CP-COORD-USR-07 | Filtrar usuarios por nombre | Lista con múltiples usuarios | Escribir texto en buscador por nombre | Solo se muestran usuarios que coinciden con la búsqueda | ✅ Pasa |
+| CP-COORD-USR-08 | Filtrar usuarios por rol | Lista con roles mixtos y filtro activo | Seleccionar rol en filtro | La tabla muestra solo usuarios del rol seleccionado | ✅ Pasa |
+| CP-COORD-USR-09 | Mostrar estado vacío cuando no hay usuarios | GET /usuarios responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay usuarios registrados | ✅ Pasa |
 
 #### 2.5.4 Periodos
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-COORD-PER-01 | Restringir acceso a periodos sin sesión | Usuario no autenticado | Navegar a /coordinador/periodos | La app redirige a /login | ⬜ Pendiente |
-| CP-COORD-PER-02 | Permitir acceso a periodos con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/periodos | Se renderiza la pantalla de periodos | ⬜ Pendiente |
-| CP-COORD-PER-03 | Mostrar carga inicial de periodos | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en tabla/listado | ⬜ Pendiente |
-| CP-COORD-PER-04 | Consumir endpoint base de listado de periodos | Intercept GET /periodos activo | Abrir pantalla | Se dispara GET /periodos al menos una vez | ⬜ Pendiente |
-| CP-COORD-PER-05 | Enviar token en requests de periodos | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
-| CP-COORD-PER-06 | Renderizar tabla con datos principales de periodos | GET /periodos responde datos válidos | Abrir pantalla y revisar filas | Se muestran nombre, fechas y estado de cada periodo | ⬜ Pendiente |
-| CP-COORD-PER-07 | Mostrar badge correcto por estado de periodo | GET /periodos con periodos activos/inactivos | Abrir pantalla | Cada fila muestra badge y etiqueta correcta de estado | ⬜ Pendiente |
-| CP-COORD-PER-08 | Abrir modal de creación de periodo | Pantalla de periodos cargada | Click en Nuevo periodo | Se abre modal con formulario de creación | ⬜ Pendiente |
-| CP-COORD-PER-09 | Validar campos obligatorios al crear periodo | Modal de creación abierto | Enviar formulario vacío | Se muestran mensajes de validación obligatoria | ⬜ Pendiente |
-| CP-COORD-PER-10 | Crear periodo exitosamente | POST /periodos responde 201 | Completar formulario y guardar | Se muestra feedback de éxito y se actualiza listado | ⬜ Pendiente |
-| CP-COORD-PER-11 | Manejar error de duplicidad al crear periodo | POST /periodos responde 409 | Enviar formulario con datos duplicados | Se muestra mensaje de conflicto sin cerrar contexto | ⬜ Pendiente |
-| CP-COORD-PER-12 | Abrir modal de edición con datos precargados | Lista con al menos un periodo existente | Click en editar periodo | Modal abre con datos actuales del periodo seleccionado | ⬜ Pendiente |
-| CP-COORD-PER-13 | Actualizar periodo exitosamente | PATCH /periodos/:id responde 200 | Editar datos y guardar cambios | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
-| CP-COORD-PER-14 | Manejar error en creación/edición de periodo | POST/PATCH responde 4xx/5xx | Intentar guardar cambios | Se muestra mensaje de error y se conserva el formulario | ⬜ Pendiente |
-| CP-COORD-PER-15 | Mostrar estado vacío cuando no hay periodos | GET /periodos responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay periodos registrados | ⬜ Pendiente |
-| CP-COORD-PER-16 | Bloquear llamadas indebidas desde módulo periodos | Intercepts para endpoints no relacionados activos | Abrir pantalla y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
+| CP-COORD-PER-01 | Restringir acceso a periodos sin sesión | Usuario no autenticado | Navegar a /coordinador/periodos | La app redirige a /login | ✅ Pasa |
+| CP-COORD-PER-02 | Permitir acceso a periodos con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/periodos | Se renderiza la pantalla de periodos | ✅ Pasa |
+| CP-COORD-PER-03 | Mostrar carga inicial de periodos | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en tabla/listado | ✅ Pasa |
+| CP-COORD-PER-04 | Consumir endpoint base de listado de periodos | Intercept GET /periodos activo | Abrir pantalla | Se dispara GET /periodos al menos una vez | ✅ Pasa |
+| CP-COORD-PER-05 | Enviar token en requests de periodos | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ✅ Pasa |
+| CP-COORD-PER-06 | Renderizar tabla con datos principales de periodos | GET /periodos responde datos válidos | Abrir pantalla y revisar filas | Se muestran nombre, fechas y estado de cada periodo | ✅ Pasa |
+| CP-COORD-PER-07 | Mostrar badge correcto por estado de periodo | GET /periodos con periodos activos/inactivos | Abrir pantalla | Cada fila muestra badge y etiqueta correcta de estado | ✅ Pasa |
+| CP-COORD-PER-08 | Abrir modal de creación de periodo | Pantalla de periodos cargada | Click en Nuevo periodo | Se abre modal con formulario de creación | ✅ Pasa |
+| CP-COORD-PER-09 | Validar campos obligatorios al crear periodo | Modal de creación abierto | Enviar formulario vacío | Se muestran mensajes de validación obligatoria | ✅ Pasa |
+| CP-COORD-PER-10 | Crear periodo exitosamente | POST /periodos responde 201 | Completar formulario y guardar | Se muestra feedback de éxito y se actualiza listado | ✅ Pasa |
+| CP-COORD-PER-11 | Manejar error de duplicidad al crear periodo | POST /periodos responde 409 | Enviar formulario con datos duplicados | Se muestra mensaje de conflicto sin cerrar contexto | ✅ Pasa |
+| CP-COORD-PER-12 | Abrir modal de edición con datos precargados | Lista con al menos un periodo existente | Click en editar periodo | Modal abre con datos actuales del periodo seleccionado | ✅ Pasa |
+| CP-COORD-PER-13 | Actualizar periodo exitosamente | PATCH /periodos/:id responde 200 | Editar datos y guardar cambios | Se muestra feedback de éxito y listado actualizado | ✅ Pasa |
+| CP-COORD-PER-14 | Manejar error en creación/edición de periodo | POST/PATCH responde 4xx/5xx | Intentar guardar cambios | Se muestra mensaje de error y se conserva el formulario | ✅ Pasa |
+| CP-COORD-PER-15 | Mostrar estado vacío cuando no hay periodos | GET /periodos responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay periodos registrados | ✅ Pasa |
+| CP-COORD-PER-16 | Bloquear llamadas indebidas desde módulo periodos | Intercepts para endpoints no relacionados activos | Abrir pantalla y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ✅ Pasa |
 
 #### 2.5.5 Asignaciones
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-COORD-ASG-01 | Restringir acceso a asignaciones sin sesión | Usuario no autenticado | Navegar a /coordinador/asignaciones | La app redirige a /login | ⬜ Pendiente |
-| CP-COORD-ASG-02 | Permitir acceso a asignaciones con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/asignaciones | Se renderiza la pantalla de asignaciones | ⬜ Pendiente |
-| CP-COORD-ASG-03 | Mostrar carga inicial de asignaciones | Sesión activa y requests GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en el módulo | ⬜ Pendiente |
-| CP-COORD-ASG-04 | Consumir endpoints requeridos del módulo | Intercepts activos para /asignaciones, /tutores y /beneficiarios | Abrir pantalla | Se disparan llamadas GET requeridas al cargar | ⬜ Pendiente |
-| CP-COORD-ASG-05 | Enviar token en requests de asignaciones | Sesión activa con token | Abrir pantalla con validación de headers | Requests incluyen Authorization Bearer | ⬜ Pendiente |
-| CP-COORD-ASG-06 | Renderizar tabla/listado de asignaciones existentes | GET /asignaciones responde datos válidos | Abrir pantalla y revisar filas | Se muestran tutor, beneficiario, periodo y estado por asignación | ⬜ Pendiente |
-| CP-COORD-ASG-07 | Mostrar estado vacío cuando no hay asignaciones | GET /asignaciones responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay asignaciones registradas | ⬜ Pendiente |
-| CP-COORD-ASG-08 | Abrir modal de nueva asignación | Pantalla de asignaciones cargada | Click en Nueva asignación | Se abre modal con formulario de creación | ⬜ Pendiente |
-| CP-COORD-ASG-09 | Validar campos obligatorios en creación | Modal de creación abierto | Enviar formulario vacío | Se muestran mensajes de validación obligatoria | ⬜ Pendiente |
-| CP-COORD-ASG-10 | Crear asignación exitosamente | POST /asignaciones responde 201 | Seleccionar tutor/beneficiario/periodo y guardar | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
-| CP-COORD-ASG-11 | Manejar conflicto por asignación duplicada | POST /asignaciones responde 409 | Intentar crear combinación ya existente | Se muestra mensaje de conflicto sin cerrar contexto | ⬜ Pendiente |
-| CP-COORD-ASG-12 | Abrir modal de edición con datos precargados | Existe al menos una asignación en tabla | Click en editar una asignación | Modal abre con datos actuales precargados | ⬜ Pendiente |
-| CP-COORD-ASG-13 | Actualizar asignación exitosamente | PATCH /asignaciones/:id responde 200 | Modificar datos y guardar | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
-| CP-COORD-ASG-14 | Manejar error al crear o editar asignación | POST/PATCH responde 4xx/5xx | Intentar guardar cambios | Se muestra mensaje de error y formulario permanece abierto | ⬜ Pendiente |
-| CP-COORD-ASG-15 | Filtrar asignaciones por criterio visible | Lista con datos mixtos y filtro activo | Aplicar filtro de búsqueda/estado | Se muestran solo asignaciones que cumplen el criterio | ⬜ Pendiente |
-| CP-COORD-ASG-16 | Bloquear llamadas indebidas desde módulo asignaciones | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
+| CP-COORD-ASG-01 | Restringir acceso a asignaciones sin sesión | Usuario no autenticado | Navegar a /coordinador/asignaciones | La app redirige a /login | ✅ Pasa |
+| CP-COORD-ASG-02 | Permitir acceso a asignaciones con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/asignaciones | Se renderiza la pantalla de asignaciones | ✅ Pasa |
+| CP-COORD-ASG-03 | Mostrar carga inicial de asignaciones | Sesión activa y requests GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en el módulo | ✅ Pasa |
+| CP-COORD-ASG-04 | Consumir endpoints requeridos del módulo | Intercepts activos para /asignaciones, /tutores y /beneficiarios | Abrir pantalla | Se disparan llamadas GET requeridas al cargar | ✅ Pasa |
+| CP-COORD-ASG-05 | Enviar token en requests de asignaciones | Sesión activa con token | Abrir pantalla con validación de headers | Requests incluyen Authorization Bearer | ✅ Pasa |
+| CP-COORD-ASG-06 | Renderizar tabla/listado de asignaciones existentes | GET /asignaciones responde datos válidos | Abrir pantalla y revisar filas | Se muestran tutor, beneficiario, periodo y estado por asignación | ✅ Pasa |
+| CP-COORD-ASG-07 | Mostrar estado vacío cuando no hay asignaciones | GET /asignaciones responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay asignaciones registradas | ✅ Pasa |
+| CP-COORD-ASG-08 | Abrir modal de nueva asignación | Pantalla de asignaciones cargada | Click en Nueva asignación | Se abre modal con formulario de creación | ✅ Pasa |
+| CP-COORD-ASG-09 | Validar campos obligatorios en creación | Modal de creación abierto | Enviar formulario vacío | Se muestran mensajes de validación obligatoria | ✅ Pasa |
+| CP-COORD-ASG-10 | Crear asignación exitosamente | POST /asignaciones responde 201 | Seleccionar tutor/beneficiario/periodo y guardar | Se muestra feedback de éxito y listado actualizado | ✅ Pasa |
+| CP-COORD-ASG-11 | Manejar conflicto por asignación duplicada | POST /asignaciones responde 409 | Intentar crear combinación ya existente | Se muestra mensaje de conflicto sin cerrar contexto | ✅ Pasa |
+| CP-COORD-ASG-12 | Abrir modal de edición con datos precargados | Existe al menos una asignación en tabla | Click en editar una asignación | Modal abre con datos actuales precargados | ✅ Pasa |
+| CP-COORD-ASG-13 | Actualizar asignación exitosamente | PATCH /asignaciones/:id responde 200 | Modificar datos y guardar | Se muestra feedback de éxito y listado actualizado | ✅ Pasa |
+| CP-COORD-ASG-14 | Manejar error al crear o editar asignación | POST/PATCH responde 4xx/5xx | Intentar guardar cambios | Se muestra mensaje de error y formulario permanece abierto | ✅ Pasa |
+| CP-COORD-ASG-15 | Filtrar asignaciones por criterio visible | Lista con datos mixtos y filtro activo | Aplicar filtro de búsqueda/estado | Se muestran solo asignaciones que cumplen el criterio | ✅ Pasa |
+| CP-COORD-ASG-16 | Bloquear llamadas indebidas desde módulo asignaciones | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ✅ Pasa |
 
 #### 2.5.6 Horas Acreditadas
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-COORD-HRS-01 | Restringir acceso a horas acreditadas sin sesión | Usuario no autenticado | Navegar a /coordinador/horas | La app redirige a /login | ⬜ Pendiente |
-| CP-COORD-HRS-02 | Permitir acceso a horas acreditadas con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/horas | Se renderiza la pantalla de horas acreditadas | ⬜ Pendiente |
-| CP-COORD-HRS-03 | Mostrar carga inicial del módulo de horas | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en tabla/listado | ⬜ Pendiente |
-| CP-COORD-HRS-04 | Consumir endpoint base de horas acreditadas | Intercept GET de horas activo | Abrir pantalla | Se dispara GET de horas acreditadas al menos una vez | ⬜ Pendiente |
-| CP-COORD-HRS-05 | Enviar token en requests del módulo | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ⬜ Pendiente |
-| CP-COORD-HRS-06 | Renderizar tabla con datos de horas por beneficiario | GET responde datos válidos | Abrir pantalla y revisar filas | Se muestran beneficiario, tutor, horas acumuladas y periodo | ⬜ Pendiente |
-| CP-COORD-HRS-07 | Mostrar badge/estado de cumplimiento de horas | GET con registros en estado completo/en progreso | Abrir pantalla | Cada registro muestra estado correcto según horas acumuladas | ⬜ Pendiente |
-| CP-COORD-HRS-08 | Filtrar horas por búsqueda de beneficiario | Lista con múltiples beneficiarios | Escribir criterio en buscador | Solo se muestran registros coincidentes | ⬜ Pendiente |
-| CP-COORD-HRS-09 | Filtrar horas por periodo | Lista con más de un periodo | Seleccionar periodo en filtro | Se muestran solo registros del periodo seleccionado | ⬜ Pendiente |
-| CP-COORD-HRS-10 | Abrir detalle de acreditación de horas | Existe al menos un registro en listado | Click en ver detalle | Se abre vista/modal con desglose de horas | ⬜ Pendiente |
-| CP-COORD-HRS-11 | Acreditar horas exitosamente | POST/PATCH de acreditación responde 200/201 | Capturar horas válidas y guardar | Se muestra feedback de éxito y listado actualizado | ⬜ Pendiente |
-| CP-COORD-HRS-12 | Validar límites de horas en formulario | Formulario de acreditación abierto | Ingresar horas inválidas (vacío/negativas/excedidas) | Se muestran mensajes de validación y no se envía request | ⬜ Pendiente |
-| CP-COORD-HRS-13 | Manejar conflicto o reglas de negocio en acreditación | Endpoint responde 409/422 | Intentar acreditar fuera de regla | Se muestra mensaje de conflicto y se conserva contexto | ⬜ Pendiente |
-| CP-COORD-HRS-14 | Manejar error del servidor al acreditar horas | Endpoint responde 500 | Enviar acreditación | Se muestra mensaje de error y no se rompe la pantalla | ⬜ Pendiente |
-| CP-COORD-HRS-15 | Mostrar estado vacío cuando no hay registros | GET responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay horas acreditadas registradas | ⬜ Pendiente |
-| CP-COORD-HRS-16 | Bloquear llamadas indebidas desde módulo de horas | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
+| CP-COORD-HRS-01 | Restringir acceso a horas acreditadas sin sesión | Usuario no autenticado | Navegar a /coordinador/horas | La app redirige a /login | ✅ Pasa |
+| CP-COORD-HRS-02 | Permitir acceso a horas acreditadas con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/horas | Se renderiza la pantalla de horas acreditadas | ✅ Pasa |
+| CP-COORD-HRS-03 | Mostrar carga inicial del módulo de horas | Sesión activa y request GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en tabla/listado | ✅ Pasa |
+| CP-COORD-HRS-04 | Consumir endpoint base de horas acreditadas | Intercept GET de horas activo | Abrir pantalla | Se dispara GET de horas acreditadas al menos una vez | ✅ Pasa |
+| CP-COORD-HRS-05 | Enviar token en requests del módulo | Sesión activa con token | Abrir pantalla con validación de headers | Request incluye Authorization Bearer | ✅ Pasa |
+| CP-COORD-HRS-06 | Renderizar tabla con datos de horas por beneficiario | GET responde datos válidos | Abrir pantalla y revisar filas | Se muestran beneficiario, tutor, horas acumuladas y periodo | ✅ Pasa |
+| CP-COORD-HRS-07 | Mostrar badge/estado de cumplimiento de horas | GET con registros en estado completo/en progreso | Abrir pantalla | Cada registro muestra estado correcto según horas acumuladas | ✅ Pasa |
+| CP-COORD-HRS-08 | Filtrar horas por búsqueda de beneficiario | Lista con múltiples beneficiarios | Escribir criterio en buscador | Solo se muestran registros coincidentes | ✅ Pasa |
+| CP-COORD-HRS-09 | Filtrar horas por periodo | Lista con más de un periodo | Seleccionar periodo en filtro | Se muestran solo registros del periodo seleccionado | ✅ Pasa |
+| CP-COORD-HRS-10 | Abrir detalle de acreditación de horas | Existe al menos un registro en listado | Click en ver detalle | Se abre vista/modal con desglose de horas | ✅ Pasa |
+| CP-COORD-HRS-11 | Acreditar horas exitosamente | POST/PATCH de acreditación responde 200/201 | Capturar horas válidas y guardar | Se muestra feedback de éxito y listado actualizado | ✅ Pasa |
+| CP-COORD-HRS-12 | Validar límites de horas en formulario | Formulario de acreditación abierto | Ingresar horas inválidas (vacío/negativas/excedidas) | Se muestran mensajes de validación y no se envía request | ✅ Pasa |
+| CP-COORD-HRS-13 | Manejar conflicto o reglas de negocio en acreditación | Endpoint responde 409/422 | Intentar acreditar fuera de regla | Se muestra mensaje de conflicto y se conserva contexto | ✅ Pasa |
+| CP-COORD-HRS-14 | Manejar error del servidor al acreditar horas | Endpoint responde 500 | Enviar acreditación | Se muestra mensaje de error y no se rompe la pantalla | ✅ Pasa |
+| CP-COORD-HRS-15 | Mostrar estado vacío cuando no hay registros | GET responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay horas acreditadas registradas | ✅ Pasa |
+| CP-COORD-HRS-16 | Bloquear llamadas indebidas desde módulo de horas | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ✅ Pasa |
 
 #### 2.5.7 Progreso Beneficiario
 
