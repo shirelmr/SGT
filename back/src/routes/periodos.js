@@ -57,6 +57,7 @@ router.post('/', auth, async (req, res) => {
 
       if (isActivo) {
         await tx.beneficiario.updateMany({
+          where: { id_periodo: { not: null } },
           data: { id_periodo: p.id_periodo },
         })
       }
@@ -81,6 +82,10 @@ router.put('/:id', auth, async (req, res) => {
     const periodo = await prisma.$transaction(async (tx) => {
       if (activo === true) {
         await tx.periodo.updateMany({ where: { id_periodo: { not: id } }, data: { activo: false } })
+        await tx.beneficiario.updateMany({
+          where: { id_periodo: { not: null } },
+          data: { id_periodo: id },
+        })
       }
       return tx.periodo.update({
         where: { id_periodo: id },
