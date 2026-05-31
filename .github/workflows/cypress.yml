@@ -26,10 +26,32 @@ jobs:
         working-directory: back
         run: npm install
 
-      - name: Generate Prisma client
-        working-directory: back
+      - name: Create backend .env file
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat > back/prisma/.env << EOF
+          DATABASE_URL=$DATABASE_URL
+          PORT=3000
+          JWT_SECRET=$JWT_SECRET
+          RESEND_API_KEY=$RESEND_API_KEY
+          EMAIL_FROM=$EMAIL_FROM
+          FRONTEND_URL=http://localhost:5173
+          CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME
+          CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY
+          CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET
+          GEMINI_API_KEY=$GEMINI_API_KEY
+          EOF
+
+      - name: Generate Prisma client
+        working-directory: back
         run: npx prisma generate
 
       - name: Install frontend dependencies
@@ -38,17 +60,6 @@ jobs:
 
       - name: Start backend
         working-directory: back
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          PORT: 3000
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-          FRONTEND_URL: http://localhost:5173
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npm start > /tmp/backend.log 2>&1 &
 
       - name: Start frontend
@@ -74,9 +85,13 @@ jobs:
       - name: Run Cypress tests
         run: npm run cy:run
 
-      - name: Show backend log on failure
+      - name: Show server logs on failure
         if: failure()
-        run: cat /tmp/backend.log
+        run: |
+          echo "====== BACKEND LOG ======"
+          cat /tmp/backend.log
+          echo "====== FRONTEND LOG ======"
+          cat /tmp/frontend.log
 
       - name: Upload screenshots on failure
         if: failure()
