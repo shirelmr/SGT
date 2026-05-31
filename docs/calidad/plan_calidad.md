@@ -4,7 +4,7 @@
 > **Equipo:** AIAS · Shirel Marino Ramírez · Arístides Nieto Guzmán · Ana Paola Oviedo Salgado · Itzel Covarrubias Basurto  
 > **Curso:** TC3004B Planeación de Sistemas de Software · Semestre Enero–Junio 2026  
 > **Responsable QA:** Shirel Marino Ramirez
-> **Última actualización:** 28 de mayo de 2026 · Semana 14
+> **Última actualización:** 31 de mayo de 2026 · Semana 14
 
 ---
 
@@ -213,7 +213,20 @@ El MVP se considera apto para liberación únicamente si:
 | CP-BIT-03 | Registrar bitácora sin archivo de evidencia | Formulario de bitácora abierto | Llenar los campos de texto sin adjuntar archivo y enviar | La bitácora se registra correctamente | ✅ Pasa |
 | CP-BIT-04 | Permitir registrar múltiples bitácoras | Tutor autenticado con acceso al formulario | Llenar una bitácora válida y enviarla nuevamente con otro contenido | Se permite el registro en ambos intentos | ✅ Pasa |
 
-### 2.2.2 Sesiones
+### 2.2.2 Dashboard
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-DASH-01 | Mostrar saludo personalizado con primer nombre y frase motivacional | Sesión activa de tutor y endpoint de horas/sesiones disponible | Abrir dashboard y verificar saludo | Se muestra saludo personalizado con primer nombre del tutor y frase de resumen | ✅ Pasa |
+| CP-DASH-02 | Renderizar las 4 KPI cards con valores correctos | Endpoint de horas y sesiones con datos mock | Abrir dashboard y verificar cards de estadísticas | Se muestran 4 cards: Sesiones Programadas, Sesiones Realizadas, Horas Acumuladas y Bitácoras Pendientes | ✅ Pasa |
+| CP-DASH-03 | Mostrar próxima sesión con tema, hora y duración | Endpoint de sesiones con sesión programada futura | Abrir dashboard y verificar widget de próxima sesión | Se muestra tema, hora de inicio y duración de la próxima sesión | ✅ Pasa |
+| CP-DASH-04 | Mostrar mensaje cuando no hay próxima sesión programada | Endpoint de sesiones sin sesiones futuras | Abrir dashboard sin sesiones programadas | Se muestra mensaje "No tienes sesiones programadas próximamente" | ✅ Pasa |
+| CP-DASH-05 | Listar bitácoras pendientes cuando hay sesiones realizadas sin bitácora | Endpoint de sesiones con sesiones realizadas sin bitácora | Abrir dashboard y verificar sección de bitácoras pendientes | Se muestran las sesiones que necesitan registro de bitácora | ✅ Pasa |
+| CP-DASH-06 | Mostrar estado vacío en Últimas Sesiones cuando no hay datos | Endpoint de sesiones responde lista vacía | Abrir dashboard sin sesiones registradas | Se muestra mensaje "No hay sesiones registradas aún" | ✅ Pasa |
+| CP-DASH-07 | Renderizar lista de últimas sesiones con labels Sesión y Bitácora | Endpoint de sesiones con datos históricos | Abrir dashboard y verificar lista de últimas sesiones | Se muestran las últimas sesiones con sus estados de bitácora | ✅ Pasa |
+| CP-DASH-08 | Redirigir a login sin autenticación | Usuario no autenticado | Intentar acceder a /tutor/dashboard sin token | La app redirige a /login | ✅ Pasa |
+
+### 2.2.3 Sesiones
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
@@ -224,6 +237,60 @@ El MVP se considera apto para liberación únicamente si:
 | CP-SES-05 | Mostrar acción principal en el estado vacío | Endpoint de sesiones responde lista vacía | Abrir la vista de sesiones | Se muestra el botón Nueva sesión | ✅ Pasa |
 | CP-SES-06 | Redirigir al login sin autenticación | Sin token en localStorage | Intentar acceder a /tutor/sesiones | La aplicación redirige a /login | ✅ Pasa |
 
+### 2.2.4 Nueva Sesión
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-NUEVA-01 | Crear sesión con todos los campos requeridos | Tutor autenticado y endpoints de beneficiarios/sesiones disponibles | Llenar formulario completo con beneficiario, tema, fecha, hora, duración y link de Zoom; luego enviar | La sesión se crea correctamente y se muestra mensaje de éxito | ✅ Pasa |
+| CP-NUEVA-02 | Validar campos obligatorios en formulario de nueva sesión | Formulario de nueva sesión abierto | Intentar enviar formulario sin datos | Se muestran mensajes de validación en campos obligatorios | ✅ Pasa |
+| CP-NUEVA-03 | Validar formato de URL de Zoom | Formulario con link inválido | Capturar URL que no sea de Zoom y enviar | Se muestra mensaje de validación de formato de URL | ✅ Pasa |
+| CP-NUEVA-04 | Validar que fecha no sea pasada | Formulario de nueva sesión | Intentar seleccionar fecha anterior a hoy y enviar | Se muestra validación de fecha no puede ser pasada | ✅ Pasa |
+| CP-NUEVA-05 | Seleccionar beneficiario desde dropdown | Endpoint de beneficiarios con datos mock | Abrir dropdown de beneficiarios | Se muestran beneficiarios disponibles para selección | ✅ Pasa |
+| CP-NUEVA-06 | Manejar error al crear sesión | Intercept POST /api/sesiones con error 500 | Llenar formulario válido y enviar | Se muestra mensaje de error y formulario queda disponible | ✅ Pasa |
+
+### 2.2.5 Mis Sesiones - Filtros
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-FILT-01 | Filtrar sesiones por estado programada | Lista con sesiones de distintos estados | Click en filtro "Programadas" | Solo se muestran sesiones con estado programada | ✅ Pasa |
+| CP-FILT-02 | Filtrar sesiones por estado realizada | Lista con sesiones de distintos estados | Click en filtro "Realizadas" | Solo se muestran sesiones con estado realizada | ✅ Pasa |
+| CP-FILT-03 | Filtrar sesiones por estado cancelada | Lista con sesiones de distintos estados | Click en filtro "Canceladas" | Solo se muestran sesiones con estado cancelada | ✅ Pasa |
+| CP-FILT-04 | Búsqueda de sesiones por tema | Lista con múltiples sesiones | Escribir tema en buscador | Se filtran sesiones que coincidan con el tema buscado | ✅ Pasa |
+| CP-FILT-05 | Ordenar sesiones por fecha | Lista con sesiones de diferentes fechas | Aplicar ordenamiento por fecha ascendente/descendente | Las sesiones se ordenan correctamente según criterio seleccionado | ✅ Pasa |
+| CP-FILT-06 | Reset de filtros aplicados | Filtros activos en la lista | Click en botón "Todas" o reset | Se restablece vista completa sin filtros aplicados | ✅ Pasa |
+
+### 2.2.6 Mis Alumnos
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-ALUM-01 | Listar beneficiarios asignados con información básica | Endpoint de asignaciones con beneficiarios mock | Abrir vista Mis Alumnos | Se muestran beneficiarios con nombre, contacto y periodo | ✅ Pasa |
+| CP-ALUM-02 | Visualizar progreso por alumno | Endpoint con datos de sesiones y horas por beneficiario | Click en alumno para ver detalle | Se muestra progreso: sesiones realizadas y horas acumuladas | ✅ Pasa |
+| CP-ALUM-03 | Mostrar estado vacío cuando no hay alumnos asignados | Endpoint de asignaciones responde lista vacía | Abrir vista sin asignaciones | Se muestra mensaje "No tienes alumnos asignados" | ✅ Pasa |
+| CP-ALUM-04 | Buscar alumnos por nombre | Lista con múltiples beneficiarios | Escribir nombre en buscador | Se filtran beneficiarios que coincidan con búsqueda | ✅ Pasa |
+| CP-ALUM-05 | Acceder a detalle de progreso individual | Lista de alumnos disponible | Click en "Ver progreso" de un alumno | Se abre vista de detalle con sesiones y bitácoras del alumno | ✅ Pasa |
+| CP-ALUM-06 | Visualizar contacto de beneficiario | Beneficiario con email en datos mock | Ver información de contacto en card | Se muestra email del beneficiario | ✅ Pasa |
+| CP-ALUM-07 | Filtrar alumnos por periodo académico | Múltiples alumnos de diferentes periodos | Seleccionar periodo desde dropdown | Se muestran solo alumnos del periodo seleccionado | ✅ Pasa |
+
+### 2.2.7 Mis Horas
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-HORAS-01 | Visualizar horas acreditadas por periodo | Endpoint de horas con datos del periodo activo | Abrir vista Mis Horas | Se muestran horas impartidas, horas extra y porcentaje de acreditación | ✅ Pasa |
+| CP-HORAS-02 | Desglose de horas por mes | Endpoint con horas desglosadas mensualmente | Ver sección de desglose mensual | Se muestran horas acumuladas por cada mes del periodo | ✅ Pasa |
+| CP-HORAS-03 | Filtrar horas por periodo académico | Múltiples periodos disponibles | Seleccionar periodo desde dropdown | Se actualizan las horas mostradas según periodo seleccionado | ✅ Pasa |
+| CP-HORAS-04 | Visualizar gráfica de evolución de horas | Datos de horas con histórico | Ver widget de gráfica | Se muestra gráfica de evolución de horas a lo largo del periodo | ✅ Pasa |
+| CP-HORAS-05 | Exportar reporte de horas | Vista de horas cargada | Click en botón "Exportar reporte" | Se descarga archivo con reporte de horas en formato CSV | ✅ Pasa |
+
+### 2.2.8 Perfil
+
+| ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
+|----|--------------|--------------|-------|--------------------|--------|
+| CP-PERFIL-01 | Visualizar datos de perfil de tutor | Sesión activa de tutor | Abrir vista de perfil | Se muestran nombre, email, matrícula, carrera y semestre | ✅ Pasa |
+| CP-PERFIL-02 | Editar información personal | Vista de perfil abierta | Click en botón editar, modificar datos y guardar | Los datos se actualizan correctamente | ✅ Pasa |
+| CP-PERFIL-03 | Validaciones en edición de perfil | Formulario de edición abierto | Intentar guardar con campos inválidos | Se muestran mensajes de validación apropiados | ✅ Pasa |
+| CP-PERFIL-04 | Actualización exitosa de perfil | Intercept PUT /api/usuarios/:id con 200 | Modificar datos y guardar | Se muestra mensaje de éxito y datos actualizados persisten | ✅ Pasa |
+| CP-PERFIL-05 | Manejar error al actualizar perfil | Intercept PUT /api/usuarios/:id con error 500 | Modificar datos y enviar | Se muestra mensaje de error y datos no se pierden | ✅ Pasa |
+
 ### 2.3 Módulo de Revisión - Revisor
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
@@ -232,6 +299,22 @@ El MVP se considera apto para liberación únicamente si:
 | CP-REV-02 | Aprobar bitácora y añadir comentario exitosamente | Detalle de bitácora cargado y endpoint de comentarios disponible | Seleccionar estado aprobado, escribir comentario y aprobar la bitácora | Se publica el comentario, se aprueba la bitácora y se acredita horas | ✅ Pasa |
 | CP-REV-03 | Mostrar validación de comentario vacío | Detalle de bitácora cargado | Intentar publicar un comentario sin texto | Se muestra mensaje de validación indicando que el comentario no puede estar vacío | ✅ Pasa |
 | CP-REV-04 | Mostrar error si falla la actualización del estado | Intercept de actualización de bitácora con error 500 | Cambiar el estado de revisión y esperar la respuesta fallida | Se muestra un mensaje de error al actualizar el estado | ✅ Pasa |
+| CP-REV-05 | Listar bitácoras pendientes de revisión | Endpoint de bitácoras con estado pendiente | Abrir vista de bitácoras del revisor | Se muestra listado de bitácoras pendientes con tema y tutor | ✅ Pasa |
+| CP-REV-06 | Filtrar bitácoras por estado pendiente | Lista con bitácoras de diferentes estados | Aplicar filtro "Pendientes" | Solo se muestran bitácoras con estado pendiente | ✅ Pasa |
+| CP-REV-07 | Filtrar bitácoras por estado aprobada | Lista con bitácoras de diferentes estados | Aplicar filtro "Aprobadas" | Solo se muestran bitácoras con estado aprobada | ✅ Pasa |
+| CP-REV-08 | Filtrar bitácoras por estado rechazada | Lista con bitácoras de diferentes estados | Aplicar filtro "Rechazadas" | Solo se muestran bitácoras con estado rechazada/no_aprobada | ✅ Pasa |
+| CP-REV-09 | Filtrar bitácoras por tutor | Lista con bitácoras de múltiples tutores | Escribir nombre de tutor en buscador | Se filtran bitácoras del tutor especificado | ✅ Pasa |
+| CP-REV-10 | Ver detalle completo de bitácora | Lista de bitácoras disponible | Click en una bitácora para ver detalle | Se abre vista con actividades, logros, dificultades y plan_siguiente completos | ✅ Pasa |
+| CP-REV-11 | Visualizar sesión asociada a bitácora | Detalle de bitácora con sesión vinculada | Abrir detalle de bitácora | Se muestran datos de sesión: tema, fecha, duración y beneficiario | ✅ Pasa |
+| CP-REV-12 | Aprobar bitácora con comentario opcional | Bitácora en estado pendiente | Seleccionar estado "aprobado", escribir comentario opcional y confirmar | Bitácora se aprueba, comentario se registra y horas se acreditan al tutor | ✅ Pasa |
+| CP-REV-13 | Rechazar bitácora con comentario obligatorio | Bitácora en estado pendiente | Seleccionar estado "no_aprobada" | Aparece modal "Notificación al Tutor" solicitando motivo obligatorio | ✅ Pasa |
+| CP-REV-14 | Validar modal con título dinámico | Bitácora sin comentarios previos vs con comentarios | Cambiar estado a rechazado | Modal muestra "Comentario Obligatorio" si no hay comentarios, "Notificación al Tutor" si ya hay comentarios | ✅ Pasa |
+| CP-REV-15 | Registrar incidencia durante revisión | Detalle de bitácora abierto con endpoint de incidencias | Escribir descripción de incidencia y registrar | La incidencia se guarda y aparece en lista de incidencias de la sesión | ✅ Pasa |
+| CP-REV-16 | Visualizar comentarios previos con nombre del revisor | Bitácora con comentarios existentes | Abrir detalle de bitácora | Se muestran comentarios previos con nombre completo del revisor que los escribió | ✅ Pasa |
+| CP-REV-17 | Manejo de error 500 al actualizar estado | Intercept PUT /api/bitacoras/:id con error 500 | Cambiar estado y confirmar | Se muestra mensaje de error y bitácora mantiene estado original | ✅ Pasa |
+| CP-REV-18 | Mostrar estado vacío cuando no hay bitácoras pendientes | Endpoint de bitácoras responde lista vacía | Abrir vista de bitácoras sin datos | Se muestra mensaje "No hay bitácoras pendientes de revisión" | ✅ Pasa |
+| CP-REV-19 | Protección de ruta sin autenticación | Usuario no autenticado | Intentar acceder a /revisor/bitacoras sin token | La app redirige a /login | ✅ Pasa |
+| CP-REV-20 | Validar que comentario no esté vacío al rechazar | Modal de rechazo abierto | Intentar confirmar sin escribir motivo | Se muestra validación de campo obligatorio y no se procesa el rechazo | ✅ Pasa |
 
 ### 2.4 Módulo de Rol - Beneficiario
 
@@ -416,19 +499,25 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
+| CP-INT-01 | Tutor crea sesión → registra bitácora → Revisor aprueba → Coordinador ve horas | Usuarios mock de todos los roles configurados con intercepts | **Paso 1:** Tutor crea sesión programada → **Paso 2:** Tutor registra bitácora → **Paso 3:** Revisor aprueba bitácora → **Paso 4:** Coordinador ve 2 horas acreditadas → **Paso 5:** Beneficiario ve progreso | Flujo completo funciona correctamente, horas se acreditan y el progreso se actualiza | ✅ Pasa |
+| CP-INT-02 | Revisor rechaza bitácora y Tutor ve comentario | Sesión con bitácora rechazada mock | **Paso 1:** Revisor rechaza bitácora con comentario obligatorio → **Paso 2:** Tutor ve comentario en su bitácora → **Paso 3:** Coordinador ve 0 horas acreditadas | Modal muestra "Notificación al Tutor", comentario es visible para tutor, y no se acreditan horas | ✅ Pasa |
+| CP-INT-03 | Revisor aprueba sin horas + Coordinador agrega horas extras | Bitácora aprobada sin horas mock | **Paso 1:** Revisor aprueba sin acreditar horas → **Paso 2:** Coordinador agrega horas extras manualmente | Sistema permite aprobar sin horas y coordinador puede ajustar horas manualmente | ✅ Pasa |
+| CP-INT-04 | Progreso de beneficiario según horas acumuladas | Beneficiarios con diferentes cantidades de horas | **Validación 1:** < 8 hrs muestra "Practicante" → **Validación 2:** 8-15 hrs muestra "Intermedio" → **Validación 3:** ≥ 16 hrs muestra "Avanzado" | El nivel de inglés se calcula correctamente según horas acumuladas | ✅ Pasa |
+| CP-INT-05 | Aislamiento de roles y protección de rutas | Usuarios de diferentes roles intentan acceder a rutas no autorizadas | **Validación 1-4:** Cada rol solo accede a sus propias rutas → **Validación 5:** Sin auth redirige a login → **Validación 6:** Ruta raíz redirige según rol | Sistema protege rutas correctamente y redirige según rol y estado de autenticación | ✅ Pasa |
 
 ### 2.7 Resumen de Cobertura de Pruebas
+
+
 
 | Módulo | Total casos | Estado |
 |--------|:-----------:|--------|
 | Autenticación | 62 | Documentado |
-| Bitácora - Tutor | 4 | Documentado |
-| Sesiones - Tutor | 6 | Documentado |
-| Revisión - Revisor | 4 | Documentado |
+| Tutor | 47 | Documentado |
+| Revisión - Revisor | 20 | Documentado |
 | Beneficiario | 21 | Documentado |
 | Coordinador | 109 | Documentado |
-| Módulo integración entre roles | 0 | NO Documentado |
-| **TOTAL** | **206** | **Documentado** |
+| Integración entre roles | 5 | Documentado |
+| **TOTAL** | **264** | **Documentado** |
 
 ---
 
