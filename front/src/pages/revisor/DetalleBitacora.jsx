@@ -184,8 +184,8 @@ export default function DetalleBitacora() {
       }
 
       if (nuevoEstado === 'aprobado') toast.success('Bitácora aprobada y horas acreditadas');
-      else if (nuevoEstado === 'aprobado_sin_horas') toast.success('Sesión aprobada sin horas.');
-      else toast.success(`Estado actualizado.`);
+      else if (nuevoEstado === 'aprobado_sin_horas') toast.success('Sesión aprobada sin horas. Comentario guardado.');
+      else toast.success('Estado actualizado y motivo enviado');
       
       setModalOpen(false);
     } catch (err) {
