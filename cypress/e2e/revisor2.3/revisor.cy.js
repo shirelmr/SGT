@@ -40,7 +40,7 @@ describe('Módulo de Revisor - Cobertura Completa E2E', () => {
         it('TC-03: Debería navegar al detalle de la bitácora al hacer clic en "Revisar" desde la lista rápida', () => {
             cy.intercept('GET', '**/api/bitacoras', {
                 statusCode: 200,
-                body: [{ id: 99, estado: 'pendiente', sesion: { tema: 'Phrasal Verbs' } }]
+                body: [{ id: 99, estado: 'pendiente', sesion: { id_sesion: 99, tema: 'Phrasal Verbs' } }]
             });
 
             cy.visit('/revisor/dashboard');
@@ -100,22 +100,24 @@ describe('Módulo de Revisor - Cobertura Completa E2E', () => {
 
         it('TC-06: (Validación) Debería bloquear el envío y pintar rojo el input si el motivo está vacío', () => {
             cy.get('select').select('no_aprobada');
+            cy.wait(500); // Esperar a que aparezca el modal
             // IntentaR guardar sin escribir nada
             cy.contains('button', 'Confirmar y Guardar').click();
             // Validamos mensaje de error y clase de Tailwind
-            cy.contains('Debes ingresar un motivo para continuar.').should('be.visible');
-            cy.get('textarea[placeholder="Escribe el motivo aquí..."]').should('have.class', 'border-red-400');
+            cy.contains('Debes ingresar un motivo para poder continuar.').should('be.visible');
+            cy.get('textarea[placeholder="Escribe el motivo obligatorio aquí..."]').should('have.class', 'border-red-400');
         });
 
         it('TC-07: (Happy Path) Debería rechazar la bitácora exitosamente al llenar el motivo obligatorio', () => {
             cy.intercept('PUT', '**/api/bitacoras/1', { statusCode: 200 }).as('updateRechazo');
             cy.intercept('POST', '**/api/comentarios', { statusCode: 201 }).as('createComentario');
             cy.intercept('GET', '**/api/comentarios/1', { 
-                statusCode: 200, body: [{ id: 2, texto: 'Falta evidencia del quiz.', fecha_creacion: new Date() }] 
+                statusCode: 200, body: [{ id: 2, texto: 'Falta evidencia del quiz.', fecha_creacion: new Date(), revisor: { nombre_completo: 'Test Revisor' } }] 
             }).as('refreshComentarios');
 
             cy.get('select').select('no_aprobada');
-            cy.get('textarea[placeholder="Escribe el motivo aquí..."]').type('Falta evidencia del quiz.');
+            cy.wait(500); // Esperar a que aparezca el modal
+            cy.get('textarea[placeholder="Escribe el motivo obligatorio aquí..."]').type('Falta evidencia del quiz.');
             cy.contains('button', 'Confirmar y Guardar').click();
             cy.wait(['@updateRechazo', '@createComentario', '@refreshComentarios']);
             cy.contains('Estado actualizado y motivo enviado').should('be.visible');
@@ -126,7 +128,8 @@ describe('Módulo de Revisor - Cobertura Completa E2E', () => {
             cy.intercept('PUT', '**/api/bitacoras/1', { statusCode: 200 }).as('updateSinHoras');
             cy.intercept('POST', '**/api/comentarios', { statusCode: 201 }).as('createComentario');
             cy.get('select').select('aprobado_sin_horas');
-            cy.get('textarea[placeholder="Escribe el motivo aquí..."]').type('El alumno no se presentó, se aprueba sin contar horas.');
+            cy.wait(500); // Esperar a que aparezca el modal
+            cy.get('textarea[placeholder="Escribe el motivo obligatorio aquí..."]').type('El alumno no se presentó, se aprueba sin contar horas.');
             cy.contains('button', 'Confirmar y Guardar').click();
             cy.wait('@updateSinHoras');
             cy.contains('Sesión aprobada sin horas. Comentario guardado.').should('be.visible');
@@ -153,20 +156,22 @@ describe('Módulo de Revisor - Cobertura Completa E2E', () => {
     
         it('TC-11: (Validación) Debería bloquear el envío y pintar rojo el input si el motivo está vacío', () => {
             cy.get('select').first().select('no_aprobada');
+            cy.wait(500); // Esperar a que aparezca el modal
             cy.contains('button', 'Confirmar y Guardar').click();
-            cy.contains('Debes ingresar un motivo para continuar.').should('be.visible');
-            cy.get('textarea[placeholder="Escribe el motivo aquí..."]').should('have.class', 'border-red-400');
+            cy.contains('Debes ingresar un motivo para poder continuar.').should('be.visible');
+            cy.get('textarea[placeholder="Escribe el motivo obligatorio aquí..."]').should('have.class', 'border-red-400');
         });
 
         it('TC-12: (Happy Path) Debería rechazar la bitácora exitosamente al llenar el motivo obligatorio', () => {
             cy.intercept('PUT', '**/api/bitacoras/1', { statusCode: 200 }).as('updateRechazo');
             cy.intercept('POST', '**/api/comentarios', { statusCode: 201 }).as('createComentario');
             cy.intercept('GET', '**/api/comentarios/1', { 
-                statusCode: 200, body: [{ id: 2, texto: 'Falta evidencia del Kahoot quiz.', fecha_creacion: new Date() }] 
+                statusCode: 200, body: [{ id: 2, texto: 'Falta evidencia del Kahoot quiz.', fecha_creacion: new Date(), revisor: { nombre_completo: 'Test Revisor' } }] 
             }).as('refreshComentarios');
 
             cy.get('select').first().select('no_aprobada');
-            cy.get('textarea[placeholder="Escribe el motivo aquí..."]').type('Falta evidencia del Kahoot quiz.');
+            cy.wait(500); // Esperar a que aparezca el modal
+            cy.get('textarea[placeholder="Escribe el motivo obligatorio aquí..."]').type('Falta evidencia del Kahoot quiz.');
             cy.contains('button', 'Confirmar y Guardar').click();
 
             cy.wait(['@updateRechazo', '@createComentario', '@refreshComentarios']);
@@ -179,7 +184,8 @@ describe('Módulo de Revisor - Cobertura Completa E2E', () => {
             cy.intercept('POST', '**/api/comentarios', { statusCode: 201 }).as('createComentario');
             
             cy.get('select').first().select('aprobado_sin_horas');
-            cy.get('textarea[placeholder="Escribe el motivo aquí..."]').type('Student was absent. Sesión aprobada sin contar horas.');
+            cy.wait(500); // Esperar a que aparezca el modal
+            cy.get('textarea[placeholder="Escribe el motivo obligatorio aquí..."]').type('Student was absent. Sesión aprobada sin contar horas.');
             cy.contains('button', 'Confirmar y Guardar').click();
 
             cy.wait('@updateSinHoras');
