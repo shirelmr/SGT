@@ -355,22 +355,22 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-COORD-01 | Restringir acceso al tablero sin sesión | Usuario no autenticado | Navegar a /coordinador/dashboard | La app redirige a /login | ⬜ Pendiente |
-| CP-COORD-02 | Permitir acceso al tablero con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/dashboard | Se renderiza el tablero de coordinador | ⬜ Pendiente |
-| CP-COORD-03 | Mostrar estado de carga inicial | Sesión activa de coordinador y requests pendientes | Abrir tablero con latencia simulada | Se muestra spinner mientras cargan los datos | ⬜ Pendiente |
-| CP-COORD-04 | Consumir endpoints requeridos del tablero | Intercepts activos para /usuarios, /sesiones y /bitacoras | Abrir tablero | Se ejecutan las 3 llamadas GET esperadas | ⬜ Pendiente |
-| CP-COORD-05 | Enviar token en requests del tablero | Sesión activa con token en localStorage | Abrir tablero con intercept de headers | Cada request incluye Authorization Bearer | ⬜ Pendiente |
-| CP-COORD-06 | Bloquear llamadas indebidas desde tablero | Intercepts activos para auth/register/postulaciones | Abrir tablero | No se disparan endpoints no relacionados | ⬜ Pendiente |
-| CP-COORD-07 | Calcular tarjeta Tutores Activos | Endpoint /usuarios con mezcla de roles | Abrir tablero | La métrica coincide con cantidad de rol tutor | ⬜ Pendiente |
-| CP-COORD-08 | Calcular tarjeta Beneficiarios | Endpoint /usuarios con mezcla de roles | Abrir tablero | La métrica coincide con cantidad de rol beneficiario | ⬜ Pendiente |
-| CP-COORD-09 | Calcular tarjeta Sesiones del mes | Endpoint /sesiones con fechas de distintos meses | Abrir tablero | La métrica cuenta solo sesiones del mes actual | ⬜ Pendiente |
-| CP-COORD-10 | Calcular tarjeta Bitácoras pendientes | Endpoint /bitacoras con estados mixtos | Abrir tablero | La métrica cuenta solo bitácoras en estado pendiente | ⬜ Pendiente |
-| CP-COORD-11 | Renderizar gráfica de sesiones por mes | Endpoint /sesiones con datos históricos | Abrir tablero | Se muestran barras para los últimos 6 meses | ⬜ Pendiente |
-| CP-COORD-12 | Renderizar donut de estado de bitácoras | Endpoint /bitacoras con pendientes/aprobadas/rechazadas | Abrir tablero | El donut y leyenda muestran distribución correcta | ⬜ Pendiente |
-| CP-COORD-13 | Mostrar estado vacío de bitácoras cuando total es 0 | Endpoint /bitacoras responde vacío | Abrir tablero | Se muestra mensaje Sin bitácoras registradas | ⬜ Pendiente |
-| CP-COORD-14 | Mostrar actividad reciente ordenada y limitada | Endpoint /sesiones con múltiples registros | Abrir tablero | Se listan máximo 5 sesiones ordenadas por fecha descendente | ⬜ Pendiente |
-| CP-COORD-15 | Tolerar fallas parciales de endpoints | Falla de uno de los endpoints y otros exitosos | Abrir tablero | El tablero se renderiza con datos parciales sin crash | ⬜ Pendiente |
-| CP-COORD-16 | Manejar 401 global en tablero | Endpoint protegido responde 401 | Abrir tablero con sesión expirada | Se limpia localStorage y redirige a /login | ⬜ Pendiente |
+| CP-COORD-01 | Restringir acceso al tablero sin sesión | Usuario no autenticado | Navegar a /coordinador/dashboard | La app redirige a /login | ✅ Pasa |
+| CP-COORD-02 | Permitir acceso al tablero con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/dashboard | Se renderiza el tablero de coordinador | ✅ Pasa |
+| CP-COORD-03 | Mostrar estado de carga inicial | Sesión activa de coordinador y requests pendientes | Abrir tablero con latencia simulada | Se muestra spinner mientras cargan los datos | ✅ Pasa |
+| CP-COORD-04 | Consumir endpoints requeridos del tablero | Intercepts activos para /usuarios, /sesiones y /bitacoras | Abrir tablero | Se ejecutan las 3 llamadas GET esperadas | ✅ Pasa |
+| CP-COORD-05 | Enviar token en requests del tablero | Sesión activa con token en localStorage | Abrir tablero con intercept de headers | Cada request incluye Authorization Bearer | ✅ Pasa |
+| CP-COORD-06 | Bloquear llamadas indebidas desde tablero | Intercepts activos para auth/register/postulaciones | Abrir tablero | No se disparan endpoints no relacionados | ✅ Pasa |
+| CP-COORD-07 | Calcular tarjeta Tutores Activos | Endpoint /usuarios con mezcla de roles | Abrir tablero | La métrica coincide con cantidad de rol tutor | ✅ Pasa |
+| CP-COORD-08 | Calcular tarjeta Beneficiarios | Endpoint /usuarios con mezcla de roles | Abrir tablero | La métrica coincide con cantidad de rol beneficiario | ✅ Pasa |
+| CP-COORD-09 | Calcular tarjeta Sesiones del mes | Endpoint /sesiones con fechas de distintos meses | Abrir tablero | La métrica cuenta solo sesiones del mes actual | ✅ Pasa |
+| CP-COORD-10 | Calcular tarjeta Bitácoras pendientes | Endpoint /bitacoras con estados mixtos | Abrir tablero | La métrica cuenta solo bitácoras en estado pendiente | ✅ Pasa |
+| CP-COORD-11 | Renderizar gráfica de sesiones por mes | Endpoint /sesiones con datos históricos | Abrir tablero | Se muestran barras para los últimos 6 meses | ✅ Pasa |
+| CP-COORD-12 | Renderizar donut de estado de bitácoras | Endpoint /bitacoras con pendientes/aprobadas/rechazadas | Abrir tablero | El donut y leyenda muestran distribución correcta | ✅ Pasa |
+| CP-COORD-13 | Mostrar estado vacío de bitácoras cuando total es 0 | Endpoint /bitacoras responde vacío | Abrir tablero | Se muestra mensaje Sin bitácoras registradas | ✅ Pasa |
+| CP-COORD-14 | Mostrar actividad reciente ordenada y limitada | Endpoint /sesiones con múltiples registros | Abrir tablero | Se listan máximo 5 sesiones ordenadas por fecha descendente | ✅ Pasa |
+| CP-COORD-15 | Tolerar fallas parciales de endpoints | Falla de uno de los endpoints y otros exitosos | Abrir tablero | El tablero se renderiza con datos parciales sin crash | ✅ Pasa |
+| CP-COORD-16 | Manejar 401 global en tablero | Endpoint protegido responde 401 | Abrir tablero con sesión expirada | Se limpia localStorage y redirige a /login | ✅ Pasa |
 
 #### 2.5.2 Postulaciones
 
@@ -478,22 +478,22 @@ El MVP se considera apto para liberación únicamente si:
 
 | ID | Funcionalidad | Precondición | Pasos | Resultado esperado | Estado |
 |----|--------------|--------------|-------|--------------------|--------|
-| CP-COORD-PRG-01 | Restringir acceso a progreso sin sesión | Usuario no autenticado | Navegar a /coordinador/progreso | La app redirige a /login | ⬜ Pendiente |
-| CP-COORD-PRG-02 | Permitir acceso a progreso con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/progreso | Se renderiza la pantalla de progreso beneficiario | ⬜ Pendiente |
-| CP-COORD-PRG-03 | Mostrar carga inicial de progreso | Sesión activa y requests GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en el módulo | ⬜ Pendiente |
-| CP-COORD-PRG-04 | Consumir endpoints requeridos de progreso | Intercepts activos para endpoints de progreso/sesiones/horas | Abrir pantalla | Se disparan llamadas GET requeridas al cargar | ⬜ Pendiente |
-| CP-COORD-PRG-05 | Enviar token en requests del módulo de progreso | Sesión activa con token | Abrir pantalla con validación de headers | Requests incluyen Authorization Bearer | ⬜ Pendiente |
-| CP-COORD-PRG-06 | Renderizar listado de beneficiarios con métricas | GET responde datos válidos | Abrir pantalla y revisar filas | Se muestran beneficiario, tutor asignado, horas acumuladas y avance | ⬜ Pendiente |
-| CP-COORD-PRG-07 | Mostrar barra o indicador de progreso correcto | Datos con porcentajes diferentes | Abrir pantalla | Cada beneficiario muestra porcentaje/estado acorde a sus horas | ⬜ Pendiente |
-| CP-COORD-PRG-08 | Filtrar progreso por búsqueda de beneficiario | Lista con múltiples beneficiarios | Escribir criterio en buscador | Se muestran solo beneficiarios coincidentes | ⬜ Pendiente |
-| CP-COORD-PRG-09 | Filtrar progreso por periodo | Lista con más de un periodo | Seleccionar periodo en filtro | Se muestran solo registros del periodo seleccionado | ⬜ Pendiente |
-| CP-COORD-PRG-10 | Abrir detalle de progreso de un beneficiario | Existe al menos un registro en listado | Click en ver detalle | Se abre vista/modal con desglose de sesiones y horas | ⬜ Pendiente |
-| CP-COORD-PRG-11 | Mostrar alertas para beneficiarios en riesgo | Datos con beneficiarios bajo umbral | Abrir pantalla | Se muestran badges o alertas de riesgo académico/avance | ⬜ Pendiente |
-| CP-COORD-PRG-12 | Ordenar listado por porcentaje de avance | Lista con porcentajes variados | Aplicar orden ascendente/descendente | El orden del listado respeta el criterio seleccionado | ⬜ Pendiente |
-| CP-COORD-PRG-13 | Mostrar estado vacío cuando no hay progreso disponible | GET responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay datos de progreso disponibles | ⬜ Pendiente |
-| CP-COORD-PRG-14 | Manejar error de carga del módulo de progreso | Endpoint principal responde 4xx/5xx | Abrir pantalla | Se muestra mensaje de error y la app no crashea | ⬜ Pendiente |
-| CP-COORD-PRG-15 | Mantener contexto al fallar un endpoint secundario | Un endpoint falla y otros responden | Abrir pantalla | Se renderiza información parcial con feedback controlado | ⬜ Pendiente |
-| CP-COORD-PRG-16 | Bloquear llamadas indebidas desde módulo progreso | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ⬜ Pendiente |
+| CP-COORD-PRG-01 | Restringir acceso a progreso sin sesión | Usuario no autenticado | Navegar a /coordinador/progreso | La app redirige a /login | ✅ Pasa |
+| CP-COORD-PRG-02 | Permitir acceso a progreso con rol coordinador | Sesión activa de coordinador | Navegar a /coordinador/progreso | Se renderiza la pantalla de progreso beneficiario | ✅ Pasa |
+| CP-COORD-PRG-03 | Mostrar carga inicial de progreso | Sesión activa y requests GET en progreso | Abrir pantalla con latencia simulada | Se muestra estado de loading en el módulo | ✅ Pasa |
+| CP-COORD-PRG-04 | Consumir endpoints requeridos de progreso | Intercepts activos para endpoints de progreso/sesiones/horas | Abrir pantalla | Se disparan llamadas GET requeridas al cargar | ✅ Pasa |
+| CP-COORD-PRG-05 | Enviar token en requests del módulo de progreso | Sesión activa con token | Abrir pantalla con validación de headers | Requests incluyen Authorization Bearer | ✅ Pasa |
+| CP-COORD-PRG-06 | Renderizar listado de beneficiarios con métricas | GET responde datos válidos | Abrir pantalla y revisar filas | Se muestran beneficiario, tutor asignado, horas acumuladas y avance | ✅ Pasa |
+| CP-COORD-PRG-07 | Mostrar barra o indicador de progreso correcto | Datos con porcentajes diferentes | Abrir pantalla | Cada beneficiario muestra porcentaje/estado acorde a sus horas | ✅ Pasa |
+| CP-COORD-PRG-08 | Filtrar progreso por búsqueda de beneficiario | Lista con múltiples beneficiarios | Escribir criterio en buscador | Se muestran solo beneficiarios coincidentes | ✅ Pasa |
+| CP-COORD-PRG-09 | Filtrar progreso por periodo | Lista con más de un periodo | Seleccionar periodo en filtro | Se muestran solo registros del periodo seleccionado | ✅ Pasa |
+| CP-COORD-PRG-10 | Abrir detalle de progreso de un beneficiario | Existe al menos un registro en listado | Click en ver detalle | Se abre vista/modal con desglose de sesiones y horas | ✅ Pasa |
+| CP-COORD-PRG-11 | Mostrar alertas para beneficiarios en riesgo | Datos con beneficiarios bajo umbral | Abrir pantalla | Se muestran badges o alertas de riesgo académico/avance | ✅ Pasa |
+| CP-COORD-PRG-12 | Ordenar listado por porcentaje de avance | Lista con porcentajes variados | Aplicar orden ascendente/descendente | El orden del listado respeta el criterio seleccionado | ✅ Pasa |
+| CP-COORD-PRG-13 | Mostrar estado vacío cuando no hay progreso disponible | GET responde arreglo vacío | Abrir pantalla | Se muestra mensaje No hay datos de progreso disponibles | ✅ Pasa |
+| CP-COORD-PRG-14 | Manejar error de carga del módulo de progreso | Endpoint principal responde 4xx/5xx | Abrir pantalla | Se muestra mensaje de error y la app no crashea | ✅ Pasa |
+| CP-COORD-PRG-15 | Mantener contexto al fallar un endpoint secundario | Un endpoint falla y otros responden | Abrir pantalla | Se renderiza información parcial con feedback controlado | ✅ Pasa |
+| CP-COORD-PRG-16 | Bloquear llamadas indebidas desde módulo progreso | Intercepts de endpoints no relacionados activos | Abrir módulo y ejecutar acciones básicas | No se disparan endpoints ajenos al módulo | ✅ Pasa |
 
 ### 2.6 Módulo de integración entre roles
 
