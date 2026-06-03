@@ -1,16 +1,54 @@
-# React + Vite
+# SGT - Sistema de Gestión de Tutorías
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema web para gestionar programas de tutorías académicas, facilitando la coordinación entre tutores, beneficiarios, revisores y coordinadores.
 
-Currently, two official plugins are available:
+## 📋 Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+SGT es una plataforma integral que permite:
+- Gestionar postulaciones de tutores
+- Asignar tutores a beneficiarios
+- Programar y registrar sesiones de tutoría
+- Llevar registro de asistencias e incidencias
+- Contabilizar y aprobar horas acreditadas
+- Generar reportes y estadísticas de progreso
+- Gestionar múltiples períodos académicos
 
-## React Compiler
+## 📁 Estructura del Proyecto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+SGT/
+├── back/                    # Backend (Node.js + Express)
+│   ├── src/
+│   │   ├── routes/         # Endpoints de la API
+│   │   ├── middleware/     # Middleware de autenticación
+│   │   ├── scripts/        # Scripts utilitarios
+│   │   ├── db.js          # Configuración de Prisma
+│   │   ├── mailer.js      # Configuración de correos
+│   │   └── index.js       # Entry point
+│   ├── prisma/
+│   │   ├── schema.prisma  # Modelo de datos
+│   │   └── migrations/    # Migraciones de BD
+│   └── uploads/           # Archivos subidos
+│
+├── front/                  # Frontend (React + Vite)
+│   ├── src/
+│   │   ├── api/           # Servicios API
+│   │   ├── components/    # Componentes reutilizables
+│   │   ├── context/       # Context API (Auth)
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── pages/         # Páginas/Vistas
+│   │   └── routes/        # Configuración de rutas
+│   └── public/            # Assets estáticos
+│
+├── cypress/               # Tests E2E
+│   ├── e2e/              # Specs por módulo
+│   ├── fixtures/         # Datos de prueba
+│   └── support/          # Comandos personalizados
+│
+├── docs/                 # Documentación
+│   ├── calidad/         # Plan de calidad
+│   └── database/        # Diagramas de BD
+│
+└── docker-compose.yml   # Orquestación de servicios
+```
+---
