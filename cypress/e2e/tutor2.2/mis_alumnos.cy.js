@@ -24,7 +24,7 @@ const ALUMNOS_MOCK = [
     sesiones: {
       total: 5,
       realizadas: 3,
-      proxima: '2026-06-01T00:00:00.000Z',
+      proxima: '2026-06-10T00:00:00.000Z',
       ultima: '2026-05-20T00:00:00.000Z',
     },
   },

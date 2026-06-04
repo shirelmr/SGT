@@ -169,7 +169,7 @@ describe('Periodos', () => {
     
     cy.contains('button', 'Nuevo periodo').click()
     cy.get('input[name="nombre"]').type('Nuevo Periodo')
-    cy.get('input[name="fecha_inicio"]').type('2026-06-01')
+    cy.get('input[name="fecha_inicio"]').type('2026-06-10')
     cy.get('input[name="fecha_fin"]').type('2026-12-15')
     cy.get('input[name="horas_max"]').type('50')
     cy.get('input[name="horas_esperadas"]').type('40')
@@ -258,7 +258,7 @@ describe('Periodos', () => {
     
     cy.contains('button', 'Nuevo periodo').click()
     cy.get('input[name="nombre"]').type('Test Periodo')
-    cy.get('input[name="fecha_inicio"]').type('2026-06-01')
+    cy.get('input[name="fecha_inicio"]').type('2026-06-10')
     cy.get('input[name="fecha_fin"]').type('2026-12-15')
     cy.get('input[name="horas_max"]').type('50')
     cy.get('input[name="horas_esperadas"]').type('40')

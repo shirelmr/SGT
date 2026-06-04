@@ -19,7 +19,7 @@ const SESIONES_MOCK = [
   },
   {
     id: 2,
-    fecha: '2026-06-01T00:00:00.000Z',
+    fecha: '2026-06-10T00:00:00.000Z',
     hora_inicio: '11:00',
     tema: 'Present Perfect',
     estado: 'programada',
