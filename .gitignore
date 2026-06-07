@@ -27,3 +27,4 @@ dist-ssr
 /generated/prisma
 .vercel
 .env*
+uploads/
