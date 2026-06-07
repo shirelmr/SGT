@@ -58,28 +58,30 @@ export default function Postulacion() {
   return (
     <AuthLayout scrollable>
       {submitted ? (
-        <div
-          className="w-full max-w-lg rounded-2xl p-10 text-center"
-          style={{ backgroundColor: '#ee7e4c', boxShadow: '0 8px 40px rgba(74,31,6,0.18)' }}
-        >
-          <CheckCircleIcon className="w-16 h-16 mx-auto mb-4" style={{ color: '#f8f8ec' }} />
-          <h2
-            className="text-2xl font-bold mb-2"
-            style={{ color: '#f8f8ec', fontFamily: 'Sora, sans-serif' }}
+        <div className="flex items-center justify-center min-h-[90vh] w-full">
+          <div
+            className="w-full max-w-lg rounded-2xl p-10 text-center animate-fade-in"
+            style={{ backgroundColor: '#ee7e4c', boxShadow: '0 8px 40px rgba(74,31,6,0.18)' }}
           >
-            ¡Postulación enviada!
-          </h2>
-          <p className="text-sm max-w-sm mx-auto mb-6" style={{ color: 'rgba(248,248,236,0.75)' }}>
-            El coordinador revisará tu postulación y recibirás una respuesta pronto.
-            Si eres aceptado, recibirás un correo con instrucciones para crear tu cuenta.
-          </p>
-          <Link
-            to="/login"
-            className="text-sm font-semibold hover:underline"
-            style={{ color: '#f8f8ec' }}
-          >
-            Volver al inicio de sesión
-          </Link>
+            <CheckCircleIcon className="w-16 h-16 mx-auto mb-4" style={{ color: '#f8f8ec' }} />
+            <h2
+              className="text-2xl font-bold mb-2"
+              style={{ color: '#f8f8ec', fontFamily: 'Sora, sans-serif' }}
+            >
+              ¡Postulación enviada!
+            </h2>
+            <p className="text-sm max-w-sm mx-auto mb-6" style={{ color: 'rgba(248,248,236,0.75)' }}>
+              El coordinador revisará tu postulación y recibirás una respuesta pronto.
+              Si eres aceptado, recibirás un correo con instrucciones para crear tu cuenta.
+            </p>
+            <Link
+              to="/login"
+              className="text-sm font-semibold hover:underline"
+              style={{ color: '#f8f8ec' }}
+            >
+              Volver al inicio de sesión
+            </Link>
+          </div>
         </div>
       ) : (
         <div
