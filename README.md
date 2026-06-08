@@ -2,7 +2,7 @@
 
 Sistema web para gestionar programas de tutorías académicas, facilitando la coordinación entre tutores, beneficiarios, revisores y coordinadores.
 
-## 📋 Descripción
+## Descripción
 
 SGT es una plataforma integral que permite:
 - Gestionar postulaciones de tutores
@@ -13,7 +13,7 @@ SGT es una plataforma integral que permite:
 - Generar reportes y estadísticas de progreso
 - Gestionar múltiples períodos académicos
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 SGT/
