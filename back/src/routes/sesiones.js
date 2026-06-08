@@ -10,6 +10,7 @@ const include = {
   periodo: { select: { nombre: true, activo: true } },
   bitacora: { select: { id_bitacora: true, estado: true } },
   _count: { select: { incidencias: true } },
+  asistencia: { select: { confirma_tutor: true, confirma_benef: true } },
 }
 
 function fmtHora(h) {
@@ -31,6 +32,8 @@ const fmt = (s) => ({
   tema: s.tema,
   link_sesion: s.link_sesion,
   estado: s.estado,
+  confirma_benef: s.asistencia?.confirma_benef ?? false,
+  confirma_tutor: s.asistencia?.confirma_tutor ?? false, 
   tutor: s.tutor ? { nombre_completo: s.tutor.usuario?.nombre_completo } : null,
   beneficiario: s.beneficiario ? { nombre_completo: s.beneficiario.usuario?.nombre_completo } : null,
   periodo: s.periodo ?? null,
