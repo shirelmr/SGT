@@ -2,10 +2,13 @@
   "name": "sgt",
   "version": "1.0.0",
   "scripts": {
+    "dev": "concurrently \"cd back && npm run dev\" \"cd front && npm run dev\"",
+    "build": "cd front && npm install && npm run build",
     "cy:open": "cypress open",
     "cy:run": "cypress run"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "cypress": "^15.16.0"
   },
   "dependencies": {

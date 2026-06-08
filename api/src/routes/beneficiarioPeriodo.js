@@ -4,12 +4,6 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-// Parse local date string (YYYY-MM-DD) as UTC by adjusting for timezone offset
-function parseLocalDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00')
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000)
-}
-
 // GET /api/beneficiario-periodo/mi-progreso  (must be declared before /:id_periodo)
 router.get('/mi-progreso', auth, async (req, res) => {
   if (req.user.rol !== 'beneficiario') {
@@ -148,8 +142,8 @@ router.put('/registrar', auth, async (req, res) => {
     const data = {
       ...(pct_examen_inicio !== undefined && { pct_examen_inicio: Number(pct_examen_inicio) }),
       ...(pct_examen_termino !== undefined && { pct_examen_termino: Number(pct_examen_termino) }),
-      ...(fecha_examen_inicio !== undefined && { fecha_examen_inicio: parseLocalDate(fecha_examen_inicio) }),
-      ...(fecha_examen_termino !== undefined && { fecha_examen_termino: parseLocalDate(fecha_examen_termino) }),
+      ...(fecha_examen_inicio !== undefined && { fecha_examen_inicio: new Date(fecha_examen_inicio) }),
+      ...(fecha_examen_termino !== undefined && { fecha_examen_termino: new Date(fecha_examen_termino) }),
     }
     let registro = await prisma.beneficiarioPeriodo.findFirst({
       where: { id_benef: Number(id_benef), id_periodo: Number(id_periodo) },
@@ -181,8 +175,8 @@ router.put('/:id', auth, async (req, res) => {
       data: {
         ...(pct_examen_inicio !== undefined && { pct_examen_inicio: Number(pct_examen_inicio) }),
         ...(pct_examen_termino !== undefined && { pct_examen_termino: Number(pct_examen_termino) }),
-        ...(fecha_examen_inicio !== undefined && { fecha_examen_inicio: parseLocalDate(fecha_examen_inicio) }),
-        ...(fecha_examen_termino !== undefined && { fecha_examen_termino: parseLocalDate(fecha_examen_termino) }),
+        ...(fecha_examen_inicio !== undefined && { fecha_examen_inicio: new Date(fecha_examen_inicio) }),
+        ...(fecha_examen_termino !== undefined && { fecha_examen_termino: new Date(fecha_examen_termino) }),
       },
     })
     res.json(registro)

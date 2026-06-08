@@ -399,13 +399,9 @@ export default function MisAlumnos() {
           ? {
               ...a,
               examen_inicio:        nuevoProgreso.examen_inicio,
-              fecha_examen_inicio:  nuevoProgreso.fecha_examen_inicio
-                ? `${nuevoProgreso.fecha_examen_inicio}T00:00:00.000Z`
-                : a.fecha_examen_inicio,
+              fecha_examen_inicio:  nuevoProgreso.fecha_examen_inicio || a.fecha_examen_inicio,
               examen_termino:       nuevoProgreso.examen_termino,
-              fecha_examen_termino: nuevoProgreso.fecha_examen_termino
-                ? `${nuevoProgreso.fecha_examen_termino}T00:00:00.000Z`
-                : a.fecha_examen_termino,
+              fecha_examen_termino: nuevoProgreso.fecha_examen_termino || a.fecha_examen_termino,
             }
           : a
       )

@@ -4,12 +4,6 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-// Parse local date string (YYYY-MM-DD) as UTC by adjusting for timezone offset
-function parseLocalDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00')
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000)
-}
-
 const fmt = (p) => ({
   id: p.id_periodo,
   nombre: p.nombre,
@@ -53,8 +47,8 @@ router.post('/', auth, async (req, res) => {
       const p = await tx.periodo.create({
         data: {
           nombre,
-          fecha_inicio: parseLocalDate(fecha_inicio),
-          fecha_fin: parseLocalDate(fecha_fin),
+          fecha_inicio: new Date(fecha_inicio),
+          fecha_fin: new Date(fecha_fin),
           activo: isActivo,
           horas_max: Number(horas_max),
           horas_esperadas: Number(horas_esperadas),
@@ -97,8 +91,8 @@ router.put('/:id', auth, async (req, res) => {
         where: { id_periodo: id },
         data: {
           ...(nombre !== undefined && { nombre }),
-          ...(fecha_inicio !== undefined && { fecha_inicio: parseLocalDate(fecha_inicio) }),
-          ...(fecha_fin !== undefined && { fecha_fin: parseLocalDate(fecha_fin) }),
+          ...(fecha_inicio !== undefined && { fecha_inicio: new Date(fecha_inicio) }),
+          ...(fecha_fin !== undefined && { fecha_fin: new Date(fecha_fin) }),
           ...(activo !== undefined && { activo }),
           ...(horas_max !== undefined && { horas_max: Number(horas_max) }),
           ...(horas_esperadas !== undefined && { horas_esperadas: Number(horas_esperadas) }),

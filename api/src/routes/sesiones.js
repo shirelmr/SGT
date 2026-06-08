@@ -4,19 +4,12 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-// Parse local date string (YYYY-MM-DD) as UTC by adjusting for timezone offset
-function parseLocalDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00')
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000)
-}
-
 const include = {
   tutor: { include: { usuario: { select: { nombre_completo: true } } } },
   beneficiario: { include: { usuario: { select: { nombre_completo: true } } } },
   periodo: { select: { nombre: true, activo: true } },
   bitacora: { select: { id_bitacora: true, estado: true } },
   _count: { select: { incidencias: true } },
-  asistencia: { select: { confirma_tutor: true, confirma_benef: true } },
 }
 
 function fmtHora(h) {
@@ -38,8 +31,6 @@ const fmt = (s) => ({
   tema: s.tema,
   link_sesion: s.link_sesion,
   estado: s.estado,
-  confirma_benef: s.asistencia?.confirma_benef ?? false,
-  confirma_tutor: s.asistencia?.confirma_tutor ?? false, 
   tutor: s.tutor ? { nombre_completo: s.tutor.usuario?.nombre_completo } : null,
   beneficiario: s.beneficiario ? { nombre_completo: s.beneficiario.usuario?.nombre_completo } : null,
   periodo: s.periodo ?? null,
@@ -107,7 +98,7 @@ router.post('/', auth, async (req, res) => {
     const baseData = {
       id_tutor: tutor.id_tutor,
       id_periodo: periodoId,
-      fecha: parseLocalDate(fecha),
+      fecha: new Date(fecha),
       hora_inicio: new Date(`1970-01-01T${hora_inicio}`),
       duracion_hrs: Number(duracion_hrs),
       tema,
@@ -153,7 +144,7 @@ router.put('/:id', auth, async (req, res) => {
     const sesion = await prisma.sesion.update({
       where: { id_sesion: id },
       data: {
-        ...(fecha !== undefined && { fecha: parseLocalDate(fecha) }),
+        ...(fecha !== undefined && { fecha: new Date(fecha) }),
         ...(hora_inicio !== undefined && { hora_inicio: new Date(`1970-01-01T${hora_inicio}`) }),
         ...(duracion_hrs !== undefined && { duracion_hrs: Number(duracion_hrs) }),
         ...(tema !== undefined && { tema }),
